@@ -1,0 +1,81 @@
+name: Build package
+
+on: [ push, pull_request, workflow_dispatch ]
+
+jobs:
+  build_pkg:
+    runs-on: ubuntu-20.04
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Checkout apollo-lib
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/apollo-lib
+        path: apollo-lib
+
+    - name: Checkout dbglogger
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/dbglogger
+        path: dbglogger
+
+    - name: Checkout oosdk_libraries
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/oosdk_libraries
+        path: libraries
+
+    - name: Dowload libzip
+      run: |
+        curl -sL https://libzip.org/download/libzip-1.9.2.tar.gz | tar xvz -C ./
+
+    - name: Set env vars
+      run: |
+        echo "sha_name=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
+        echo "PSPDEV=${GITHUB_WORKSPACE}/pspdev" >> $GITHUB_ENV
+
+      # install latest pspdev sdk
+    - name: Download PSP SDK
+      run: |
+        curl -sL https://github.com/pspdev/pspdev/releases/download/latest/pspdev-ubuntu-latest.tar.gz | tar xvz -C ./
+
+    - name: Install polarSSL library
+      working-directory: oosdk_libraries/polarssl-1.3.9
+      run: |
+        cmake . -DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake -DCMAKE_BUILD_TYPE=Release
+        make polarssl
+        cp library/libpolarssl.a $PSPDEV/psp/lib
+        cp -R ../include/polarssl $PSPDEV/psp/include/polarssl
+
+    - name: Install libzip
+      working-directory: libzip-1.9.2
+      run: |
+        cmake . -Wno-dev -DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake -DCMAKE_INSTALL_PREFIX=$PSPDEV/psp -DBUILD_SHARED_LIBS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TOOLS=OFF -DBUILD_REGRESS=OFF -DBUILD_DOC=OFF
+        make zip install
+
+    - name: Install dbglogger
+      working-directory: dbglogger
+      run: |
+        make -f Makefile.psp install
+
+    - name: Install apollo-lib
+      working-directory: apollo-lib
+      run: |
+        make -f Makefile.psp install
+
+    - name: Build Apollo App Package
+      run: |
+        cmake .
+        make createzip
+        make
+
+    - name: Push package artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: apollo-psp-build_${{ env.sha_name }}
+        path: EBOOT.PBP
+        if-no-files-found: error
+        retention-days: 7 # don't keep artifacts for too long
