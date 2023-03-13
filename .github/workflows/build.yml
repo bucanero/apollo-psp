@@ -69,14 +69,14 @@ jobs:
 
     - name: Build Apollo App Package
       run: |
-        psp-cmake .
-        make createzip
+        psp-cmake . -DBUILD_TYPE=Release
         make
+        make createzip
 
     - name: Push package artifact
       uses: actions/upload-artifact@v3
       with:
         name: apollo-psp-build_${{ env.sha_name }}
-        path: EBOOT.PBP
+        path: apollo-psp.zip
         if-no-files-found: error
         retention-days: 7 # don't keep artifacts for too long

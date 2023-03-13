@@ -112,9 +112,13 @@ create_pbp_file(
 )
 
 add_custom_target(createzip
+  COMMAND @mkdir -p APOLLO/DATA
+  COMMAND @mkdir -p APOLLO/CACHE
   COMMAND @echo "Downloading appdata.zip ..."
-  COMMAND @rm -fr ${CMAKE_SOURCE_DIR}/data/appdata.zip
-  COMMAND @curl -L "https://bucanero.github.io/apollo-patches/PSP/apollo-psp-update.zip" > ${CMAKE_SOURCE_DIR}/data/appdata.zip
+  COMMAND @rm -fr APOLLO/CACHE/appdata.zip
+  COMMAND @curl -L "https://bucanero.github.io/apollo-patches/PSP/apollo-psp-update.zip" > APOLLO/CACHE/appdata.zip
+  COMMAND @cp EBOOT.PBP APOLLO/
+  COMMAND @zip -r apollo-psp.zip APOLLO/
 )
 
 add_custom_target(send
