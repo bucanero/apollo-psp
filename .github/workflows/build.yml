@@ -4,7 +4,7 @@ on: [ push, pull_request, workflow_dispatch ]
 
 jobs:
   build_pkg:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
     - name: Checkout
@@ -32,15 +32,16 @@ jobs:
       run: |
         curl -sL https://libzip.org/download/libzip-1.9.2.tar.gz | tar xvz -C ./
 
-    - name: Set env vars
-      run: |
-        echo "sha_name=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
-        echo "PSPDEV=${GITHUB_WORKSPACE}/pspdev" >> $GITHUB_ENV
-
       # install latest pspdev sdk
     - name: Download PSP SDK
       run: |
         curl -sL https://github.com/pspdev/pspdev/releases/download/latest/pspdev-ubuntu-latest.tar.gz | tar xvz -C ./
+
+    - name: Set env vars
+      run: |
+        echo "sha_name=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
+        echo "PSPDEV=${GITHUB_WORKSPACE}/pspdev" >> $GITHUB_ENV
+        echo "${GITHUB_WORKSPACE}/pspdev/bin" >> $GITHUB_PATH
 
     - name: Install polarSSL library
       working-directory: oosdk_libraries/polarssl-1.3.9
@@ -48,7 +49,7 @@ jobs:
         cmake . -DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake -DCMAKE_BUILD_TYPE=Release
         make polarssl
         cp library/libpolarssl.a $PSPDEV/psp/lib
-        cp -R ../include/polarssl $PSPDEV/psp/include/polarssl
+        cp -R ./include/polarssl $PSPDEV/psp/include/polarssl
 
     - name: Install libzip
       working-directory: libzip-1.9.2
