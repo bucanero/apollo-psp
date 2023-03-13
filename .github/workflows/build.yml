@@ -69,7 +69,7 @@ jobs:
 
     - name: Build Apollo App Package
       run: |
-        cmake .
+        psp-cmake .
         make createzip
         make
 
