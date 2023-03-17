@@ -137,6 +137,7 @@ int extract_zip(const char* zip_file, const char* dest_path)
 
 	if (files <= 0) {
 		LOG("Empty ZIP file.");
+		zip_close(archive);
 		return 0;
 	}
 

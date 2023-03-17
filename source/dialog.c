@@ -4,7 +4,7 @@
 //#include <psp2/ime_dialog.h>
 //#include <psp2/message_dialog.h>
 //#include <psp2/notificationutil.h>
-//#include <psp2/kernel/processmgr.h>
+#include <psputility.h>
 
 #include "menu.h"
 
@@ -15,43 +15,55 @@ static int g_ime_active;
 //static uint16_t g_ime_text[SCE_IME_DIALOG_MAX_TEXT_LENGTH];
 //static uint16_t g_ime_input[SCE_IME_DIALOG_MAX_TEXT_LENGTH + 1];
 
+static void ConfigureDialog(pspUtilityMsgDialogParams *dialog, size_t dialog_size)
+{
+    memset(dialog, 0, dialog_size);
+
+    dialog->base.size = dialog_size;
+    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &dialog->base.language); // Prompt language
+    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &dialog->base.buttonSwap); // X/O button swap
+    dialog->base.graphicsThread = 0x11;
+    dialog->base.accessThread = 0x13;
+    dialog->base.fontThread = 0x12;
+    dialog->base.soundThread = 0x10;
+}
+
 int show_dialog(int tdialog, const char * format, ...)
 {
-/*    SceMsgDialogParam param;
-    SceMsgDialogUserMessageParam user_message_param;
-    SceMsgDialogResult result;
-    char str[SCE_MSG_DIALOG_USER_MSG_SIZE];
+    pspUtilityMsgDialogParams dialog;
     va_list	opt;
 
-    memset(str, 0, sizeof(str));
+    ConfigureDialog(&dialog, sizeof(dialog));
+    dialog.mode = PSP_UTILITY_MSGDIALOG_MODE_TEXT;
+    dialog.options = PSP_UTILITY_MSGDIALOG_OPTION_TEXT;
+    if(tdialog)
+        dialog.options |= PSP_UTILITY_MSGDIALOG_OPTION_YESNO_BUTTONS|PSP_UTILITY_MSGDIALOG_OPTION_DEFAULT_NO;		
+
     va_start(opt, format);
-    vsnprintf(str, sizeof(str), format, opt);
+    vsnprintf(dialog.message, sizeof(dialog.message), format, opt);
     va_end(opt);
 
-    memset(&user_message_param, 0, sizeof(SceMsgDialogUserMessageParam));
-    user_message_param.msg = (SceChar8 *) str;
-    user_message_param.buttonType = (tdialog ? SCE_MSG_DIALOG_BUTTON_TYPE_YESNO : SCE_MSG_DIALOG_BUTTON_TYPE_OK);
-
-    sceMsgDialogParamInit(&param);
-    param.userMsgParam = &user_message_param;
-    param.mode = SCE_MSG_DIALOG_MODE_USER_MSG;
-
-    if (sceMsgDialogInit(&param) < 0)
+    if (sceUtilityMsgDialogInitStart(&dialog) < 0)
         return 0;
 
     do {
-        if (tdialog == DIALOG_TYPE_OK)
-            sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DISABLE_AUTO_SUSPEND);
+        tdialog = sceUtilityMsgDialogGetStatus();
+
+        switch(tdialog)
+        {
+            case PSP_UTILITY_DIALOG_VISIBLE:
+                sceUtilityMsgDialogUpdate(1);
+                break;
+
+            case PSP_UTILITY_DIALOG_QUIT:
+                sceUtilityMsgDialogShutdownStart();
+                break;
+        }
 
         drawDialogBackground();
-    } while (sceMsgDialogGetStatus() != SCE_COMMON_DIALOG_STATUS_FINISHED);
-    sceMsgDialogClose();
+    } while (tdialog != PSP_UTILITY_DIALOG_FINISHED);
 
-    memset(&result, 0, sizeof(SceMsgDialogResult));
-    sceMsgDialogGetResult(&result);
-    sceMsgDialogTerm();
-*/
-    return 0;// (result.buttonId == SCE_MSG_DIALOG_BUTTON_ID_YES);
+    return (dialog.buttonPressed == PSP_UTILITY_MSGDIALOG_RESULT_YES);
 }
 
 static int running = 0;

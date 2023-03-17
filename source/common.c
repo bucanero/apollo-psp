@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <zlib.h>
+#include <pspiofilemgr.h>
 
 #include "types.h"
 #include "common.h"
@@ -36,28 +37,26 @@ int is_char_letter(char c)
 
 int file_exists(const char *path)
 {
-    struct stat sb;
-    if ((stat(path, &sb) == 0) && sb.st_mode & S_IFREG) {
-        return SUCCESS;
-    }
-    return FAILED;
+    return (access(path, F_OK));
 }
 
 int dir_exists(const char *path)
 {
-    struct stat sb;
-    if ((stat(path, &sb) == 0) && sb.st_mode & S_IFDIR) {
+    DIR* d;
+    if ((d = opendir(path)) != NULL)
+    {
+        closedir(d);
         return SUCCESS;
     }
     return FAILED;
 }
 
 int unlink_secure(const char *path)
-{   
+{
     if(file_exists(path)==SUCCESS)
     {
         chmod(path, 0777);
-		return remove(path);
+        return sceIoRemove(path);
     }
     return FAILED;
 }
@@ -73,8 +72,12 @@ int mkdirs(const char* dir)
 
     char* ptr = strrchr(path, '/');
     *ptr = 0;
-    ptr = path;
-    ptr++;
+    ptr = strchr(path, '/');
+    if (!ptr)
+        return FAILED;
+    else
+        ptr++;
+
     while (*ptr)
     {
         while (*ptr && *ptr != '/')
@@ -163,7 +166,7 @@ uint32_t file_crc32(const char* input)
 int copy_directory(const char* startdir, const char* inputdir, const char* outputdir)
 {
 	char fullname[256];
-    char out_name[256];
+	char out_name[256];
 	struct dirent *dirp;
 	int len = strlen(startdir);
 	DIR *dp = opendir(inputdir);
@@ -174,22 +177,21 @@ int copy_directory(const char* startdir, const char* inputdir, const char* outpu
 
 	while ((dirp = readdir(dp)) != NULL) {
 		if ((strcmp(dirp->d_name, ".")  != 0) && (strcmp(dirp->d_name, "..") != 0)) {
-  			snprintf(fullname, sizeof(fullname), "%s%s", inputdir, dirp->d_name);
+			snprintf(fullname, sizeof(fullname), "%s%s", inputdir, dirp->d_name);
 
-  			if (dirp->d_type & DT_DIR) {
-                strcat(fullname, "/");
-    			copy_directory(startdir, fullname, outputdir);
-  			} else {
-  			    snprintf(out_name, sizeof(out_name), "%s%s", outputdir, &fullname[len]);
-    			if (copy_file(fullname, out_name) != SUCCESS) {
-     				return FAILED;
-    			}
-  			}
+			if (dir_exists(fullname) == SUCCESS) {
+				strcat(fullname, "/");
+				copy_directory(startdir, fullname, outputdir);
+			} else {
+				snprintf(out_name, sizeof(out_name), "%s%s", outputdir, &fullname[len]);
+				if (copy_file(fullname, out_name) != SUCCESS)
+					return FAILED;
+			}
 		}
 	}
 	closedir(dp);
 
-    return SUCCESS;
+	return SUCCESS;
 }
 
 int clean_directory(const char* inputdir)
@@ -206,13 +208,13 @@ int clean_directory(const char* inputdir)
 	{
 		if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0)
 		{
-			snprintf(dataPath, sizeof(dataPath), "%s" "%s", inputdir, dir->d_name);
+			snprintf(dataPath, sizeof(dataPath), "%s%s", inputdir, dir->d_name);
 			unlink_secure(dataPath);
 		}
 	}
 	closedir(d);
 
-    return SUCCESS;
+	return SUCCESS;
 }
 /*
 //----------------------------------------
@@ -233,48 +235,5 @@ int sys_reboot()
 
     lv2syscall4(379,0x1200,0,0,0);
     return_to_user_prog(int);
-}
-
-//----------------------------------------
-//CONSOLE ID UTILS
-//----------------------------------------
-
-#define SYS_SS_APPLIANCE_INFO_MANAGER                  867
-#define SYS_SS_GET_OPEN_PSID                           872
-#define AIM_GET_DEVICE_ID                              0x19003
-#define AIM_GET_OPEN_PSID                              0x19005
-#define SYSCALL8_OPCODE_IS_HEN                         0x1337
-
-int sys_ss_get_open_psid(uint64_t psid[2])
-{
-	lv2syscall1(SYS_SS_GET_OPEN_PSID, (uint64_t) psid);
-	return_to_user_prog(int);
-}
-
-int sys_ss_appliance_info_manager(u32 packet_id, u64 arg)
-{
-	lv2syscall2(SYS_SS_APPLIANCE_INFO_MANAGER, (uint64_t)packet_id, (uint64_t)arg);
-	return_to_user_prog(int);
-}
-
-int ss_aim_get_device_id(uint8_t *idps)
-{
-	return sys_ss_appliance_info_manager(AIM_GET_DEVICE_ID, (uint64_t)idps);
-}
-
-int ss_aim_get_open_psid(uint8_t *psid)
-{
-	return sys_ss_appliance_info_manager(AIM_GET_OPEN_PSID, (uint64_t)psid);
-}
-
-int sys8_get_hen(void)
-{
-    lv2syscall1(8, SYSCALL8_OPCODE_IS_HEN);
-    return_to_user_prog(int);
-}
-
-int is_ps3hen(void)
-{
-    return (sys8_get_hen() == 0x1337);
 }
 */

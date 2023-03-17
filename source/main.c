@@ -328,8 +328,7 @@ static int LoadSounds(void* data)
 
 void update_usb_path(char* path)
 {
-	sprintf(path, USB_PATH, menu_options[3].options[apollo_config.storage]);
-
+	sprintf(path, USB_PATH PSP_SAVES_PATH_USB, menu_options[3].options[apollo_config.storage]);
 	if (dir_exists(path) == SUCCESS)
 		return;
 
@@ -338,7 +337,7 @@ void update_usb_path(char* path)
 
 void update_hdd_path(char* path)
 {
-	strcpy(path, USER_PATH_HDD);
+	strcpy(path, PSP_SAVES_PATH_HDD);
 }
 
 void update_trophy_path(char* path)
@@ -481,7 +480,6 @@ static int initialize_vitashell_modules()
     return 1;
 }
 
-#include <unistd.h>
 int http_download(const char* url, const char* filename, const char* local_dst, int show_progress)
 {
 	return 0;

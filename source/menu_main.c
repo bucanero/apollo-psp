@@ -219,7 +219,6 @@ static void SetMenu(int id)
 				menu_old_sel[MENU_PATCHES] = 0;
 
 			char iconfile[256];
-			snprintf(iconfile, sizeof(iconfile), PSV_ICONS_PATH_HDD "/icon0.png", selected_entry->title_id);
 
 			if (selected_entry->flags & SAVE_FLAG_ONLINE)
 			{

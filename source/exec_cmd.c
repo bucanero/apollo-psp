@@ -16,12 +16,8 @@ static int _set_dest_path(char* path, int dest, const char* folder)
 {
 	switch (dest)
 	{
-	case STORAGE_UMA0:
-		sprintf(path, "%s%s", UMA0_PATH, folder);
-		break;
-
-	case STORAGE_IMC0:
-		sprintf(path, "%s%s", IMC0_PATH, folder);
+	case STORAGE_EF0:
+		sprintf(path, "%s%s", EF0_PATH, folder);
 		break;
 
 	case STORAGE_MS0:
@@ -40,7 +36,7 @@ static void downloadSave(const save_entry_t* entry, const char* file, int dst)
 {
 	char path[256];
 
-	_set_dest_path(path, dst, PSV_SAVES_PATH_USB);
+	_set_dest_path(path, dst, PSP_SAVES_PATH_USB);
 	if (mkdirs(path) != SUCCESS)
 	{
 		show_message("Error! Export folder is not available:\n%s", path);
@@ -124,7 +120,7 @@ static void copySave(const save_entry_t* save, int dev)
 	char* copy_path;
 	char exp_path[256];
 
-	_set_dest_path(exp_path, dev, PSV_SAVES_PATH_USB);
+	_set_dest_path(exp_path, dev, PSP_SAVES_PATH_USB);
 	if (strncmp(save->path, exp_path, strlen(exp_path)) == 0)
 	{
 		show_message("Copy operation cancelled!\nSame source and destination.");
@@ -139,7 +135,7 @@ static void copySave(const save_entry_t* save, int dev)
 
 	init_loading_screen("Copying files...");
 
-	asprintf(&copy_path, "%s%s_%s/", exp_path, save->title_id, save->dir_name);
+	asprintf(&copy_path, "%s%s/", exp_path, save->dir_name);
 
 	LOG("Copying <%s> to %s...", save->path, copy_path);
 	copy_directory(save->path, save->path, copy_path);
@@ -154,36 +150,26 @@ static int get_psp_save_key(const save_entry_t* entry, uint8_t* key)
 {
 	char path[256];
 
-	snprintf(path, sizeof(path), "ux0:pspemu/PSP/SAVEPLAIN/%s/%s.bin", entry->dir_name, entry->title_id);
+	snprintf(path, sizeof(path), "ms0:/PSP/SAVEPLAIN/%s/%s.bin", entry->dir_name, entry->title_id);
 	if (read_psp_game_key(path, key))
 		return 1;
 
-	snprintf(path, sizeof(path), "ux0:pspemu/PSP/SAVEPLAIN/%s/%s.bin", entry->title_id, entry->title_id);
+	snprintf(path, sizeof(path), "ms0:/PSP/SAVEPLAIN/%s/%s.bin", entry->title_id, entry->title_id);
 	if (read_psp_game_key(path, key))
 		return 1;
 
 	// SGKeyDumper 1.5+ support
-	snprintf(path, sizeof(path), "ux0:pspemu/PSP/GAME/SED/gamekey/%s.bin", entry->title_id);
+	snprintf(path, sizeof(path), "ms0:/PSP/GAME/SED/gamekey/%s.bin", entry->title_id);
 	return (read_psp_game_key(path, key));
 }
 
 static int _copy_save_hdd(const save_entry_t* save)
 {
 	char copy_path[256];
-	save_entry_t entry = {
-		.title_id = save->title_id,
-		.dir_name = save->dir_name,
-		.path = copy_path,
-	};
-
-//	snprintf(copy_path, sizeof(copy_path), APOLLO_SANDBOX_PATH, save->dir_name);
-	if (!vita_SaveMount(&entry))
-		return 0;
 
 	LOG("Copying <%s> to %s...", save->path, copy_path);
 	copy_directory(save->path, save->path, copy_path);
 
-	vita_SaveUmount();
 	return 1;
 }
 
@@ -354,7 +340,7 @@ static void pspExportKey(const save_entry_t* save)
 		return;
 	}
 
-	snprintf(fpath, sizeof(fpath), APOLLO_USER_PATH "%s/%s.bin", apollo_config.user_id, save->dir_name, save->title_id);
+	snprintf(fpath, sizeof(fpath), APOLLO_USER_PATH "%s/%s.bin", save->dir_name, save->title_id);
 	mkdirs(fpath);
 
 	if (write_buffer(fpath, buffer, sizeof(buffer)) == SUCCESS)
@@ -447,22 +433,6 @@ static void copySavePFS(const save_entry_t* save)
 	return;
 }
 */
-static void copyKeystone(const save_entry_t* entry, int import)
-{
-	char path_data[256];
-	char path_save[256];
-
-	snprintf(path_save, sizeof(path_save), "%ssce_sys/keystone", entry->path);
-	snprintf(path_data, sizeof(path_data), APOLLO_USER_PATH "%s/keystone", apollo_config.user_id, entry->title_id);
-	mkdirs(path_data);
-
-	LOG("Copy '%s' <-> '%s'...", path_save, path_data);
-
-	if (copy_file(import ? path_data : path_save, import ? path_save : path_data) == SUCCESS)
-		show_message("Keystone successfully copied to:\n%s", import ? path_save : path_data);
-	else
-		show_message("Error! Keystone couldn't be copied");
-}
 
 static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 {
@@ -557,13 +527,6 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 		return (file_exists(res->data) == SUCCESS);
 	}
 
-	// http://vita-ip:8080/icon/PCSE12345/icon0.png
-	if (wildcard_match(req->resource, "/icon/\?\?\?\?\?\?\?\?\?/icon0.png"))
-	{
-		asprintf(&res->data, PSV_ICONS_PATH_HDD, req->resource + 6);
-		return (file_exists(res->data) == SUCCESS);
-	}
-
 	return 0;
 }
 
@@ -594,7 +557,7 @@ static void copyAllSavesUSB(const save_entry_t* save, int dev, int all)
 	save_entry_t *item;
 	list_t *list = ((void**)save->dir_name)[0];
 
-	_set_dest_path(dst_path, dev, PSV_SAVES_PATH_USB);
+	_set_dest_path(dst_path, dev, PSP_SAVES_PATH_USB);
 	if (!list || mkdirs(dst_path) != SUCCESS)
 	{
 		show_message("Error! Folder is not available:\n%s", dst_path);
@@ -613,10 +576,9 @@ static void copyAllSavesUSB(const save_entry_t* save, int dev, int all)
 		snprintf(copy_path, sizeof(copy_path), "%s%s_%s/", dst_path, item->title_id, item->dir_name);
 		LOG("Copying <%s> to %s...", item->path, copy_path);
 
-		if (item->type == FILE_TYPE_PSV && vita_SaveMount(item))
+		if (item->type == FILE_TYPE_PSV)
 		{
 			(copy_directory(item->path, item->path, copy_path) == SUCCESS) ? done++ : err_count++;
-			vita_SaveUmount();
 		}
 
 		if (item->type == FILE_TYPE_PSP)
@@ -627,58 +589,6 @@ static void copyAllSavesUSB(const save_entry_t* save, int dev, int all)
 	show_message("%d/%d Saves copied to:\n%s", done, done+err_count, dst_path);
 }
 
-void exportLicenseZRif(const char* fname, const char* exp_path)
-{
-/*	if (mkdirs(exp_path) != SUCCESS)
-	{
-		show_message("Error! Export folder is not available:\n%s", exp_path);
-		return;
-	}
-
-	LOG("Exporting zRIF from '%s'...", fname);
-
-	if (make_key_zrif(fname, exp_path))
-		show_message("zRIF successfully exported to:\n%s", exp_path);
-	else
-		show_message("Error! zRIF not exported!");*/
-}
-/*
-void importLicenses(const char* fname, const char* exdata_path)
-{
-	DIR *d;
-	struct dirent *dir;
-	char lic_path[256];
-
-	if (dir_exists(exdata_path) != SUCCESS)
-	{
-		show_message("Error! Import folder is not available:\n%s", exdata_path);
-		return;
-	}
-
-	snprintf(lic_path, sizeof(lic_path), EXDATA_PATH_HDD, apollo_config.user_id);
-	d = opendir(exdata_path);
-	if (!d)
-		return;
-
-    init_loading_screen("Importing user licenses...");
-
-	LOG("Importing RAPs from folder '%s'...", exdata_path);
-	while ((dir = readdir(d)) != NULL)
-	{
-		if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0 &&
-			(!fname || (strcmp(dir->d_name, fname)) == 0) &&
-			strcasecmp(strrchr(dir->d_name, '.'), ".rap") == 0)
-		{
-			LOG("Importing %s", dir->d_name);
-//			rap2rif((u8*) apollo_config.idps, exdata_path, dir->d_name, lic_path);
-		}
-	}
-	closedir(d);
-
-    stop_loading_screen();
-	show_message("Files successfully copied to:\n%s", lic_path);
-}
-*/
 static int apply_sfo_patches(save_entry_t* entry, sfo_patch_t* patch)
 {
     code_entry_t* code;
@@ -948,7 +858,7 @@ static void decryptSaveFile(const save_entry_t* entry, const char* filename)
 		return;
 	}
 
-	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/", apollo_config.user_id, entry->dir_name);
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/", entry->dir_name);
 	mkdirs(path);
 
 	LOG("Decrypt '%s%s' to '%s'...", entry->path, filename, path);
@@ -976,14 +886,14 @@ static void encryptSaveFile(const save_entry_t* entry, const char* filename)
 		return;
 	}
 
-	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/%s", apollo_config.user_id, entry->dir_name, filename);
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/%s", entry->dir_name, filename);
 	if (file_exists(path) != SUCCESS)
 	{
 		show_message("Error! Can't find decrypted save-game file:\n%s", path);
 		return;
 	}
 
-	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/", apollo_config.user_id, entry->dir_name);
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/", entry->dir_name);
 	LOG("Encrypt '%s%s' to '%s'...", path, filename, entry->path);
 
 	if (_copy_save_file(path, entry->path, filename))
@@ -1015,13 +925,6 @@ static void downloadLink(const char* path)
 
 void execCodeCommand(code_entry_t* code, const char* codecmd)
 {
-//	if (selected_entry->flags & SAVE_FLAG_PSV && selected_entry->flags & SAVE_FLAG_HDD && !vita_SaveMount(selected_entry))
-if(0)
-	{
-		LOG("Error Mounting Save! Check Save Mount Patches");
-		return;
-	}
-
 	switch (codecmd[0])
 	{
 		case CMD_DECRYPT_FILE:
@@ -1046,12 +949,6 @@ if(0)
 
 		case CMD_COPY_SAVE_HDD:
 			copySaveHDD(selected_entry);
-			code->activated = 0;
-			break;
-
-		case CMD_EXP_KEYSTONE:
-		case CMD_IMP_KEYSTONE:
-			copyKeystone(selected_entry, codecmd[0] == CMD_IMP_KEYSTONE);
 			code->activated = 0;
 			break;
 
@@ -1124,11 +1021,6 @@ if(0)
 			code->activated = 0;
 			break;
 
-		case CMD_EXP_LIC_ZRIF:
-			exportLicenseZRif(code->file, APOLLO_PATH "zrif/");
-			code->activated = 0;
-			break;
-
 		case CMD_EXTRACT_ARCHIVE:
 			extractArchive(code->file);
 			code->activated = 0;
@@ -1147,10 +1039,6 @@ if(0)
 		default:
 			break;
 	}
-
-//	if (selected_entry->flags & SAVE_FLAG_PSV && selected_entry->flags & SAVE_FLAG_HDD)
-if(0)
-		vita_SaveUmount();
 
 	return;
 }

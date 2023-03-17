@@ -99,14 +99,13 @@ target_link_libraries(${PROJECT_NAME}
   stdc++
   xmp
   bz2
-#  xml2
   z
 )
 
 create_pbp_file(
   TARGET ${PROJECT_NAME}
   ICON_PATH ${CMAKE_SOURCE_DIR}/ICON0.PNG
-  BACKGROUND_PATH ${CMAKE_SOURCE_DIR}/PIC1.PNG
+  BACKGROUND_PATH NULL
   PREVIEW_PATH NULL
   TITLE "Apollo Save Tool"
 )
@@ -121,8 +120,15 @@ add_custom_target(createzip
   COMMAND @zip -r apollo-psp.zip APOLLO/
 )
 
+add_custom_target(copy
+  COMMAND @echo "Copying to $$PSPMS/PSP/GAME/APOLLO/EBOOT.PBP ..."
+  COMMAND @mkdir -p $$PSPMS/PSP/GAME/APOLLO
+  COMMAND @cp -v EBOOT.PBP $$PSPMS/PSP/GAME/APOLLO/EBOOT.PBP
+  DEPENDS ${PROJECT_NAME}
+)
+
 add_custom_target(send
-  COMMAND @echo "Uploading to ftp://$$PSVITAIP:1337/ux0:/app/${VITA_TITLEID}/eboot.bin ..."
-  COMMAND @curl -T ${PROJECT_NAME}.self ftp://$$PSVITAIP:1337/ux0:/app/${VITA_TITLEID}/eboot.bin
-  DEPENDS ${PROJECT_NAME}.self
+  COMMAND @echo "Uploading to ftp://$$PSPIP:1337/ms0:/PSP/GAME/APOLLO/EBOOT.PBP ..."
+  COMMAND @curl -T EBOOT.PBP ftp://$$PSPIP:1337/ms0:/PSP/GAME/APOLLO/EBOOT.PBP
+  DEPENDS ${PROJECT_NAME}
 )

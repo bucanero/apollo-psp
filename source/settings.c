@@ -9,7 +9,7 @@
 #include "common.h"
 
 
-static char* ext_src[MAX_USB_DEVICES+1] = {"ms0", "ef0", "ux0", NULL};
+static char* ext_src[MAX_USB_DEVICES+1] = {"ms0", "ef0", NULL};
 static char* sort_opt[] = {"Disabled", "by Name", "by Title ID", NULL};
 
 menu_option_t menu_options[] = {
@@ -93,7 +93,10 @@ void upd_appdata_callback(int sel)
 	int i;
 
 	if (!http_download(ONLINE_PATCH_URL, "apollo-psp-update.zip", APOLLO_LOCAL_CACHE "appdata.zip", 1))
+	{
 		show_message("Error! Can't download data update pack!");
+		return;
+	}
 
 	if ((i = extract_zip(APOLLO_LOCAL_CACHE "appdata.zip", APOLLO_DATA_PATH)) > 0)
 		show_message("Successfully updated %d data files!", i);
@@ -171,8 +174,8 @@ void update_callback(int sel)
 
 	if (show_dialog(DIALOG_TYPE_YESNO, "New version available! Download update?"))
 	{
-		if (http_download(start, NULL, "ux0:data/apollo-vita.vpk", 1))
-			show_message("Update downloaded to ux0:data/apollo-vita.vpk");
+		if (http_download(start, NULL, "ms0:/APOLLO/apollo-psp.zip", 1))
+			show_message("Update downloaded to ms0:/APOLLO/apollo-psp.zip");
 		else
 			show_message("Download error!");
 	}
@@ -204,7 +207,7 @@ int save_app_settings(app_config_t* config)
 	};
 
 //	snprintf(filePath, sizeof(filePath), APOLLO_SANDBOX_PATH, title);
-	if (!vita_SaveMount(&se)) {
+	if (1) {
 		LOG("sceSaveDataMount2 ERROR");
 		return 0;
 	}
@@ -213,7 +216,6 @@ int save_app_settings(app_config_t* config)
 //	snprintf(filePath, sizeof(filePath), APOLLO_SANDBOX_PATH "settings.bin", title);
 	write_buffer(filePath, (uint8_t*) config, sizeof(app_config_t));
 
-	vita_SaveUmount();
 	return 1;
 }
 
@@ -241,7 +243,7 @@ int load_app_settings(app_config_t* config)
 	config->idps[1] = ES64(config->idps[1]);
 
 //	snprintf(filePath, sizeof(filePath), APOLLO_SANDBOX_PATH, title);
-	if (vita_SaveMount(&se) < 0) {
+	if (1) {
 		LOG("sceSaveDataMount2 ERROR");
 		return 0;
 	}
@@ -261,6 +263,5 @@ int load_app_settings(app_config_t* config)
 		free(file_data);
 	}
 
-	vita_SaveUmount();
 	return 1;
 }

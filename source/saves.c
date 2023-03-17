@@ -28,16 +28,6 @@ static char pfs_mount_point[MAX_MOUNT_POINT_LENGTH];
 static const int known_pfs_ids[] = { 0x6E, 0x12E, 0x12F, 0x3ED };
 
 
-int vita_SaveUmount()
-{
-	return (1);
-}
-
-int vita_SaveMount(const save_entry_t *save)
-{
-	return 1;
-}
-
 int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details)
 {
 	/*
@@ -148,12 +138,11 @@ static option_entry_t* _initOptions(int count)
 static option_entry_t* _createOptions(int count, const char* name, char value)
 {
 	option_entry_t* options = _initOptions(count);
-	int imc = (count != 2) || (dir_exists(IMC0_PATH) == SUCCESS);
 
-	asprintf(&options->name[0], "%s (%s)", name, UMA0_PATH);
-	asprintf(&options->value[0], "%c%c", value, STORAGE_UMA0);
-	asprintf(&options->name[1], "%s (%s)", name, imc ? IMC0_PATH : MS0_PATH);
-	asprintf(&options->value[1], "%c%c", value, imc ? STORAGE_IMC0 : STORAGE_MS0);
+	asprintf(&options->name[0], "%s (%s)", name, MS0_PATH);
+	asprintf(&options->value[0], "%c%c", value, STORAGE_MS0);
+	asprintf(&options->name[1], "%s (%s)", name, EF0_PATH);
+	asprintf(&options->value[1], "%c%c", value, STORAGE_EF0);
 
 	return options;
 }
@@ -181,14 +170,14 @@ static void _walk_dir_list(const char* startdir, const char* inputdir, const cha
 
 	while ((dirp = readdir(dp)) != NULL)
 	{
-		if ((strcmp(dirp->d_name, ".")  == 0) || (strcmp(dirp->d_name, "..") == 0) || (strcmp(dirp->d_name, "sce_sys") == 0) ||
+		if ((strcmp(dirp->d_name, ".")  == 0) || (strcmp(dirp->d_name, "..") == 0) ||
 			(strcmp(dirp->d_name, "ICON0.PNG") == 0) || (strcmp(dirp->d_name, "PARAM.SFO") == 0) || (strcmp(dirp->d_name,"PIC1.PNG") == 0) ||
 			(strcmp(dirp->d_name, "ICON1.PMF") == 0) || (strcmp(dirp->d_name, "SND0.AT3") == 0))
 			continue;
 
 		snprintf(fullname, sizeof(fullname), "%s%s", inputdir, dirp->d_name);
 
-		if (dirp->d_type & DT_DIR)
+		if (dir_exists(fullname) == SUCCESS)
 		{
 			strcat(fullname, "/");
 			_walk_dir_list(startdir, fullname, mask, list);
@@ -320,25 +309,6 @@ static option_entry_t* _getSaveTitleIDs(const char* title_id)
 	return opt;
 }
 
-static void addVitaCommands(save_entry_t* save)
-{
-	code_entry_t* cmd;
-
-	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Keystone Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
-	list_append(save->codes, cmd);
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Export Keystone", CMD_EXP_KEYSTONE);
-	list_append(save->codes, cmd);
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Import Keystone", CMD_IMP_KEYSTONE);
-	list_append(save->codes, cmd);
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump save Fingerprint", CMD_EXP_FINGERPRINT);
-	list_append(save->codes, cmd);
-
-	return;
-}
-
 static void add_ps1_commands(save_entry_t* save)
 {
 	char path[256];
@@ -409,22 +379,12 @@ int ReadCodes(save_entry_t * save)
 	char * buffer = NULL;
 
 	save->codes = list_alloc();
-
-	if (save->flags & SAVE_FLAG_PS2 && save->flags & SAVE_FLAG_HDD && !vita_SaveMount(save))
-	{
-		code = _createCmdCode(PATCH_NULL, CHAR_ICON_WARN " --- Error Mounting Save! Check Save Mount Patches --- " CHAR_ICON_WARN, CMD_CODE_NULL);
-		list_append(save->codes, code);
-		return list_count(save->codes);
-	}
-
 	_addBackupCommands(save);
 
-	if (save->flags & SAVE_FLAG_PSP)
-		add_psp_commands(save);
-	else if (save->flags & SAVE_FLAG_PS1)
+	if (save->flags & SAVE_FLAG_PS1)
 		add_ps1_commands(save);
 	else
-		addVitaCommands(save);
+		add_psp_commands(save);
 
 	snprintf(filePath, sizeof(filePath), APOLLO_DATA_PATH "%s.savepatch", save->title_id);
 	if ((buffer = readTextFile(filePath, NULL)) == NULL)
@@ -441,9 +401,6 @@ int ReadCodes(save_entry_t * save)
 	free (buffer);
 
 skip_end:
-	if (save->flags & SAVE_FLAG_PS2 && save->flags & SAVE_FLAG_HDD)
-		vita_SaveUmount();
-
 	LOG("Loaded %ld codes", list_count(save->codes));
 
 	return list_count(save->codes);
@@ -545,7 +502,7 @@ list_t * ReadBackupList(const char* userPath)
 	list_append(list, item);
 
 	item = _createSaveEntry(SAVE_FLAG_PS2, CHAR_ICON_COPY " Export NoNpDRM Licenses to zRIF");
-	item->path = strdup(PSV_LICENSE_PATH);
+	item->path = strdup("");
 	item->type = FILE_TYPE_RIF;
 	list_append(list, item);
 
@@ -847,14 +804,10 @@ static void read_psp_savegames(const char* userPath, list_t *list, int flags)
 
 	while ((dir = readdir(d)) != NULL)
 	{
-//LOG("Z %s %d", dir->d_name, dir->d_type);
-//		if (!(dir->d_type & DT_DIR) || strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
 		if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
 			continue;
 
 		snprintf(sfoPath, sizeof(sfoPath), "%s%s/PARAM.SFO", userPath, dir->d_name);
-		if (file_exists(sfoPath) != SUCCESS)
-			continue;
 
 		LOG("Reading %s...", sfoPath);
 		sfo_context_t* sfo = sfo_alloc();
@@ -1187,7 +1140,6 @@ list_t * ReadTrophyList(const char* userPath)
 	save_entry_t *item;
 	code_entry_t *cmd;
 	list_t *list;
-	const char* dev[] = {UMA0_PATH, IMC0_PATH, MS0_PATH};
 /*
 	if ((db = open_sqlite_db(userPath)) == NULL)
 		return NULL;
@@ -1350,8 +1302,6 @@ int get_save_details(const save_entry_t* save, char **details)
 		return 1;
 	}
 */
-	if(save->flags & SAVE_FLAG_HDD)
-		vita_SaveMount(save);
 
 	snprintf(sfoPath, sizeof(sfoPath), "%ssce_sys/param.sfo", save->path);
 	LOG("Save Details :: Reading %s...", sfoPath);
@@ -1402,9 +1352,6 @@ int get_save_details(const save_entry_t* save, char **details)
 			sdslot->slots[i].subtitle,
 			sdslot->slots[i].description);
 	}
-
-	if(save->flags & SAVE_FLAG_HDD)
-		vita_SaveUmount();
 
 	sfo_free(sfo);
 	return 1;

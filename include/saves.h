@@ -4,32 +4,26 @@
 
 #define APOLLO_PATH				"ms0:/APOLLO/"
 #define APOLLO_APP_PATH			"ms0:/PSP/GAME/APOLLO/"
-#define APOLLO_USER_PATH		APOLLO_PATH "%02x/"
+#define APOLLO_USER_PATH		APOLLO_PATH "FILES/"
 #define APOLLO_DATA_PATH		APOLLO_APP_PATH "DATA/"
 #define APOLLO_LOCAL_CACHE		APOLLO_APP_PATH "CACHE/"
-#define APOLLO_UPDATE_URL		"https://api.github.com/repos/bucanero/apollo-vita/releases/latest"
+#define APOLLO_UPDATE_URL		"https://api.github.com/repos/bucanero/apollo-psp/releases/latest"
 
 #define MAX_USB_DEVICES         5
 #define MS0_PATH                "ms0:/"
-#define UMA0_PATH               "uma0:data/"
-#define IMC0_PATH               "imc0:data/"
-#define USB_PATH                "%s:data/savegames/"
-#define USER_PATH_HDD           "ms0:/PSP/SAVEDATA/"
+#define EF0_PATH                "ef0:/"
+#define USB_PATH                "%s:/"
+#define USER_PATH_HDD           "PSP/SAVEDATA/"
 
 #define PS2_SAVES_PATH_USB      "PS3/EXPORT/PS2SD/"
-#define PSP_SAVES_PATH_USB      "PSP/SAVEDATA/"
-#define PSV_SAVES_PATH_USB      "savegames/"
-#define TROPHIES_PATH_USB       "trophies/"
+#define PSP_SAVES_PATH_USB      "APOLLO/SAVEDATA/"
 
-#define PSV_LICENSE_PATH        "ux0:license/"
-#define PSV_ICONS_PATH_HDD      "ur0:appmeta/%s"
 #define PS1_SAVES_PATH_HDD      APOLLO_PATH "PS1/"
-#define PSP_SAVES_PATH_HDD      "ms0:/" PSP_SAVES_PATH_USB
+#define PSP_SAVES_PATH_HDD      MS0_PATH USER_PATH_HDD
 
 #define PS1_IMP_PATH_USB        "PS1/SAVEDATA/"
-#define PS2_IMP_PATH_USB        "PS2/SAVEDATA/"
 
-#define EXPORT_PATH             "savegames/EXPORT/"
+#define EXPORT_PATH             "APOLLO/EXPORT/"
 #define EXPORT_ZRIF_PATH        APOLLO_PATH "zrif/"
 
 #define IMP_PS2VMC_PATH_USB     USB_PATH "PS2/VMC/"
@@ -43,9 +37,8 @@
 
 enum storage_enum
 {
-    STORAGE_UMA0,
-    STORAGE_IMC0,
     STORAGE_MS0,
+    STORAGE_EF0,
 };
 
 enum save_sort_enum
@@ -115,7 +108,6 @@ enum cmd_code_enum
 };
 
 // Save flags
-//#define SAVE_FLAG_LOCKED        1
 #define SAVE_FLAG_HDD           1
 #define SAVE_FLAG_SELECTED      2
 #define SAVE_FLAG_ZIP           4
@@ -257,8 +249,6 @@ int regMgr_SetAccountId(int userNumber, uint64_t* psnAccountId);
 
 int create_savegame_folder(const char* folder);
 int get_save_details(const save_entry_t *save, char** details);
-int vita_SaveUmount();
-int vita_SaveMount(const save_entry_t *save);
 int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details);
 
 int read_psp_game_key(const char* fkey, uint8_t* key);
