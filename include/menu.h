@@ -212,11 +212,7 @@ extern u32 * free_mem;         // Pointer after last texture
 
 extern png_texture * menu_textures;				// png_texture array for main menu, initialized in LoadTexture
 
-extern int highlight_alpha;						// Alpha of the selected
 extern int idle_time;							// Set by readPad
-
-extern const char * menu_about_strings_project[];
-
 extern int menu_id;
 extern int menu_sel;
 extern int menu_old_sel[]; 

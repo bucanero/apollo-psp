@@ -8,53 +8,42 @@
 
 const char * menu_about_strings[] = { "Bucanero", "Developer",
 									"", "",
-									"console", "details:",
+									"Leon  ", "  Luna",
+									"2009-2022", "2011-2023",
 									NULL };
 
 static void _draw_AboutMenu(u8 alpha)
 {
-	int cnt = 0;
 	u8 alp2 = ((alpha*2) > 0xFF) ? 0xFF : (alpha * 2); 
     
     //------------- About Menu Contents
-	DrawTextureCenteredX(&menu_textures[logo_text_png_index], SCREEN_WIDTH/2, 70, 0, menu_textures[logo_text_png_index].width, menu_textures[logo_text_png_index].height, 0xFFFFFF00 | alp2);
+	DrawTextureCenteredX(&menu_textures[logo_text_png_index], SCREEN_WIDTH/2, 35, 0, menu_textures[logo_text_png_index].width * 3/4, menu_textures[logo_text_png_index].height * 3/4, 0xFFFFFF00 | alp2);
 
     SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
 	SetCurrentFont(font_adonais_regular);
 	SetFontColor(APP_FONT_MENU_COLOR | alpha, 0);
 	SetFontSize(APP_FONT_SIZE_JARS);
-	DrawStringMono(0, 160, "PlayStation Portable version");
+	DrawStringMono(0, 80, "PlayStation Portable version");
+	DrawStringMono(0, 133, "In memory of");
     
-    for (cnt = 0; menu_about_strings[cnt] != NULL; cnt += 2)
+    for (int cnt = 0; menu_about_strings[cnt] != NULL; cnt += 2)
     {
         SetFontAlign(FONT_ALIGN_RIGHT);
-		DrawStringMono((SCREEN_WIDTH / 2) - 20, 220 + (cnt * 15), menu_about_strings[cnt]);
+		DrawStringMono((SCREEN_WIDTH / 2) - 20, 110 + (cnt * 12), menu_about_strings[cnt]);
         
 		SetFontAlign(FONT_ALIGN_LEFT);
-		DrawStringMono((SCREEN_WIDTH / 2) + 20, 220 + (cnt * 15), menu_about_strings[cnt + 1]);
+		DrawStringMono((SCREEN_WIDTH / 2) + 20, 110 + (cnt * 12), menu_about_strings[cnt + 1]);
     }
-
-	DrawTextureCenteredX(&menu_textures[help_png_index], SCREEN_WIDTH/2, 180 + (cnt * 22), 0, 900, 110, 0xFFFFFF00 | alp2);
 
 	SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
 	SetFontColor(APP_FONT_COLOR | alpha, 0);
 	SetFontSize(APP_FONT_SIZE_SELECTION);
 
-	int off = cnt + 5;
-	for (cnt = 0; menu_about_strings_project[cnt] != NULL; cnt += 2)
-	{
-		SetFontAlign(FONT_ALIGN_RIGHT);
-		DrawString((SCREEN_WIDTH / 2) - 10, 140 + ((cnt + off) * 16), menu_about_strings_project[cnt]);
-
-		SetFontAlign(FONT_ALIGN_LEFT);
-		DrawString((SCREEN_WIDTH / 2) + 10, 140 + ((off + cnt) * 16), menu_about_strings_project[cnt + 1]);
-	}
-
 	SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
 	SetCurrentFont(font_adonais_regular);
 	SetFontColor(APP_FONT_MENU_COLOR | alp2, 0);
 	SetFontSize(APP_FONT_SIZE_JARS);
-	DrawStringMono(0, 440, "www.bucanero.com.ar");
+	DrawStringMono(0, 220, "www.bucanero.com.ar");
 	SetFontAlign(FONT_ALIGN_LEFT);
 }
 

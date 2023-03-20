@@ -60,7 +60,7 @@ static void LoadFileTexture(const char* fname, int idx)
 
 static int ReloadUserSaves(save_list_t* save_list)
 {
-    init_loading_screen("Loading save games...");
+    init_loading_screen("Loading saves...");
 
 	if (save_list->list)
 	{
@@ -192,10 +192,6 @@ static void SetMenu(int id)
 			break;
 
 		case MENU_CREDITS: //About Menu
-			// set to display the PSID on the About menu
-			sprintf((char*) menu_about_strings_project[3], "%016llx", apollo_config.account_id);
-			sprintf((char*) menu_about_strings_project[5], "%016llX %016llX", apollo_config.idps[0], apollo_config.idps[1]);
-
 			if (apollo_config.doAni)
 				Draw_AboutMenu_Ani();
 			break;

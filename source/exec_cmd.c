@@ -244,6 +244,7 @@ static void extractArchive(const char* file_path)
 	case 'z':
 	case 'Z':
 		/* ZIP */
+		strcat(exp_path, "/");
 		ret = extract_zip(file_path, exp_path);
 		break;
 
@@ -692,10 +693,11 @@ static int apply_cheat_patches(const save_entry_t* entry)
 		else
 		{
 			snprintf(tmpfile, sizeof(tmpfile), "%s%s", entry->path, filename);
+			LOG("Decrypting file '%s'", tmpfile);
 
 			if (entry->flags & SAVE_FLAG_PSP && !psp_is_decrypted(decrypted_files, filename))
 			{
-				if (get_psp_save_key(entry, key) && psp_DecryptSavedata(entry->path, filename, key))
+				if (get_psp_save_key(entry, key) && psp_DecryptSavedata(entry->path, tmpfile, key))
 				{
 					LOG("Decrypted PSP file '%s'", filename);
 					list_append(decrypted_files, strdup(filename));

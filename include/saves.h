@@ -239,17 +239,10 @@ void stop_loading_screen();
 
 void execCodeCommand(code_entry_t* code, const char* codecmd);
 
-int patch_trophy_account(const char* trp_path, const char* account_id);
-int apply_trophy_patch(const char* trp_path, uint32_t trophy_id, int unlock);
-
-int make_key_zrif(const char *rif_path, const char *out_path);
 int regMgr_GetUserName(int userNumber, char* outString);
-int regMgr_GetAccountId(int userNumber, uint64_t* psnAccountId);
-int regMgr_SetAccountId(int userNumber, uint64_t* psnAccountId);
 
 int create_savegame_folder(const char* folder);
 int get_save_details(const save_entry_t *save, char** details);
-int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details);
 
 int read_psp_game_key(const char* fkey, uint8_t* key);
 int psp_DecryptSavedata(const char* fpath, const char* fname, uint8_t* key);

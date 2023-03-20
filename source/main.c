@@ -76,15 +76,6 @@ uint32_t* texture_mem;                      // Pointers to texture memory
 uint32_t* free_mem;                         // Pointer after last texture
 
 
-char user_id_str[32] = "Apollo";
-char psid_str[SFO_PSID_SIZE*2+2] = "0000000000000000 0000000000000000";
-char account_id_str[SFO_ACCOUNT_ID_SIZE*2+1] = "0000000000000000";
-
-const char * menu_about_strings_project[] = { "User ID", user_id_str,
-											"Account ID", account_id_str,
-											"Console IDPS", psid_str,
-											NULL };
-
 const char * menu_pad_help[TOTAL_MENU_IDS] = { NULL,												//Main
 								"\x10 Select    \x13 Back    \x12 Details    \x11 Refresh",			//Trophy list
 								"\x10 Select    \x13 Back    \x12 Details    \x11 Refresh",			//USB list
@@ -189,10 +180,7 @@ static int LoadTextures_Menu()
 	ResetFont();
 	free_mem = (u32 *) AddFontFromBitmapArray((u8 *) data_font_Adonais, (u8 *) texture_mem, 0x20, 0x7e, 32, 31, 1, BIT7_FIRST_PIXEL);
 
-	if (TTFLoadFont(0, APOLLO_APP_PATH "ltn0.pvf", NULL, 0) != SUCCESS ||
-		TTFLoadFont(1, "ms0:/data/font/pvf/jpn0.pvf", NULL, 0) != SUCCESS ||
-		TTFLoadFont(2, "ms0:/data/font/pvf/kr0.pvf", NULL, 0) != SUCCESS ||
-		TTFLoadFont(3, "ms0:/data/font/pvf/cn0.pvf", NULL, 0) != SUCCESS)
+	if (TTFLoadFont(0, APOLLO_DATA_PATH "NotoSansJP-Medium.otf", NULL, 0) != SUCCESS)
 		return 0;
 
 	free_mem = (u32*) init_ttf_table((u8*) free_mem);

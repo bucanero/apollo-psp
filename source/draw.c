@@ -227,7 +227,7 @@ static void _drawListBackground(int off, int icon)
 			break;
 
 		case cat_cheats_png_index:
-			DrawTexture(&menu_textures[help_png_index], off + MENU_ICON_OFF, help_png_y, 0, (SCREEN_WIDTH - 75) - off - MENU_ICON_OFF, help_png_h, 0xFFFFFF00 | 0xFF);
+			DrawTexture(&menu_textures[help_png_index], off + MENU_ICON_OFF, help_png_y, 0, (SCREEN_WIDTH - 27) - off - MENU_ICON_OFF, help_png_h, 0xFFFFFF00 | 0xFF);
 			break;
 
 		case cat_about_png_index:
@@ -307,9 +307,9 @@ void DrawHeader(int icon, int xOff, const char * hdrTitle, const char * headerSu
 	SetFontColor(rgba, 0);
 	if (mode)
 	{
-		DrawTextureCenteredX(&menu_textures[icon], xOff + MENU_ICON_OFF - 12, 40, 0, 32, 32, 0xffffffff);
+		DrawTextureCenteredX(&menu_textures[icon], xOff + MENU_ICON_OFF - 12, 12, 0, 32, 32, 0xffffffff);
 		SetFontSize(APP_FONT_SIZE_SUBTITLE);
-		DrawString(xOff + MENU_ICON_OFF + 40, 35, headerTitle);
+		DrawString(xOff + MENU_ICON_OFF + 20, 15, headerTitle);
 	}
 	else
 	{
@@ -409,7 +409,7 @@ static int loading_screen_thread(void* user_data)
 		DrawTextureCentered(&menu_textures[circle_loading_bg_png_index], SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 128, 128, 0xFFFFFFFF);
 		DrawTextureRotated(&menu_textures[circle_loading_seek_png_index], SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 128, 128, 0xFFFFFFFF, angle);
 
-		DrawStringMono(0, 336, (char*) user_data);		
+		DrawStringMono(0, SCREEN_HEIGHT - 60, (char*) user_data);		
 
 		SDL_RenderPresent(renderer);
 	}
@@ -483,13 +483,13 @@ static void drawJars(uint8_t alpha)
 	SetCurrentFont(font_adonais_regular);
 
 	//Trophies
-	drawJar(jar_trophy_png_index, jar_empty_png_x, jar_empty_png_y, (alpha == 0xFF ? "Trophies" : ""), alpha);
+	drawJar(jar_trophy_png_index, jar_empty_png_x, jar_empty_png_y, (alpha == 0xFF ? "???" : ""), alpha);
 
 	//USB save
 	drawJar(jar_usb_png_index, jar_usb_png_x, jar_usb_png_y, (alpha == 0xFF ? "Ext Saves" : ""), alpha);
 	
 	//HDD save
-	drawJar(jar_hdd_png_index, jar_hdd_png_x, jar_hdd_png_y, (alpha == 0xFF ? "Int Saves" : ""), alpha);
+	drawJar(jar_hdd_png_index, jar_hdd_png_x, jar_hdd_png_y, (alpha == 0xFF ? "Saves" : ""), alpha);
 
 	//Online cheats
 	drawJar(jar_db_png_index, jar_db_png_x, jar_db_png_y, (alpha == 0xFF ? "Online DB" : ""), alpha);

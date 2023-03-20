@@ -170,7 +170,7 @@ int DrawCodes(code_entry_t* code, u8 alpha, int y_inc, int xOff, int selIndex)
         return 0;
     
     int numOfLines = 0, c = 0, yOff = help_png_y, cIndex = 0;
-    int maxPerPage = (SCREEN_HEIGHT - (yOff * 2) - 30) / y_inc;
+    int maxPerPage = (SCREEN_HEIGHT - (yOff * 1) - 40) / y_inc;
     int startDrawX = selIndex - (maxPerPage / 2);
     int max = maxPerPage + startDrawX;
     int len = strlen(code->codes);
@@ -203,7 +203,7 @@ int DrawCodes(code_entry_t* code, u8 alpha, int y_inc, int xOff, int selIndex)
     SetFontSize(APP_FONT_SIZE_SELECTION);
 
     if (code->file && (code->type == PATCH_BSD || code->type == PATCH_GAMEGENIE))
-        DrawFormatString(xOff + MENU_ICON_OFF + 20, 440, "Target File: %s", code->file);
+        DrawFormatString(xOff + MENU_ICON_OFF + 20, SCREEN_HEIGHT - 50, "Target File: %s", code->file);
 
     for (c = startDrawX; c < max; c++)
     {

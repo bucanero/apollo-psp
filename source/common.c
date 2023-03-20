@@ -72,6 +72,10 @@ int mkdirs(const char* dir)
 
     char* ptr = strrchr(path, '/');
     *ptr = 0;
+
+    if (dir_exists(path) == SUCCESS)
+        return SUCCESS;
+
     ptr = strchr(path, '/');
     if (!ptr)
         return FAILED;

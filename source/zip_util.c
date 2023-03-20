@@ -54,10 +54,13 @@ void walk_zip_directory(const char* startdir, const char* inputdir, struct zip *
 					continue;
 				}
 				LOG("Adding file '%s'", fullname+len);
-				if (zip_add(zipper, &fullname[len], source) < 0) {
+				zip_int64_t zidx = zip_add(zipper, &fullname[len], source);
+				if (zidx < 0) {
 					zip_source_free(source);
 					LOG("Failed to add file to zip: %s", fullname);
+					continue;
 				}
+				zip_file_set_external_attributes(zipper, zidx, 0, ZIP_OPSYS_UNIX, (zip_uint32_t)(0100644) << 16);
 			}
 		}
 	}

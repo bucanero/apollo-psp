@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <time.h>
 #include <dirent.h>
-//#include <psp2/appmgr.h>
 
 #include "saves.h"
 #include "common.h"
@@ -22,36 +21,6 @@
 #define CHAR_ICON_LOCK		"\x08"
 #define CHAR_ICON_WARN		"\x0F"
 
-#define MAX_MOUNT_POINT_LENGTH 16
-
-static char pfs_mount_point[MAX_MOUNT_POINT_LENGTH];
-static const int known_pfs_ids[] = { 0x6E, 0x12E, 0x12F, 0x3ED };
-
-
-int orbis_UpdateSaveParams(const char* mountPath, const char* title, const char* subtitle, const char* details)
-{
-	/*
-	OrbisSaveDataParam saveParams;
-	OrbisSaveDataMountPoint mount;
-
-	memset(&saveParams, 0, sizeof(OrbisSaveDataParam));
-	memset(&mount, 0, sizeof(OrbisSaveDataMountPoint));
-
-	strncpy(mount.data, mountPath, sizeof(mount.data));
-	strncpy(saveParams.title, title, ORBIS_SAVE_DATA_TITLE_MAXSIZE);
-	strncpy(saveParams.subtitle, subtitle, ORBIS_SAVE_DATA_SUBTITLE_MAXSIZE);
-	strncpy(saveParams.details, details, ORBIS_SAVE_DATA_DETAIL_MAXSIZE);
-	saveParams.mtime = time(NULL);
-
-	int32_t setParamResult = sceSaveDataSetParam(&mount, ORBIS_SAVE_DATA_PARAM_TYPE_ALL, &saveParams, sizeof(OrbisSaveDataParam));
-	if (setParamResult < 0) {
-		LOG("sceSaveDataSetParam error (%X)", setParamResult);
-		return 0;
-	}
-
-	return (setParamResult == SUCCESS);
-*/ return 0;
-}
 
 /*
  * Function:		endsWith()
@@ -177,12 +146,7 @@ static void _walk_dir_list(const char* startdir, const char* inputdir, const cha
 
 		snprintf(fullname, sizeof(fullname), "%s%s", inputdir, dirp->d_name);
 
-		if (dir_exists(fullname) == SUCCESS)
-		{
-			strcat(fullname, "/");
-			_walk_dir_list(startdir, fullname, mask, list);
-		}
-		else if (wildcard_match_icase(dirp->d_name, mask))
+		if (wildcard_match_icase(dirp->d_name, mask))
 		{
 			//LOG("Adding file '%s'", fullname+len);
 			list_append(list, strdup(fullname+len));
@@ -497,10 +461,10 @@ list_t * ReadBackupList(const char* userPath)
 	list_t *list = list_alloc();
 
 	item = _createSaveEntry(SAVE_FLAG_ZIP, CHAR_ICON_ZIP " Extract Archives (RAR, Zip, 7z)");
-	item->path = strdup("ux0:data/");
+	item->path = strdup(MS0_PATH);
 	item->type = FILE_TYPE_ZIP;
 	list_append(list, item);
-
+/*
 	item = _createSaveEntry(SAVE_FLAG_PS2, CHAR_ICON_COPY " Export NoNpDRM Licenses to zRIF");
 	item->path = strdup("");
 	item->type = FILE_TYPE_RIF;
@@ -510,7 +474,7 @@ list_t * ReadBackupList(const char* userPath)
 	item->path = strdup(MS0_PATH);
 	item->type = FILE_TYPE_NET;
 	list_append(list, item);
-/*
+
 	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_USER " Activate PS Vita Account");
 	asprintf(&item->path, EXDATA_PATH_HDD, apollo_config.user_id);
 	item->type = FILE_TYPE_ACT;
