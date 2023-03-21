@@ -269,38 +269,6 @@ static void extractArchive(const char* file_path)
 		show_message("Error: %s couldn't be extracted", file_path);
 }
 
-static void exportFingerprint(const save_entry_t* save, int silent)
-{
-	char fpath[256];
-	uint8_t buffer[0x40];
-
-	snprintf(fpath, sizeof(fpath), "%ssce_sys/keystone", save->path);
-	LOG("Reading '%s' ...", fpath);
-
-	if (read_file(fpath, buffer, sizeof(buffer)) != SUCCESS)
-	{
-		if (!silent) show_message("Error! Keystone file is not available:\n%s", fpath);
-		return;
-	}
-
-	snprintf(fpath, sizeof(fpath), APOLLO_PATH "fingerprints.txt");
-	FILE *fp = fopen(fpath, "a");
-	if (!fp)
-	{
-		if (!silent) show_message("Error! Can't open file:\n%s", fpath);
-		return;
-	}
-
-	fprintf(fp, "%s=", save->title_id);
-	for (size_t i = 0x20; i < 0x40; i++)
-		fprintf(fp, "%02x", buffer[i]);
-
-	fprintf(fp, "\n");
-	fclose(fp);
-
-	if (!silent) show_message("%s fingerprint successfully saved to:\n%s", save->title_id, fpath);
-}
-
 static void pspDumpKey(const save_entry_t* save)
 {
 	char fpath[256];
@@ -312,7 +280,7 @@ static void pspDumpKey(const save_entry_t* save)
 		return;
 	}
 
-	snprintf(fpath, sizeof(fpath), APOLLO_PATH "fingerprints.txt");
+	snprintf(fpath, sizeof(fpath), APOLLO_PATH "gamekeys.txt");
 	FILE *fp = fopen(fpath, "a");
 	if (!fp)
 	{
@@ -322,12 +290,12 @@ static void pspDumpKey(const save_entry_t* save)
 
 	fprintf(fp, "%s=", save->title_id);
 	for (size_t i = 0; i < sizeof(buffer); i++)
-		fprintf(fp, "%02x", buffer[i]);
+		fprintf(fp, "%02X", buffer[i]);
 
 	fprintf(fp, "\n");
 	fclose(fp);
 
-	show_message("%s fingerprint successfully saved to:\n%s", save->title_id, fpath);
+	show_message("%s game key successfully saved to:\n%s", save->title_id, fpath);
 }
 
 static void pspExportKey(const save_entry_t* save)
@@ -369,7 +337,7 @@ static void dumpAllFingerprints(const save_entry_t* save)
 //		if (item->flags & SAVE_FLAG_PSV && item->flags & SAVE_FLAG_HDD && !vita_SaveMount(item))
 //			continue;
 
-		exportFingerprint(item, 1);
+//		exportFingerprint(item, 1);
 
 //		if (item->flags & SAVE_FLAG_PSV && item->flags & SAVE_FLAG_HDD)
 //			vita_SaveUmount();
@@ -983,11 +951,6 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 		case CMD_COPY_SAVES_USB:
 		case CMD_COPY_ALL_SAVES_USB:
 			copyAllSavesUSB(selected_entry, codecmd[1], codecmd[0] == CMD_COPY_ALL_SAVES_USB);
-			code->activated = 0;
-			break;
-
-		case CMD_EXP_FINGERPRINT:
-			exportFingerprint(selected_entry, 0);
 			code->activated = 0;
 			break;
 

@@ -120,7 +120,8 @@ enum texture_index
 #define DIALOG_TYPE_YESNO					1
 
 //Fonts
-#define  font_adonais_regular				0
+#define font_adonais_regular				0
+#define font_console_16x32					1
 
 #define APP_FONT_COLOR						0xFFFFFF00
 #define APP_FONT_TAG_COLOR					0xFFFFFF00

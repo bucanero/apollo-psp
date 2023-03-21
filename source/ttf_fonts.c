@@ -26,10 +26,10 @@ int TTFLoadFont(int set, const char * path, void * from_memory, int size_from_me
     f_face[set] = 0;
 
     if(path) {
-        if(FT_New_Face(freetype, path, 0, &face[set])<0) return -1;
+        if((access(path, F_OK) < 0) || FT_New_Face(freetype, path, 0, &face[set])<0) return -1;
     } else {
         if(FT_New_Memory_Face(freetype, from_memory, size_from_memory, 0, &face[set])) return -1;
-        }
+    }
 
     f_face[set] = 1;
 

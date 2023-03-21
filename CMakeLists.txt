@@ -10,7 +10,6 @@ project(apollo-psp)
 
 find_package(SDL2 REQUIRED)
 find_package(CURL REQUIRED)
-#find_package(OpenSSL REQUIRED)
 
 option(APOLLO_ENABLE_LOGGING "enables debug logging over udp multicast" OFF)
 
@@ -52,7 +51,6 @@ ENDFUNCTION()
 file(GLOB res_files RELATIVE
   ${CMAKE_SOURCE_DIR}
   data/*.png
-  data/*.jpg
   data/*.s3m
 )
 add_resources(apollo_res ${res_files})
