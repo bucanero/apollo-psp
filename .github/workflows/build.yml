@@ -28,6 +28,12 @@ jobs:
         repository: bucanero/oosdk_libraries
         path: oosdk_libraries
 
+    - name: Checkout un7zip
+      uses: actions/checkout@v3
+      with:
+        repository: bucanero/libun7zip
+        path: libun7zip
+
     - name: Dowload libzip
       run: |
         curl -sL https://libzip.org/download/libzip-1.9.2.tar.gz | tar xvz -C ./
@@ -62,6 +68,11 @@ jobs:
 
     - name: Install apollo-lib
       working-directory: apollo-lib
+      run: |
+        make -f Makefile.psp install
+
+    - name: Install un7zip
+      working-directory: libun7zip
       run: |
         make -f Makefile.psp install
 

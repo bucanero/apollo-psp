@@ -6,7 +6,7 @@
 #include <dirent.h>
 //#define _UNIX
 //#include <unrar.h>
-//#include <un7zip.h>
+#include <un7zip.h>
 
 #include "saves.h"
 #include "common.h"
@@ -222,7 +222,6 @@ int extract_zip(const char* zip_file, const char* dest_path)
 	return 1;
 }
 
-/*
 void callback_7z(const char* fileName, unsigned long fileSize, unsigned fileNum, unsigned numFiles)
 {
     LOG("Extracted: %s (%ld bytes)", fileName, fileSize);
@@ -243,6 +242,7 @@ int extract_7zip(const char* fpath, const char* dest_path)
 	return (ret == SUCCESS);
 }
 
+/*
 int extract_rar(const char* rarFilePath, const char* dstPath)
 {
 	int err = 0;

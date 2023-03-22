@@ -93,7 +93,7 @@ target_link_libraries(${PROJECT_NAME}
   pthread
 #  unrar
   zip
-#  un7zip
+  un7zip
   stdc++
   xmp
   bz2
