@@ -1,31 +1,29 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-//#include <psp2/ime_dialog.h>
-//#include <psp2/message_dialog.h>
-//#include <psp2/notificationutil.h>
 #include <psputility.h>
 
 #include "menu.h"
+#include "libfont.h"
 
+#define PSP_UTILITY_OSK_MAX_TEXT_LENGTH			(512)
 
-static int g_ime_active;
+int init_loading_screen(const char* msg);
+void stop_loading_screen(void);
 
-//static uint16_t g_ime_title[SCE_IME_DIALOG_MAX_TITLE_LENGTH];
-//static uint16_t g_ime_text[SCE_IME_DIALOG_MAX_TEXT_LENGTH];
-//static uint16_t g_ime_input[SCE_IME_DIALOG_MAX_TEXT_LENGTH + 1];
+static char progress_bar[128];
 
-static void ConfigureDialog(pspUtilityMsgDialogParams *dialog, size_t dialog_size)
+static void ConfigureDialog(pspUtilityDialogCommon *dialog, size_t dialog_size)
 {
-    memset(dialog, 0, dialog_size);
+    memset(dialog, 0, sizeof(pspUtilityDialogCommon));
 
-    dialog->base.size = dialog_size;
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &dialog->base.language); // Prompt language
-    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &dialog->base.buttonSwap); // X/O button swap
-    dialog->base.graphicsThread = 0x11;
-    dialog->base.accessThread = 0x13;
-    dialog->base.fontThread = 0x12;
-    dialog->base.soundThread = 0x10;
+    dialog->size = dialog_size;
+    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &dialog->language); // Prompt language
+    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &dialog->buttonSwap); // X/O button swap
+    dialog->graphicsThread = 0x11;
+    dialog->accessThread = 0x13;
+    dialog->fontThread = 0x12;
+    dialog->soundThread = 0x10;
 }
 
 int show_dialog(int tdialog, const char * format, ...)
@@ -33,7 +31,8 @@ int show_dialog(int tdialog, const char * format, ...)
     pspUtilityMsgDialogParams dialog;
     va_list	opt;
 
-    ConfigureDialog(&dialog, sizeof(dialog));
+    memset(&dialog, 0, sizeof(dialog));
+    ConfigureDialog(&dialog.base, sizeof(dialog));
     dialog.mode = PSP_UTILITY_MSGDIALOG_MODE_TEXT;
     dialog.options = PSP_UTILITY_MSGDIALOG_OPTION_TEXT;
     if(tdialog)
@@ -66,79 +65,31 @@ int show_dialog(int tdialog, const char * format, ...)
     return (dialog.buttonPressed == PSP_UTILITY_MSGDIALOG_RESULT_YES);
 }
 
-static int running = 0;
-
-static int update_screen_thread(void* user_data)
-{
-    while (running == 1)
-        drawDialogBackground();
-
-    running = -1;
-    return (0);
-}
-
 void init_progress_bar(const char* msg)
 {
-/*    SceMsgDialogParam param;
-    SceMsgDialogProgressBarParam progress_bar_param;
-
-    memset(&progress_bar_param, 0, sizeof(SceMsgDialogProgressBarParam));
-    progress_bar_param.barType = SCE_MSG_DIALOG_PROGRESSBAR_TYPE_PERCENTAGE;
-    progress_bar_param.msg = (SceChar8 *) msg;
-
-    sceMsgDialogParamInit(&param);
-    param.progBarParam = &progress_bar_param;
-    param.mode = SCE_MSG_DIALOG_MODE_PROGRESS_BAR;
-
-    if (sceMsgDialogInit(&param) < 0)
-        return;
-
-    running = 1;
-    SDL_Thread* tid = SDL_CreateThread(&update_screen_thread, "progress_bar", NULL);
-    SDL_DetachThread(tid);*/
+    SetExtraSpace(0);
+    SetCurrentFont(font_console_16x32);
+    strncpy(progress_bar, msg, sizeof(progress_bar) - 1);
+    init_loading_screen(progress_bar);
+    SetFontSize(12, 24);
 }
 
 void end_progress_bar(void)
 {
-/*    SceCommonDialogStatus stat;
-
-    do
-    {
-        sceMsgDialogProgressBarSetValue(SCE_MSG_DIALOG_PROGRESSBAR_TARGET_BAR_DEFAULT, 100);
-        stat = sceMsgDialogGetStatus();
-
-        if(stat == SCE_COMMON_DIALOG_STATUS_RUNNING)
-            sceMsgDialogClose();
-
-    } while (stat != SCE_COMMON_DIALOG_STATUS_FINISHED);
-    
-    sceMsgDialogTerm();
-    running = 0;*/
+    stop_loading_screen();
+    SetCurrentFont(font_adonais_regular);
+    SetExtraSpace(-10);
 }
 
 void update_progress_bar(uint64_t progress, const uint64_t total_size, const char* msg)
 {
-/*    float bar_value = (100.0f * ((double) progress)) / ((double) total_size);
+    float bar_value = (100.0f * ((double) progress)) / ((double) total_size);
 
-    if (sceMsgDialogGetStatus() == SCE_COMMON_DIALOG_STATUS_RUNNING)
-    {
-        sceMsgDialogProgressBarSetMsg(SCE_MSG_DIALOG_PROGRESSBAR_TARGET_BAR_DEFAULT, (SceChar8*) msg);
-        sceMsgDialogProgressBarSetValue(SCE_MSG_DIALOG_PROGRESSBAR_TARGET_BAR_DEFAULT, (SceUInt32) bar_value);
-    }*/
-}
+    snprintf(progress_bar, sizeof(progress_bar), "%24.0f%%", bar_value);
+    bar_value /= 5;
 
-static void strWChar16ncpy(wchar_t* out, const char* str2, int len)
-{
-    char* str1 = (char*) out;
-
-    while (*str2 && len--)
-    {
-        *str1 = *str2;
-        str1++;
-        *str1 = '\0';
-        str1++;
-        str2++;
-    }
+    for (int i = 0; i < 20; i++)
+        progress_bar[i] = (i+1 <= (int)bar_value) ? '\xDB' : '\xB1';
 }
 
 static int convert_to_utf16(const char* utf8, uint16_t* utf16, uint32_t available)
@@ -177,26 +128,28 @@ static int convert_to_utf16(const char* utf8, uint16_t* utf16, uint32_t availabl
             uint8_t next = (uint8_t)*utf8++;
             if (next == 0 || (next & 0xc0) != 0x80)
             {
-                return count;
+                goto utf16_end;
             }
             code = (code << 6) | (next & 0x3f);
         }
 
         if (code < 0xd800 || code >= 0xe000)
         {
-            if (available < 1) return count;
+            if (available < 1) goto utf16_end;
             utf16[count++] = (uint16_t)code;
             available--;
         }
         else // surrogate pair
         {
-            if (available < 2) return count;
+            if (available < 2) goto utf16_end;
             code -= 0x10000;
             utf16[count++] = 0xd800 | (code >> 10);
             utf16[count++] = 0xdc00 | (code & 0x3ff);
             available -= 2;
         }
     }
+
+utf16_end:
     utf16[count]=0;
     return count;
 }
@@ -217,27 +170,27 @@ static int convert_from_utf16(const uint16_t* utf16, char* utf8, uint32_t size)
             uint16_t ch2 = *utf16++;
             if (ch < 0xdc00 || ch > 0xe000 || ch2 < 0xd800 || ch2 > 0xdc00)
             {
-                return count;
+                goto utf8_end;
             }
             code = 0x10000 + ((ch & 0x03FF) << 10) + (ch2 & 0x03FF);
         }
 
         if (code < 0x80)
         {
-            if (size < 1) return count;
+            if (size < 1) goto utf8_end;
             utf8[count++] = (char)code;
             size--;
         }
         else if (code < 0x800)
         {
-            if (size < 2) return count;
+            if (size < 2) goto utf8_end;
             utf8[count++] = (char)(0xc0 | (code >> 6));
             utf8[count++] = (char)(0x80 | (code & 0x3f));
             size -= 2;
         }
         else if (code < 0x10000)
         {
-            if (size < 3) return count;
+            if (size < 3) goto utf8_end;
             utf8[count++] = (char)(0xe0 | (code >> 12));
             utf8[count++] = (char)(0x80 | ((code >> 6) & 0x3f));
             utf8[count++] = (char)(0x80 | (code & 0x3f));
@@ -245,7 +198,7 @@ static int convert_from_utf16(const uint16_t* utf16, char* utf8, uint32_t size)
         }
         else
         {
-            if (size < 4) return count;
+            if (size < 4) goto utf8_end;
             utf8[count++] = (char)(0xf0 | (code >> 18));
             utf8[count++] = (char)(0x80 | ((code >> 12) & 0x3f));
             utf8[count++] = (char)(0x80 | ((code >> 6) & 0x3f));
@@ -253,76 +206,65 @@ static int convert_from_utf16(const uint16_t* utf16, char* utf8, uint32_t size)
             size -= 4;
         }
     }
+
+utf8_end:
     utf8[count]=0;
     return count;
 }
 
-static int osk_dialog_input_init(int tosk, const char* title, const char* text, uint32_t maxlen)
-{
-/*    SceImeDialogParam param;
-    sceImeDialogParamInit(&param);
-
-    convert_to_utf16(title, g_ime_title, countof(g_ime_title) - 1);
-    convert_to_utf16(text, g_ime_text, countof(g_ime_text) - 1);
-    memset(g_ime_input, 0, sizeof(g_ime_input));
-    g_ime_active = 0;
-
-    param.supportedLanguages = 0x0001FFFF;
-    param.type = (tosk ? SCE_IME_TYPE_URL : SCE_IME_TYPE_DEFAULT);
-    param.option = (tosk ? SCE_IME_OPTION_NO_AUTO_CAPITALIZATION : 0);
-    param.title = g_ime_title;
-    param.maxTextLength = maxlen;
-    param.initialText = g_ime_text;
-    param.inputTextBuffer = g_ime_input;
-
-    if (sceImeDialogInit(&param) < 0)
-        return 0;
-
-    g_ime_active = 1;*/
-    return 1;
-}
-
-static int osk_dialog_input_update(void)
-{
-/*    if (!g_ime_active)
-    {
-        return 0;
-    }
-
-    SceCommonDialogStatus status = sceImeDialogGetStatus();
-    if (status == SCE_COMMON_DIALOG_STATUS_FINISHED)
-    {
-        SceImeDialogResult result = { 0 };
-        sceImeDialogGetResult(&result);
-
-        g_ime_active = 0;
-        sceImeDialogTerm();
-
-        if (result.button == SCE_IME_DIALOG_BUTTON_ENTER)
-        {
-            return 1;
-        }
-
-        return (-1);
-    }
-*/
-    return 0;
-}
-
 int osk_dialog_get_text(const char* title, char* text, uint32_t size)
 {
-/*    if (size > SCE_IME_DIALOG_MAX_TEXT_LENGTH) size = SCE_IME_DIALOG_MAX_TEXT_LENGTH;
+    int done;
+    SceUtilityOskData data;
+    SceUtilityOskParams params;
+    uint16_t intext[PSP_UTILITY_OSK_MAX_TEXT_LENGTH];
+    uint16_t outtext[PSP_UTILITY_OSK_MAX_TEXT_LENGTH];
+    uint16_t desc[PSP_UTILITY_OSK_MAX_TEXT_LENGTH];
 
-    if (!osk_dialog_input_init(1, title, text, size))
+    memset(&intext, 0, sizeof(intext));
+    memset(&outtext, 0, sizeof(outtext));
+    memset(&desc, 0, sizeof(desc));
+
+    convert_to_utf16(title, desc, countof(desc) - 1);
+    convert_to_utf16(text, intext, countof(intext) - 1);
+
+    memset(&data, 0, sizeof(SceUtilityOskData));
+    data.language = PSP_UTILITY_OSK_LANGUAGE_DEFAULT; // Use system default for text input
+    data.lines = 1;
+    data.unk_24 = 1;
+    data.inputtype = PSP_UTILITY_OSK_INPUTTYPE_ALL; // Allow all input types
+    data.desc = desc;
+    data.intext = intext;
+    data.outtextlength = PSP_UTILITY_OSK_MAX_TEXT_LENGTH;
+    data.outtextlimit = size; // Limit input to 32 characters
+    data.outtext = outtext;
+
+    memset(&params, 0, sizeof(params));
+    ConfigureDialog(&params.base, sizeof(params));
+    params.datacount = 1;
+    params.data = &data;
+
+    if (sceUtilityOskInitStart(&params) < 0)
         return 0;
 
-    while (g_ime_active)
-    {
-        if (osk_dialog_input_update() < 0)
-            return 0;
+    do {
+        done = sceUtilityOskGetStatus();
+        switch(done)
+        {
+            case PSP_UTILITY_DIALOG_VISIBLE:
+                sceUtilityOskUpdate(1);
+                break;
+            
+            case PSP_UTILITY_DIALOG_QUIT:
+                sceUtilityOskShutdownStart();
+                break;
+        }
 
         drawDialogBackground();
-    }
+    } while (done != PSP_UTILITY_DIALOG_FINISHED);
 
-    return (convert_from_utf16(g_ime_input, text, size - 1));*/
+    if (data.result == PSP_UTILITY_OSK_RESULT_CANCELLED)
+        return 0;
+
+    return (convert_from_utf16(data.outtext, text, size - 1));
 }
