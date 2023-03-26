@@ -32,8 +32,6 @@ typedef struct __attribute__((packed))
     uint8_t storage;
     uint8_t update;
     uint32_t user_id;
-    uint64_t idps[2];
-    uint64_t account_id;
 } app_config_t;
 
 extern menu_option_t menu_options[];

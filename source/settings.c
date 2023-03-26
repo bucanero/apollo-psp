@@ -2,12 +2,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <zlib.h>
 
 #include "types.h"
 #include "menu.h"
 #include "saves.h"
 #include "common.h"
+#include "icon0.h"
 
+#define PSP_UTILITY_COMMON_RESULT_OK (0)
 
 static char* ext_src[MAX_USB_DEVICES+1] = {"ms0", "ef0", NULL};
 static char* sort_opt[] = {"Disabled", "by Name", "by Title ID", NULL};
@@ -196,26 +199,106 @@ void log_callback(int sel)
 	show_message("Debug Logging Enabled!\n\n" APOLLO_PATH "apollo.log");
 }
 
+/*
+static void initSavedata(SceUtilitySavedataParam * savedata, int mode, void* usr_data)
+{
+	memset(savedata, 0, sizeof(SceUtilitySavedataParam));
+	savedata->base.size = sizeof(SceUtilitySavedataParam);
+	savedata->base.language = PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
+	savedata->base.buttonSwap = PSP_UTILITY_ACCEPT_CROSS;
+	savedata->base.graphicsThread = 0x11;
+	savedata->base.accessThread = 0x13;
+	savedata->base.fontThread = 0x12;
+	savedata->base.soundThread = 0x10;
+	savedata->mode = mode;
+	savedata->overwrite = 1;
+	savedata->focus = PSP_UTILITY_SAVEDATA_FOCUS_LATEST; // Set initial focus to the newest file (for loading)
+
+	strncpy(savedata->key, "bucanero.com.ar", sizeof(savedata->key));
+	strncpy(savedata->gameName, "NP0APOLLO", sizeof(savedata->gameName));	// First part of the save name, game identifier name
+	strncpy(savedata->saveName, "-Settings", sizeof(savedata->saveName));	// Second part of the save name, save identifier name
+	strncpy(savedata->fileName, "SETTINGS.BIN", sizeof(savedata->fileName));	// name of the data file
+
+	// Allocate buffers used to store various parts of the save data
+	savedata->dataBuf = usr_data;
+	savedata->dataBufSize = sizeof(app_config_t);
+	savedata->dataSize = sizeof(app_config_t);
+
+	// Set save data
+	if (mode == PSP_UTILITY_SAVEDATA_AUTOSAVE)
+	{
+		strcpy(savedata->sfoParam.title, "Apollo Save Tool");
+		strcpy(savedata->sfoParam.savedataTitle,"Settings");
+		strcpy(savedata->sfoParam.detail,"www.bucanero.com.ar");
+		savedata->sfoParam.parentalLevel = 1;
+
+		// Set icon0
+		savedata->icon0FileData.buf = icon0;
+		savedata->icon0FileData.bufSize = size_icon0;
+		savedata->icon0FileData.size = size_icon0;
+		savedata->focus = PSP_UTILITY_SAVEDATA_FOCUS_FIRSTEMPTY; // If saving, set inital focus to the first empty slot
+	}
+}
+
+static int runSaveDialog(int mode, void* data)
+{
+	SceUtilitySavedataParam dialog;
+
+	initSavedata(&dialog, mode, data);
+	if (sceUtilitySavedataInitStart(&dialog) < 0)
+		return 0;
+
+	do {
+		mode = sceUtilitySavedataGetStatus();
+		switch(mode)
+		{
+			case PSP_UTILITY_DIALOG_VISIBLE:
+				sceUtilitySavedataUpdate(1);
+				break;
+
+			case PSP_UTILITY_DIALOG_QUIT:
+				sceUtilitySavedataShutdownStart();
+				break;
+		}
+	} while (mode != PSP_UTILITY_DIALOG_FINISHED);
+
+	return (dialog.base.result == PSP_UTILITY_COMMON_RESULT_OK);
+}
+*/
+
 int save_app_settings(app_config_t* config)
 {
 	char filePath[256];
-	char title[32] = "NP0APOLLO";
-	save_entry_t se = {
-		.dir_name = title,
-		.title_id = title,
-		.path = filePath,
-	};
+	Byte dest[4912];
+	uLong destLen = sizeof(dest);
 
-//	snprintf(filePath, sizeof(filePath), APOLLO_SANDBOX_PATH, title);
-	if (1) {
+	snprintf(filePath, sizeof(filePath), "%s%s%s%s", MS0_PATH, USER_PATH_HDD, "NP0APOLLO-Settings/", "ICON0.PNG");
+	if (mkdirs(filePath) != SUCCESS)
+	{
 		LOG("sceSaveDataMount2 ERROR");
 		return 0;
 	}
 
 	LOG("Saving Settings...");
-//	snprintf(filePath, sizeof(filePath), APOLLO_SANDBOX_PATH "settings.bin", title);
-	write_buffer(filePath, (uint8_t*) config, sizeof(app_config_t));
+	write_buffer(filePath, icon0, size_icon0);
 
+	snprintf(filePath, sizeof(filePath), "%s%s%s%s", MS0_PATH, USER_PATH_HDD, "NP0APOLLO-Settings/", "PARAM.SFO");
+	uncompress(dest, &destLen, paramsfo, size_paramsfo);
+	write_buffer(filePath, dest, destLen);
+
+	snprintf(filePath, sizeof(filePath), "%s%s%s%s", MS0_PATH, USER_PATH_HDD, "NP0APOLLO-Settings/", "SETTINGS.BIN");
+	if (write_buffer(filePath, (uint8_t*) config, sizeof(app_config_t)) < 0)
+	{
+		LOG("Error saving settings!");
+		return 0;
+	}
+/*
+	if (!runSaveDialog(PSP_UTILITY_SAVEDATA_AUTOSAVE, config))
+	{
+		LOG("Save ERROR");
+		return 0;
+	}
+*/
 	return 1;
 }
 
@@ -224,44 +307,33 @@ int load_app_settings(app_config_t* config)
 	char filePath[256];
 	app_config_t* file_data;
 	size_t file_size;
-	char title[32] = "NP0APOLLO";
-	save_entry_t se = {
-		.dir_name = title,
-		.title_id = title,
-		.path = filePath,
-	};
 
 	config->user_id = 0;
-//	if (sceRegMgrGetKeyBin("/CONFIG/NP", "account_id", &config->account_id, sizeof(uint64_t)) < 0)
-	{
-		LOG("Failed to get account_id");
-		config->account_id = 0;
-	}
 
-//	_vshSblAimgrGetConsoleId((char*) config->idps);
-	config->idps[0] = ES64(config->idps[0]);
-	config->idps[1] = ES64(config->idps[1]);
-
-//	snprintf(filePath, sizeof(filePath), APOLLO_SANDBOX_PATH, title);
-	if (1) {
-		LOG("sceSaveDataMount2 ERROR");
-		return 0;
-	}
+	snprintf(filePath, sizeof(filePath), "%s%s%s%s", MS0_PATH, USER_PATH_HDD, "NP0APOLLO-Settings/", "SETTINGS.BIN");
 
 	LOG("Loading Settings...");
-//	snprintf(filePath, sizeof(filePath), APOLLO_SANDBOX_PATH "settings.bin", title);
-
 	if (read_buffer(filePath, (uint8_t**) &file_data, &file_size) == SUCCESS && file_size == sizeof(app_config_t))
 	{
 		file_data->user_id = config->user_id;
-		file_data->account_id = config->account_id;
-		file_data->idps[0] = config->idps[0];
-		file_data->idps[1] = config->idps[1];
 		memcpy(config, file_data, file_size);
 
-		LOG("Settings loaded: UserID (%08x) AccountID (%016llX)", config->user_id, config->account_id);
+		LOG("Settings loaded: UserID (%08x)", config->user_id);
 		free(file_data);
 	}
+	else
+	{
+		LOG("Settings not found, using defaults");
+		return 0;
+	}
+/*
+	if (!runSaveDialog(PSP_UTILITY_SAVEDATA_AUTOLOAD, config))
+	{
+		LOG("Load ERROR");
+		memcpy(config, &tmp_data, sizeof(app_config_t));
+		return 0;
+	}
+*/
 
 	return 1;
 }

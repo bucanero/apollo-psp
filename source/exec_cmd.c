@@ -713,7 +713,6 @@ static void resignSave(save_entry_t* entry)
         .flags = 0,
         .user_id = apollo_config.user_id,
         .directory = NULL,
-        .account_id = apollo_config.account_id,
     };
 
     LOG("Resigning save '%s'...", entry->name);
@@ -738,8 +737,6 @@ static void resignAllSaves(const save_entry_t* save, int all)
 	list_t *list = ((void**)save->dir_name)[0];
 	sfo_patch_t patch = {
 		.user_id = apollo_config.user_id,
-//		.psid = (u8*) apollo_config.psid,
-		.account_id = apollo_config.account_id,
 	};
 
 	init_progress_bar("Resigning all saves...");

@@ -369,14 +369,14 @@ static void doMainMenu()
 {
 	// Check the pads.
 	if(pspPadGetButtonHold(PSP_CTRL_LEFT))
-		move_selection_back(MENU_CREDITS, 1);
+		move_selection_back(MENU_CREDITS-1, 1);
 
 	else if(pspPadGetButtonHold(PSP_CTRL_RIGHT))
-		move_selection_fwd(MENU_CREDITS, 1);
+		move_selection_fwd(MENU_CREDITS-1, 1);
 
 	else if (pspPadGetButtonPressed(PSP_CTRL_CROSS))
 	{
-		SetMenu(menu_sel+1);
+		SetMenu(menu_sel+2);
 		drawScene();
 		return;
 	}

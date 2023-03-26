@@ -7,7 +7,7 @@
 #include "libfont.h"
 #include "menu.h"
 
-#define JAR_COLUMNS 7
+#define JAR_COLUMNS (6)
 #define PNG_SIGSIZE (8)
 
 typedef struct rawImage
@@ -446,7 +446,7 @@ void stop_loading_screen()
 
 static void drawJar(uint8_t idx, int pos_x, int pos_y, const char* text, uint8_t alpha)
 {
-	uint8_t active = (menu_sel + jar_trophy_png_index == idx);
+	uint8_t active = (menu_sel + jar_usb_png_index == idx);
 	DrawTexture(&menu_textures[idx], pos_x, pos_y, 0, menu_textures[idx].width * SCREEN_W_ADJ, menu_textures[idx].height * SCREEN_H_ADJ, 0xffffff00 | alpha);
 
 	//Selected
@@ -483,7 +483,7 @@ static void drawJars(uint8_t alpha)
 	SetCurrentFont(font_adonais_regular);
 
 	//Trophies
-	drawJar(jar_trophy_png_index, jar_empty_png_x, jar_empty_png_y, (alpha == 0xFF ? "???" : ""), alpha);
+	drawJar(jar_empty_png_index, jar_empty_png_x, jar_empty_png_y, "", alpha);
 
 	//USB save
 	drawJar(jar_usb_png_index, jar_usb_png_x, jar_usb_png_y, (alpha == 0xFF ? "Ext Saves" : ""), alpha);

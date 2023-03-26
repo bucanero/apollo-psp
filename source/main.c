@@ -59,12 +59,10 @@ void update_trophy_path(char *p);
 app_config_t apollo_config = {
     .music = 0,
     .doSort = 1,
-    .doAni = 0,
+    .doAni = 1,
     .update = 0,
     .storage = 0,
     .user_id = 0,
-    .idps = {0, 0},
-    .account_id = 0,
 };
 
 int close_app = 0;
@@ -234,8 +232,7 @@ static int LoadTextures_Menu()
 	load_menu_texture(jar_bup_hover, png);
 	load_menu_texture(jar_db, png);
 	load_menu_texture(jar_db_hover, png);
-	load_menu_texture(jar_trophy, png);
-	load_menu_texture(jar_trophy_hover, png);
+	load_menu_texture(jar_empty, png);
 	load_menu_texture(jar_hdd, png);
 	load_menu_texture(jar_hdd_hover, png);
 	load_menu_texture(jar_opt, png);
