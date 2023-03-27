@@ -213,16 +213,14 @@ static void _addBackupCommands(save_entry_t* item)
 	cmd->options = _createOptions((item->flags & SAVE_FLAG_HDD) ? 2 : 3, "Copy Save to Backup Storage", CMD_COPY_SAVE_USB);
 	if (!(item->flags & SAVE_FLAG_HDD))
 	{
-		asprintf(&cmd->options->name[2], "Copy Save to User Storage (ux0:%s/)", (item->flags & SAVE_FLAG_PSP) ? "pspemu":"user");
+		asprintf(&cmd->options->name[2], "Copy Save to Memory Stick (ms0:/%s)", "PSP");
 		asprintf(&cmd->options->value[2], "%c", CMD_COPY_SAVE_HDD);
 	}
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_ZIP " Export save game to Zip", CMD_CODE_NULL);
 	cmd->options_count = 1;
-	cmd->options = _createOptions(3, "Export Zip to Backup Storage", CMD_EXPORT_ZIP_USB);
-	asprintf(&cmd->options->name[2], "Export Zip to User Storage (ux0:data/)");
-	asprintf(&cmd->options->value[2], "%c%c", CMD_EXPORT_ZIP_USB, STORAGE_MS0);
+	cmd->options = _createOptions(2, "Export Zip to Backup Storage", CMD_EXPORT_ZIP_USB);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export decrypted save files", CMD_CODE_NULL);
@@ -315,7 +313,7 @@ static void add_psp_commands(save_entry_t* item)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Export binary Game Key", CMD_EXP_PSPKEY);
 	list_append(item->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump Game Key fingerprint", CMD_DUMP_PSPKEY);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump Game Key (text file)", CMD_DUMP_PSPKEY);
 	list_append(item->codes, cmd);
 
 	return;
@@ -460,7 +458,7 @@ list_t * ReadBackupList(const char* userPath)
 	code_entry_t * cmd;
 	list_t *list = list_alloc();
 
-	item = _createSaveEntry(SAVE_FLAG_ZIP, CHAR_ICON_ZIP " Extract Archives (RAR, Zip, 7z)");
+	item = _createSaveEntry(SAVE_FLAG_ZIP, CHAR_ICON_ZIP " Extract Archives (Zip, 7z)");
 	item->path = strdup(MS0_PATH);
 	item->type = FILE_TYPE_ZIP;
 	list_append(list, item);
@@ -853,52 +851,6 @@ static void read_usb_savegames(const char* userPath, list_t *list)
 	closedir(d);
 }
 
-static void read_hdd_savegames(const char* userPath, list_t *list)
-{
-	char sfoPath[256];
-	save_entry_t *item;
-/*	sqlite3_stmt *res;
-	sqlite3 *db = open_sqlite_db(userPath);
-
-	if (!db)
-		return;
-
-	int rc = sqlite3_prepare_v2(db, "SELECT a.titleId, val, title, iconPath FROM tbl_appinfo_icon AS a, tbl_appinfo AS b "
-		" WHERE (type = 0) AND (a.titleId = b.titleId) AND (a.titleid NOT LIKE 'NPX%') AND (key = 278217076)", -1, &res, NULL);
-	if (rc != SQLITE_OK)
-	{
-		LOG("Failed to fetch data: %s", sqlite3_errmsg(db));
-		sqlite3_close(db);
-		return;
-	}
-
-	while (sqlite3_step(res) == SQLITE_ROW)
-	{
-		item = _createSaveEntry(SAVE_FLAG_PSV | SAVE_FLAG_HDD, (const char*) sqlite3_column_text(res, 2));
-		item->type = FILE_TYPE_PSV;
-		item->dir_name = strdup((const char*) sqlite3_column_text(res, 1));
-		item->title_id = strdup((const char*) sqlite3_column_text(res, 0));
-		item->blocks = 1; //sqlite3_column_int(res, 3);
-		asprintf(&item->path, APOLLO_SANDBOX_PATH, item->dir_name);
-
-		sfo_context_t* sfo = sfo_alloc();
-		snprintf(sfoPath, sizeof(sfoPath), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", item->dir_name);
-		if (file_exists(sfoPath) == SUCCESS && sfo_read(sfo, sfoPath) == SUCCESS)
-		{
-			uint64_t* int_data = (uint64_t*) sfo_get_param_value(sfo, "ACCOUNT_ID");
-			if (int_data && (apollo_config.account_id == *int_data))
-				item->flags |= SAVE_FLAG_OWNER;
-		}
-		sfo_free(sfo);
-
-		LOG("[%s] F(%X) {%d} '%s'", item->title_id, item->flags, item->blocks, item->name);
-		list_append(list, item);
-	}
-
-	sqlite3_finalize(res);
-	sqlite3_close(db);*/
-}
-
 /*
  * Function:		ReadUserList()
  * File:			saves.c
@@ -926,23 +878,23 @@ list_t * ReadUsbList(const char* userPath)
 	//bulk management hack
 	item->dir_name = malloc(sizeof(void**));
 	((void**)item->dir_name)[0] = list;
-
+/*
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign selected Saves", CMD_RESIGN_SAVES);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign all decrypted Saves", CMD_RESIGN_ALL_SAVES);
 	list_append(item->codes, cmd);
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy selected Saves to User Storage (ux0:user/)", CMD_COPY_SAVES_HDD);
+*/
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy selected Saves to Memory Stick (ms0:/PSP)", CMD_COPY_SAVES_HDD);
 	list_append(item->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all decrypted Saves to User Storage (ux0:user/)", CMD_COPY_ALL_SAVES_HDD);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all Saves to Memory Stick (ms0:/PSP)", CMD_COPY_ALL_SAVES_HDD);
 	list_append(item->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Start local Web Server", CMD_SAVE_WEBSERVER);
-	list_append(item->codes, cmd);
+//	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Start local Web Server", CMD_SAVE_WEBSERVER);
+//	list_append(item->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump all decrypted Save Fingerprints", CMD_DUMP_FINGERPRINTS);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Export all Save-game Keys", CMD_DUMP_FINGERPRINTS);
 	list_append(item->codes, cmd);
 	list_append(list, item);
 
@@ -981,14 +933,13 @@ list_t * ReadUserList(const char* userPath)
 	cmd->options = _createOptions(2, "Copy Saves to Backup Storage", CMD_COPY_ALL_SAVES_USB);
 	list_append(item->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Start local Web Server", CMD_SAVE_WEBSERVER);
-	list_append(item->codes, cmd);
+//	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Start local Web Server", CMD_SAVE_WEBSERVER);
+//	list_append(item->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Dump all Save Fingerprints", CMD_DUMP_FINGERPRINTS);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Export all Save-game Keys", CMD_DUMP_FINGERPRINTS);
 	list_append(item->codes, cmd);
 	list_append(list, item);
 
-	read_hdd_savegames(userPath, list);
 	read_psp_savegames(PSP_SAVES_PATH_HDD, list, SAVE_FLAG_HDD);
 
 	return list;
@@ -1090,11 +1041,6 @@ list_t * ReadOnlineList(const char* urlPath)
 	}
 
 	return list;
-}
-
-static int sqlite_trophy_collate(void *foo, int ll, const void *l, int rl, const void *r)
-{
-    return 0;
 }
 
 list_t * ReadTrophyList(const char* userPath)

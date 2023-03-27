@@ -26,12 +26,15 @@ typedef struct
 
 typedef struct __attribute__((packed))
 {
+    char app_name[8];
+    char app_ver[8];
     uint8_t music;
     uint8_t doSort;
     uint8_t doAni;
     uint8_t storage;
     uint8_t update;
     uint32_t user_id;
+    char save_db[256];
 } app_config_t;
 
 extern menu_option_t menu_options[];

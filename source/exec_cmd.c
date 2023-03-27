@@ -163,16 +163,6 @@ static int get_psp_save_key(const save_entry_t* entry, uint8_t* key)
 	return (read_psp_game_key(path, key));
 }
 
-static int _copy_save_hdd(const save_entry_t* save)
-{
-	char copy_path[256];
-
-	LOG("Copying <%s> to %s...", save->path, copy_path);
-	copy_directory(save->path, save->path, copy_path);
-
-	return 1;
-}
-
 static int _copy_save_psp(const save_entry_t* save)
 {
 	char copy_path[256];
@@ -193,13 +183,13 @@ static void copySaveHDD(const save_entry_t* save)
 	}
 
 	init_loading_screen("Copying save game...");
-	int ret = (save->flags & SAVE_FLAG_PSP) ? _copy_save_psp(save) : _copy_save_hdd(save);
+	int ret = _copy_save_psp(save);
 	stop_loading_screen();
 
 	if (ret)
-		show_message("Files successfully copied to:\n%s/%s", save->title_id, save->dir_name);
+		show_message("Files successfully copied to:\n%s%s", PSP_SAVES_PATH_HDD, save->dir_name);
 	else
-		show_message("Error! Can't copy Save-game folder:\n%s/%s", save->title_id, save->dir_name);
+		show_message("Error! Can't copy Save-game folder:\n%s%s", PSP_SAVES_PATH_HDD, save->dir_name);
 }
 
 static void copyAllSavesHDD(const save_entry_t* save, int all)
@@ -219,16 +209,13 @@ static void copyAllSavesHDD(const save_entry_t* save, int all)
 		if (!all && !(item->flags & SAVE_FLAG_SELECTED))
 			continue;
 
-//		if (item->type == FILE_TYPE_PSV && !(item->flags & SAVE_FLAG_LOCKED))
-//			(_copy_save_hdd(item) ? done++ : err_count++);
-
-		if (item->type == FILE_TYPE_PSP)
+		if ((item->flags & SAVE_FLAG_PS1) || item->type == FILE_TYPE_PSP)
 			(_copy_save_psp(item) ? done++ : err_count++);
 	}
 
 	end_progress_bar();
 
-	show_message("%d/%d Saves copied to Internal Storage", done, done+err_count);
+	show_message("%d/%d Saves copied to Memory Stick\n" PSP_SAVES_PATH_HDD, done, done+err_count);
 }
 
 static void extractArchive(const char* file_path)
@@ -269,23 +256,23 @@ static void extractArchive(const char* file_path)
 		show_message("Error: %s couldn't be extracted", file_path);
 }
 
-static void pspDumpKey(const save_entry_t* save)
+static int pspDumpKey(const save_entry_t* save, int verbose)
 {
 	char fpath[256];
 	uint8_t buffer[0x10];
 
 	if (!get_psp_save_key(save, buffer))
 	{
-		show_message("Error! Game Key file is not available:\n%s/%s.bin", save->dir_name, save->title_id);
-		return;
+		if (verbose) show_message("Error! Game Key file is not available:\n%s/%s.bin", save->dir_name, save->title_id);
+		return 0;
 	}
 
 	snprintf(fpath, sizeof(fpath), APOLLO_PATH "gamekeys.txt");
 	FILE *fp = fopen(fpath, "a");
 	if (!fp)
 	{
-		show_message("Error! Can't open file:\n%s", fpath);
-		return;
+		if (verbose) show_message("Error! Can't open file:\n%s", fpath);
+		return 0;
 	}
 
 	fprintf(fp, "%s=", save->title_id);
@@ -295,7 +282,8 @@ static void pspDumpKey(const save_entry_t* save)
 	fprintf(fp, "\n");
 	fclose(fp);
 
-	show_message("%s game key successfully saved to:\n%s", save->title_id, fpath);
+	if (verbose) show_message("%s game key successfully saved to:\n%s", save->title_id, fpath);
+	return 1;
 }
 
 static void pspExportKey(const save_entry_t* save)
@@ -320,31 +308,26 @@ static void pspExportKey(const save_entry_t* save)
 
 static void dumpAllFingerprints(const save_entry_t* save)
 {
+	int count = 0, err = 0;
 	uint64_t progress = 0;
 	list_node_t *node;
 	save_entry_t *item;
 	list_t *list = ((void**)save->dir_name)[0];
 
-	init_progress_bar("Dumping all fingerprints...");
+	init_progress_bar("Dumping all game keys...");
 
 	LOG("Dumping all fingerprints from '%s'...", save->path);
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
-		if (item->type != FILE_TYPE_PSV)
+		if (item->type != FILE_TYPE_PSP)
 			continue;
 
-//		if (item->flags & SAVE_FLAG_PSV && item->flags & SAVE_FLAG_HDD && !vita_SaveMount(item))
-//			continue;
-
-//		exportFingerprint(item, 1);
-
-//		if (item->flags & SAVE_FLAG_PSV && item->flags & SAVE_FLAG_HDD)
-//			vita_SaveUmount();
+		pspDumpKey(item, 0) ? count++ : err++;
 	}
 
 	end_progress_bar();
-	show_message("All fingerprints dumped to:\n%sfingerprints.txt", APOLLO_PATH);
+	show_message("%d/%d game keys dumped to:\n%sgamekeys.txt", count, count+err, APOLLO_PATH);
 }
 
 /*
@@ -542,15 +525,10 @@ static void copyAllSavesUSB(const save_entry_t* save, int dev, int all)
 		if (!all && !(item->flags & SAVE_FLAG_SELECTED))
 			continue;
 
-		snprintf(copy_path, sizeof(copy_path), "%s%s_%s/", dst_path, item->title_id, item->dir_name);
+		snprintf(copy_path, sizeof(copy_path), "%s%s/", dst_path, item->dir_name);
 		LOG("Copying <%s> to %s...", item->path, copy_path);
 
-		if (item->type == FILE_TYPE_PSV)
-		{
-			(copy_directory(item->path, item->path, copy_path) == SUCCESS) ? done++ : err_count++;
-		}
-
-		if (item->type == FILE_TYPE_PSP)
+		if ((item->flags & SAVE_FLAG_PS1) || item->type == FILE_TYPE_PSP)
 			(copy_directory(item->path, item->path, copy_path) == SUCCESS) ? done++ : err_count++;
 	}
 
@@ -717,8 +695,8 @@ static void resignSave(save_entry_t* entry)
 
     LOG("Resigning save '%s'...", entry->name);
 
-    if (!apply_sfo_patches(entry, &patch))
-        show_message("Error! Account changes couldn't be applied");
+//    if ((entry->flags & SAVE_FLAG_PS1) && !apply_sfo_patches(entry, &patch))
+//        show_message("Error! Account changes couldn't be applied");
 
     LOG("Applying cheats to '%s'...", entry->name);
     if (!apply_cheat_patches(entry))
@@ -745,7 +723,7 @@ static void resignAllSaves(const save_entry_t* save, int all)
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
-		if (item->type != FILE_TYPE_PSV || !(all || item->flags & SAVE_FLAG_SELECTED))
+		if (!(item->flags & SAVE_FLAG_PS1) || !(all || item->flags & SAVE_FLAG_SELECTED))
 			continue;
 
 		snprintf(sfoPath, sizeof(sfoPath), "%s" "sce_sys/param.sfo", item->path);
@@ -925,7 +903,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_DUMP_PSPKEY:
-			pspDumpKey(selected_entry);
+			pspDumpKey(selected_entry, 1);
 			code->activated = 0;
 			break;
 

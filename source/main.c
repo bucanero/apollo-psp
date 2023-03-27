@@ -54,9 +54,12 @@ extern const uint8_t _binary_data_haiku_s3m_size;
 
 void update_usb_path(char *p);
 void update_hdd_path(char *p);
-void update_trophy_path(char *p);
+void update_db_path(char *p);
 
 app_config_t apollo_config = {
+    .app_name = "APOLLO",
+    .app_ver = APOLLO_VERSION,
+	.save_db = ONLINE_URL,
     .music = 0,
     .doSort = 1,
     .doAni = 1,
@@ -125,7 +128,7 @@ save_list_t trophies = {
     .path = "",
     .ReadList = &ReadTrophyList,
     .ReadCodes = &ReadTrophies,
-    .UpdatePath = &update_trophy_path,
+    .UpdatePath = NULL,
 };
 
 /*
@@ -135,10 +138,10 @@ save_list_t online_saves = {
 	.icon_id = cat_db_png_index,
 	.title = "Online Database",
     .list = NULL,
-    .path = ONLINE_URL,
+    .path = "",
     .ReadList = &ReadOnlineList,
     .ReadCodes = &ReadOnlineSaves,
-    .UpdatePath = NULL,
+    .UpdatePath = &update_db_path,
 };
 
 /*
@@ -327,9 +330,9 @@ void update_hdd_path(char* path)
 	strcpy(path, PSP_SAVES_PATH_HDD);
 }
 
-void update_trophy_path(char* path)
+void update_db_path(char* path)
 {
-	sprintf(path, MS0_PATH "ISO/");
+	sprintf(path, apollo_config.save_db);
 }
 
 static void registerSpecialChars()
@@ -491,8 +494,6 @@ int main(int argc, char *argv[])
 //	dbglogger_init_mode(TCP_LOGGER, "192.168.1.249", 19999);
 //	dbglogger_init_mode(TCP_LOGGER, "10.22.22.233", 19999);
 #endif
-    dbglogger_init_mode(FILE_LOGGER, "ms0:/psp-xyz.log", 0);
-
 
 	// Initialize SDL functions
 	LOG("Initializing SDL");

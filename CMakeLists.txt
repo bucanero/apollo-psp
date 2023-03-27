@@ -112,9 +112,10 @@ add_custom_target(createzip
   COMMAND @mkdir -p APOLLO/DATA
   COMMAND @mkdir -p APOLLO/CACHE
   COMMAND @echo "Downloading appdata.zip ..."
-  COMMAND @rm -fr APOLLO/CACHE/appdata.zip
+  COMMAND @rm -fr apollo-psp.zip
   COMMAND @curl -L "https://bucanero.github.io/apollo-patches/PSP/apollo-psp-update.zip" > APOLLO/CACHE/appdata.zip
   COMMAND @cp EBOOT.PBP APOLLO/
+  COMMAND @cp ${CMAKE_SOURCE_DIR}/data/fonts/* APOLLO/DATA/
   COMMAND @zip -r apollo-psp.zip APOLLO/
 )
 
