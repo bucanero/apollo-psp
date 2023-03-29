@@ -87,7 +87,7 @@ enum cmd_code_enum
 
 // Export commands
     CMD_EXP_KEYSTONE,
-    CMD_EXP_LIC_ZRIF,
+    CMD_SETUP_PLUGIN,
     CMD_EXP_VMP2MCR,
     CMD_EXP_PSPKEY,
     CMD_DUMP_PSPKEY,
@@ -130,7 +130,7 @@ enum save_type_enum
     FILE_TYPE_ZIP,
 
     // License Files
-    FILE_TYPE_RIF,
+    FILE_TYPE_PRX,
     FILE_TYPE_RAP,
     FILE_TYPE_ACT,
 

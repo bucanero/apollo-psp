@@ -545,7 +545,12 @@ int main(int argc, char *argv[])
 	}
 
 	// Load application settings
-	load_app_settings(&apollo_config);
+	if (!load_app_settings(&apollo_config) &&
+		show_dialog(DIALOG_TYPE_YESNO, "Install the Save-game Key dumper plugin?"))
+	{
+		LOG("Installing plugin");
+		install_sgkey_plugin(1);
+	}
 
 	// Unpack application data on first run
 	if (file_exists(APOLLO_LOCAL_CACHE "appdata.zip") == SUCCESS)

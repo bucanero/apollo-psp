@@ -462,12 +462,13 @@ list_t * ReadBackupList(const char* userPath)
 	item->path = strdup(MS0_PATH);
 	item->type = FILE_TYPE_ZIP;
 	list_append(list, item);
-/*
-	item = _createSaveEntry(SAVE_FLAG_PS2, CHAR_ICON_COPY " Export NoNpDRM Licenses to zRIF");
-	item->path = strdup("");
-	item->type = FILE_TYPE_RIF;
+
+	item = _createSaveEntry(SAVE_FLAG_PSP, CHAR_ICON_COPY " Manage Save-game Key Dumper plugin");
+	item->path = strdup(MS0_PATH);
+	item->type = FILE_TYPE_PRX;
 	list_append(list, item);
 
+/*
 	item = _createSaveEntry(0, CHAR_ICON_NET " Network Tools (Downloader, Web Server)");
 	item->path = strdup(MS0_PATH);
 	item->type = FILE_TYPE_NET;
@@ -500,33 +501,16 @@ int ReadBackupCodes(save_entry_t * bup)
 		list_append(bup->codes, cmd);
 		return list_count(bup->codes);
 
-	case FILE_TYPE_RIF:
+	case FILE_TYPE_PRX:
 		bup->codes = list_alloc();
 
-		LOG("Getting .rifs from '%s'...", bup->path);
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " Install Save-game Key Dumper plugin", CMD_SETUP_PLUGIN);
+		cmd->codes[1] = 1;
+		list_append(bup->codes, cmd);
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Disable Save-game Key Dumper plugin", CMD_SETUP_PLUGIN);
+		cmd->codes[1] = 0;
+		list_append(bup->codes, cmd);
 
-		char* filename;
-		list_t* file_list = list_alloc();
-		_walk_dir_list("", bup->path, "*.rif", file_list);
-
-		if (!list_count(file_list))
-		{
-			asprintf(&filename, "%s --- No .rif licenses found ---", bup->path);
-			list_append(file_list, filename);
-		}
-
-		for (list_node_t* node = list_head(file_list); (filename = list_get(node)); node = list_next(node))
-		{
-			snprintf(tmp, sizeof(tmp), CHAR_ICON_USER " %s", filename + strlen(bup->path));
-			*strrchr(tmp, '/') = 0;
-			cmd = _createCmdCode(PATCH_COMMAND, tmp, CMD_EXP_LIC_ZRIF);
-			cmd->file = filename;
-			list_append(bup->codes, cmd);
-
-			LOG("[%s] name '%s'", cmd->file, cmd->name +2);
-		}
-
-		list_free(file_list);
 		return list_count(bup->codes);
 
 	default:

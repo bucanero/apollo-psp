@@ -9,9 +9,13 @@
 #include "saves.h"
 #include "common.h"
 #include "icon0.h"
+#include "plugin.h"
 
 #define PSP_UTILITY_COMMON_RESULT_OK (0)
+#define GAME_PLUGIN_PATH             "ms0:/seplugins/game.txt"
+#define SGKEY_DUMP_PLUGIN_PATH       "ms0:/seplugins/SGKeyDumper.prx"
 
+char *strcasestr(const char *, const char *);
 static char* ext_src[MAX_USB_DEVICES+1] = {"ms0", "ef0", NULL};
 static char* sort_opt[] = {"Disabled", "by Name", "by Title ID", NULL};
 
@@ -336,4 +340,70 @@ int load_app_settings(app_config_t* config)
 */
 
 	return 1;
+}
+
+int install_sgkey_plugin(int install)
+{
+	char* data;
+	size_t size;
+
+	mkdirs(SGKEY_DUMP_PLUGIN_PATH);
+	if (write_buffer(SGKEY_DUMP_PLUGIN_PATH, sgk_plugin, size_sgk_plugin) < 0)
+		return 0;
+
+	if (read_buffer(GAME_PLUGIN_PATH, (uint8_t**) &data, &size) < 0)
+	{
+		LOG("Error reading game.txt");
+		if (!install)
+			return 0;
+
+		if (write_buffer(GAME_PLUGIN_PATH, SGKEY_DUMP_PLUGIN_PATH " 1\n", 40) < 0)
+		{
+			LOG("Error creating game.txt");
+			return 0;
+		}
+
+		return 1;
+	}
+
+	if (install)
+	{
+		char *ptr = strcasestr(data, SGKEY_DUMP_PLUGIN_PATH " ");
+		if (ptr != NULL && (ptr[31] == '1' || ptr[31] == '0'))
+		{
+			LOG("Plugin enabled");
+			ptr[31] = '1';
+			write_buffer(GAME_PLUGIN_PATH, data, size);
+			free(data);
+
+			return 1;
+		}
+		free(data);
+
+		FILE* fp = fopen(GAME_PLUGIN_PATH, "a");
+		if (!fp)
+		{
+			LOG("Error opening game.txt");
+			return 0;
+		}
+
+		fprintf(fp, "%s%s", SGKEY_DUMP_PLUGIN_PATH, " 1\n");
+		fclose(fp);
+		return 1;
+	}
+
+	if (!install)
+	{
+		char *ptr = strcasestr(data, SGKEY_DUMP_PLUGIN_PATH " ");
+		if (ptr != NULL && (ptr[31] == '1' || ptr[31] == '0'))
+		{
+			LOG("Plugin disabled");
+			ptr[31] = '0';
+			write_buffer(GAME_PLUGIN_PATH, data, size);
+		}
+		free(data);
+		return 1;
+	}
+
+	return 0;
 }
