@@ -44,7 +44,7 @@ void walk_zip_directory(const char* startdir, const char* inputdir, struct zip *
 		if ((strcmp(dirp->d_name, ".")  != 0) && (strcmp(dirp->d_name, "..") != 0)) {
 			snprintf(fullname, sizeof(fullname), "%s%s", inputdir, dirp->d_name);
 
-			if (dirp->d_type == DT_DIR) {
+			if (dir_exists(fullname) == SUCCESS) {
 				strcat(fullname, "/");
 				walk_zip_directory(startdir, fullname, zipper);
 			} else {
@@ -219,7 +219,7 @@ int extract_zip(const char* zip_file, const char* dest_path)
 	end_progress_bar();
 	free(buffer);
 
-	return 1;
+	return files;
 }
 
 void callback_7z(const char* fileName, unsigned long fileSize, unsigned fileNum, unsigned numFiles)

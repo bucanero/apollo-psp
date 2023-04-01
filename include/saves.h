@@ -39,6 +39,7 @@ enum storage_enum
 {
     STORAGE_MS0,
     STORAGE_EF0,
+    STORAGE_MS0_PSP,
 };
 
 enum save_sort_enum
@@ -217,6 +218,7 @@ int ReadTrophies(save_entry_t * game);
 int ReadOnlineSaves(save_entry_t * game);
 int ReadBackupCodes(save_entry_t * bup);
 
+int network_up(void);
 int http_init(void);
 void http_end(void);
 int http_download(const char* url, const char* filename, const char* local_dst, int show_progress);
@@ -235,7 +237,7 @@ void end_progress_bar(void);
 #define show_message(...)	show_dialog(DIALOG_TYPE_OK, __VA_ARGS__)
 
 int init_loading_screen(const char* msg);
-void stop_loading_screen();
+void stop_loading_screen(void);
 
 void execCodeCommand(code_entry_t* code, const char* codecmd);
 

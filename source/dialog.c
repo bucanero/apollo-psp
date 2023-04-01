@@ -83,7 +83,7 @@ void end_progress_bar(void)
 
 void update_progress_bar(uint64_t progress, const uint64_t total_size, const char* msg)
 {
-    float bar_value = (100.0f * ((double) progress)) / ((double) total_size);
+    float bar_value = (100.0f * ((double) progress)) / ((double) (total_size ? total_size : ~0));
 
     snprintf(progress_bar, sizeof(progress_bar), "%24.0f%%", bar_value);
     bar_value /= 5;

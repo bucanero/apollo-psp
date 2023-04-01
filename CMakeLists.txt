@@ -62,7 +62,7 @@ add_executable(${PROJECT_NAME}
   source/dialog.c
   source/draw.c
   source/exec_cmd.c
-#  source/http.c
+  source/http.c
   source/libfont.c
   source/main.c
   source/menu_about.c
@@ -83,18 +83,18 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   ${SDL2_LIBRARIES}
-  ${CURL_LIBRARIES}
-#  ${OPENSSL_LIBRARIES}
+  CURL::libcurl
   apollo
   polarssl
   dbglogger
   freetype
   png
   pthread
+  pspnet
+  pspnet_apctl
 #  unrar
   zip
   un7zip
-  stdc++
   xmp
   bz2
   z

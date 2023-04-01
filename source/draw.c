@@ -389,6 +389,7 @@ void DrawTextureRotated(png_texture* tex, int x, int y, int z, int w, int h, u32
 }
 
 static int please_wait;
+static SDL_Thread* tid = NULL;
 
 static int loading_screen_thread(void* user_data)
 {
@@ -420,7 +421,9 @@ static int loading_screen_thread(void* user_data)
 
 int init_loading_screen(const char* message)
 {
-	SDL_Thread* tid;
+	if (tid)
+		return (0);
+
 	please_wait = 1;
 
 	SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
@@ -428,20 +431,19 @@ int init_loading_screen(const char* message)
 	SetFontColor(APP_FONT_MENU_COLOR | 0xFF, 0);
 
 	tid = SDL_CreateThread(&loading_screen_thread, "please_wait", (void*) message);
-	SDL_DetachThread(tid);
 
 	return (tid != NULL);
 }
 
-void stop_loading_screen()
+void stop_loading_screen(void)
 {
     if (please_wait != 1)
         return;
 
     please_wait = 0;
 
-    while (please_wait != -1)
-        usleep(1000);
+    SDL_WaitThread(tid, NULL);
+	tid = NULL;
 }
 
 static void drawJar(uint8_t idx, int pos_x, int pos_y, const char* text, uint8_t alpha)

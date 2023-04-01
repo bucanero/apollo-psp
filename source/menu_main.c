@@ -184,6 +184,7 @@ static void SetMenu(int id)
 			break;
 
 		case MENU_ONLINE_DB: //Cheats Online Menu
+			network_up();
 			if (!online_saves.list && !ReloadUserSaves(&online_saves))
 				return;
 

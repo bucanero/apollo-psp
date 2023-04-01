@@ -37,6 +37,9 @@ static void downloadSave(const save_entry_t* entry, const char* file, int dst)
 	char path[256];
 
 	_set_dest_path(path, dst, PSP_SAVES_PATH_USB);
+	if (dst == STORAGE_MS0_PSP)
+		snprintf(path, sizeof(path), PSP_SAVES_PATH_HDD);
+
 	if (mkdirs(path) != SUCCESS)
 	{
 		show_message("Error! Export folder is not available:\n%s", path);
@@ -484,10 +487,11 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 
 static void enableWebServer(dWebReqHandler_t handler, void* data, int port)
 {
-/*	SceNetCtlInfo ip_info;
+/*
+	union SceNetApctlInfo ip_info;
 
 	memset(&ip_info, 0, sizeof(ip_info));
-	sceNetCtlInetGetInfo(SCE_NETCTL_INFO_GET_IP_ADDRESS, &ip_info);
+	sceNetApctlGetInfo(PSP_NET_APCTL_INFO_IP, &ip_info);
 	LOG("Starting local web server %s:%d ...", ip_info.ip_address, port);
 
 	if (dbg_webserver_start(port, handler, data))

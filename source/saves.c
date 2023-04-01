@@ -429,8 +429,8 @@ int ReadOnlineSaves(save_entry_t * game)
 
 			item->options_count = 1;
 			item->options = _createOptions(3, "Download to Backup Storage", CMD_DOWNLOAD_USB);
-			asprintf(&item->options->name[2], "Download to User Storage (ux0:data/)");
-			asprintf(&item->options->value[2], "%c%c", CMD_DOWNLOAD_USB, STORAGE_MS0);
+			asprintf(&item->options->name[2], "Download to Memory Stick (ms0:/PSP)");
+			asprintf(&item->options->value[2], "%c%c", CMD_DOWNLOAD_USB, STORAGE_MS0_PSP);
 			list_append(game->codes, item);
 
 			LOG("[%s%s] %s", game->path, item->file, item->name + 1);

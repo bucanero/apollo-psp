@@ -13,9 +13,6 @@
 //#include <psp/system_param.h>
 //#include <psp/sysmodule.h>
 #include <pspaudio.h>
-#include <pspaudiolib.h>
-//#include <psp/kernel/processmgr.h>
-//#include <psp/kernel/modulemgr.h>
 #include <xmp.h>
 
 #include "saves.h"
@@ -183,7 +180,7 @@ static int LoadTextures_Menu()
 	free_mem = (u32 *) AddFontFromBitmapArray((u8 *) data_font_Adonais, (u8 *) texture_mem, 0x20, 0x7e, 32, 31, 1, BIT7_FIRST_PIXEL);
 	free_mem = (u32 *) AddFontFromBitmapArray((u8 *) console_font_16x32, (u8 *) free_mem, 0, 0xFF, 16, 32, 1, BIT7_FIRST_PIXEL);
 
-	if (TTFLoadFont(0, APOLLO_DATA_PATH "NotoSansJP-Medium.otf", NULL, 0) != SUCCESS)
+	if (TTFLoadFont(0, "./DATA/NotoSansJP-Medium.otf", NULL, 0) != SUCCESS)
 		return 0;
 
 	free_mem = (u32*) init_ttf_table((u8*) free_mem);
@@ -470,15 +467,6 @@ static int initialize_vitashell_modules()
     return 1;
 }
 
-int http_download(const char* url, const char* filename, const char* local_dst, int show_progress)
-{
-	return 0;
-}
-int http_init(void)
-{}
-void http_end()
-{}
-
 /*
 	Program start
 */
@@ -490,9 +478,7 @@ int main(int argc, char *argv[])
 	uint32_t startFrameTicks = 0;
 	uint32_t deltaFrameTicks = 0;
 
-	dbglogger_init();
-//	dbglogger_init_mode(TCP_LOGGER, "192.168.1.249", 19999);
-//	dbglogger_init_mode(TCP_LOGGER, "10.22.22.233", 19999);
+	dbglogger_init_mode(FILE_LOGGER, "ms0:/apollo-psp.log", 1);
 #endif
 
 	// Initialize SDL functions
@@ -562,10 +548,10 @@ int main(int argc, char *argv[])
 		unlink_secure(APOLLO_LOCAL_CACHE "appdata.zip");
 	}
 
-	// dedicated to Leon ~ in loving memory (2009 - 2022)
-	// menu_textures[buk_scr_png_index] = menu_textures[leon_jpg_index];
+	// dedicated to Luna ~ in loving memory (2011 - 2023)
 	// Splash screen logo (fade-in)
 	drawSplashLogo(1);
+	sleep(2);
  
 	// Setup font
 	SetExtraSpace(-10);
@@ -582,7 +568,7 @@ int main(int argc, char *argv[])
 	update_callback(!apollo_config.update);
 
 	// Start BGM audio thread
-	SDL_CreateThread(&LoadSounds, "audio_thread", &apollo_config.music);
+//	SDL_CreateThread(&LoadSounds, "audio_thread", &apollo_config.music);
 	Draw_MainMenu_Ani();
 
 	while (!close_app)
