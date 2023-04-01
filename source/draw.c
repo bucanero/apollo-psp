@@ -449,11 +449,11 @@ void stop_loading_screen(void)
 static void drawJar(uint8_t idx, int pos_x, int pos_y, const char* text, uint8_t alpha)
 {
 	uint8_t active = (menu_sel + jar_usb_png_index == idx);
-	DrawTexture(&menu_textures[idx], pos_x, pos_y, 0, menu_textures[idx].width * SCREEN_W_ADJ, menu_textures[idx].height * SCREEN_H_ADJ, 0xffffff00 | alpha);
+	DrawTexture(&menu_textures[idx], pos_x, pos_y, 0, menu_textures[idx].width, menu_textures[idx].height, 0xffffff00 | alpha);
 
 	//Selected
 	if (active)
-		DrawTexture(&menu_textures[idx + JAR_COLUMNS], pos_x, pos_y, 0, menu_textures[idx + JAR_COLUMNS].width * SCREEN_W_ADJ, menu_textures[idx + JAR_COLUMNS].height * SCREEN_H_ADJ, 0xffffff00 | alpha);
+		DrawTexture(&menu_textures[idx + JAR_COLUMNS], pos_x, pos_y, 0, menu_textures[idx + JAR_COLUMNS].width, menu_textures[idx + JAR_COLUMNS].height, 0xffffff00 | alpha);
 
 	SetFontColor(APP_FONT_MENU_COLOR | (alpha == 0xFF ? (active ? 0xFF : 0x20) : alpha), 0);
 	DrawStringMono(pos_x + (menu_textures[idx].width * SCREEN_W_ADJ / 2), pos_y - 30, text);
@@ -461,7 +461,7 @@ static void drawJar(uint8_t idx, int pos_x, int pos_y, const char* text, uint8_t
 
 static void _drawColumn(uint8_t idx, int pos_x, int pos_y, uint8_t alpha)
 {
-	DrawTexture(&menu_textures[idx], pos_x, pos_y, 0, menu_textures[idx].width * SCREEN_W_ADJ, menu_textures[idx].height * SCREEN_H_ADJ, 0xffffff00 | alpha);
+	DrawTexture(&menu_textures[idx], pos_x, pos_y, 0, menu_textures[idx].width, menu_textures[idx].height, 0xffffff00 | alpha);
 }
 
 static void drawColumns(uint8_t alpha)

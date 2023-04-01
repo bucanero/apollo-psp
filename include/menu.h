@@ -192,7 +192,7 @@ enum texture_index
 #define jar_opt_png_x						1353 * SCREEN_W_ADJ
 #define jar_opt_png_y						696 * SCREEN_H_ADJ
 #define jar_about_png_x						1698 * SCREEN_W_ADJ
-#define jar_about_png_y						782 * SCREEN_H_ADJ
+#define jar_about_png_y						787 * SCREEN_H_ADJ
 #define cat_any_png_x						40 * SCREEN_W_ADJ
 #define cat_any_png_y						45 * SCREEN_H_ADJ
 #define app_ver_png_x						1828 * SCREEN_W_ADJ
