@@ -1,5 +1,5 @@
 /* 
-	Apollo PS Vita main.c
+	Apollo PSP main.c
 */
 
 #include <stdio.h>
@@ -56,7 +56,7 @@ void update_db_path(char *p);
 app_config_t apollo_config = {
     .app_name = "APOLLO",
     .app_ver = APOLLO_VERSION,
-	.save_db = ONLINE_URL,
+    .save_db = ONLINE_URL,
     .music = 0,
     .doSort = 1,
     .doAni = 1,
@@ -329,7 +329,7 @@ void update_hdd_path(char* path)
 
 void update_db_path(char* path)
 {
-	sprintf(path, apollo_config.save_db);
+	strcpy(path, apollo_config.save_db);
 }
 
 static void registerSpecialChars()
