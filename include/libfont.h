@@ -119,7 +119,6 @@ float DrawString(float x, float y, const char *str);
 // function to draw with fomat string similar to printf. It return X incremented
 
 float DrawFormatString(float x, float y, char *format, ...);
-
-//int LoadImageFontEntry(const uint8_t* rawData, uint16_t unicodeId, pngData* texture);
+float DrawFormatStringMono(float x, float y, char *format, ...);
 
 #endif

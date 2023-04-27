@@ -65,6 +65,7 @@ add_executable(${PROJECT_NAME}
   source/http.c
   source/libfont.c
   source/main.c
+  source/menu_hex.c
   source/menu_about.c
   source/menu_cheats.c
   source/menu_options.c

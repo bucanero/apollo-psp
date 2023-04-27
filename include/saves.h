@@ -53,13 +53,6 @@ enum cmd_code_enum
 {
     CMD_CODE_NULL,
 
-// Trophy commands
-    CMD_COPY_ALL_TROP_USB,
-    CMD_EXP_TROPHY_USB,
-    CMD_COPY_TROPHIES_USB,
-    CMD_ZIP_TROPHY_USB,
-    CMD_IMP_TROPHY_HDD,
-
 // Save commands
     CMD_DECRYPT_FILE,
     CMD_RESIGN_SAVE,
@@ -73,7 +66,7 @@ enum cmd_code_enum
     CMD_RESIGN_VMP,
     CMD_EXP_FINGERPRINT,
     CMD_CONVERT_TO_PSV,
-    CMD_COPY_PFS,
+    CMD_HEX_EDIT_FILE,
     CMD_IMPORT_DATA_FILE,
 
 // Bulk commands

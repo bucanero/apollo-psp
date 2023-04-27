@@ -68,10 +68,10 @@ int show_dialog(int tdialog, const char * format, ...)
 void init_progress_bar(const char* msg)
 {
     SetExtraSpace(0);
-    SetCurrentFont(font_console_16x32);
+    SetCurrentFont(font_console_6x10);
     strncpy(progress_bar, msg, sizeof(progress_bar) - 1);
     init_loading_screen(progress_bar);
-    SetFontSize(12, 24);
+    SetFontSize(6, 10);
 }
 
 void end_progress_bar(void)
@@ -85,11 +85,11 @@ void update_progress_bar(uint64_t progress, const uint64_t total_size, const cha
 {
     float bar_value = (100.0f * ((double) progress)) / ((double) (total_size ? total_size : ~0));
 
-    snprintf(progress_bar, sizeof(progress_bar), "%24.0f%%", bar_value);
-    bar_value /= 5;
+    snprintf(progress_bar, sizeof(progress_bar), "%44.0f%%", bar_value);
+    bar_value /= 2.5f;
 
-    for (int i = 0; i < 20; i++)
-        progress_bar[i] = (i+1 <= (int)bar_value) ? '\xDB' : '\xB1';
+    for (int i = 0; i < 40; i++)
+        progress_bar[i] = (i+1 <= (int)bar_value) ? '\xDB' : '\xB0';
 }
 
 static int convert_to_utf16(const char* utf8, uint16_t* utf16, uint32_t available)

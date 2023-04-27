@@ -358,7 +358,7 @@ int install_sgkey_plugin(int install)
 		if (!install)
 			return 0;
 
-		if (write_buffer(GAME_PLUGIN_PATH, SGKEY_DUMP_PLUGIN_PATH " 1\n", 40) < 0)
+		if (write_buffer(GAME_PLUGIN_PATH, SGKEY_DUMP_PLUGIN_PATH " 1\n", 33) < 0)
 		{
 			LOG("Error creating game.txt");
 			return 0;
