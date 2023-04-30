@@ -1,4 +1,4 @@
-#define APOLLO_VERSION          "0.7.0"     //Apollo Vita version (about menu)
+#define APOLLO_VERSION          "1.0.0"     //Apollo Vita version (about menu)
 
 #define MENU_TITLE_OFF			30			//Offset of menu title text from menu mini icon
 #define MENU_ICON_OFF 			35          //X Offset to start printing menu mini icon
@@ -38,7 +38,6 @@ typedef struct __attribute__((packed))
 } app_config_t;
 
 extern menu_option_t menu_options[];
-
 extern app_config_t apollo_config;
 
 void log_callback(int sel);
@@ -49,4 +48,3 @@ void ani_callback(int sel);
 void update_callback(int sel);
 void clearcache_callback(int sel);
 void upd_appdata_callback(int sel);
-void unzip_app_data(const char* zip_file);

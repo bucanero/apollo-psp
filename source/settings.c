@@ -276,6 +276,7 @@ int save_app_settings(app_config_t* config)
 	Byte dest[4912];
 	uLong destLen = sizeof(dest);
 
+	LOG("Apollo Save Tool v%s - Patch Engine v%s", APOLLO_VERSION, APOLLO_LIB_VERSION);
 	snprintf(filePath, sizeof(filePath), "%s%s%s%s", MS0_PATH, USER_PATH_HDD, "NP0APOLLO-Settings/", "ICON0.PNG");
 	if (mkdirs(filePath) != SUCCESS)
 	{
