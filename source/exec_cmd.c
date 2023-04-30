@@ -3,7 +3,7 @@
 #include <dirent.h>
 #include <time.h>
 #include <polarssl/md5.h>
-//#include <psp2/net/netctl.h>
+#include <pspnet_apctl.h>
 
 #include "saves.h"
 #include "menu.h"
@@ -405,7 +405,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 			md5_update(&ctx, (uint8_t*) item->name, strlen(item->name));
 
 		md5_finish(&ctx, (uint8_t*) hash);
-		asprintf(&res->data, APOLLO_LOCAL_CACHE "web%016lx%016lx.html", hash[0], hash[1]);
+		asprintf(&res->data, APOLLO_LOCAL_CACHE "web%016llx%016llx.html", hash[0], hash[1]);
 
 		if (file_exists(res->data) == SUCCESS)
 			return 1;
@@ -414,8 +414,8 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 		if (!f)
 			return 0;
 
-		fprintf(f, "<html><head><meta charset=\"UTF-8\"><style>h1, h2 { font-family: arial; } table { border-collapse: collapse; margin: 25px 0; font-size: 0.9em; font-family: sans-serif; min-width: 400px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.15); } table thead tr { background-color: #009879; color: #ffffff; text-align: left; } table th, td { padding: 12px 15px; } table tbody tr { border-bottom: 1px solid #dddddd; } table tbody tr:nth-of-type(even) { background-color: #f3f3f3; } table tbody tr:last-of-type { border-bottom: 2px solid #009879; }</style>");
-		fprintf(f, "<script language=\"javascript\">document.addEventListener(\"DOMContentLoaded\",function(){var e;if(\"IntersectionObserver\"in window){e=document.querySelectorAll(\".lazy\");var n=new IntersectionObserver(function(e,t){e.forEach(function(e){if(e.isIntersecting){var t=e.target;t.src=t.dataset.src,t.classList.remove(\"lazy\"),n.unobserve(t)}})});e.forEach(function(e){n.observe(e)})}else{var t;function r(){t&&clearTimeout(t),t=setTimeout(function(){var n=window.pageYOffset;e.forEach(function(e){e.offsetTop<window.innerHeight+n&&(e.src=e.dataset.src,e.classList.remove(\"lazy\"))}),0==e.length&&(document.removeEventListener(\"scroll\",r),window.removeEventListener(\"resize\",r),window.removeEventListener(\"orientationChange\",r))},20)}e=document.querySelectorAll(\".lazy\"),document.addEventListener(\"scroll\",r),window.addEventListener(\"resize\",r),window.addEventListener(\"orientationChange\",r)}});</script>");
+		fprintf(f, "<html><head><meta charset=\"UTF-8\"><style>h1, h2 { font-family: arial; } img { display: none; } table { border-collapse: collapse; margin: 25px 0; font-size: 0.9em; font-family: sans-serif; min-width: 400px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.15); } table thead tr { background-color: #009879; color: #ffffff; text-align: left; } table th, td { padding: 12px 15px; } table tbody tr { border-bottom: 1px solid #dddddd; } table tbody tr:nth-of-type(even) { background-color: #f3f3f3; } table tbody tr:last-of-type { border-bottom: 2px solid #009879; }</style>");
+		fprintf(f, "<script language=\"javascript\">function show(sid,src){var im=document.getElementById('img'+sid);im.src=src;im.style.display='block';document.getElementById('btn'+sid).style.display='none';}</script>");
 		fprintf(f, "<title>Apollo Save Tool</title></head><body><h1>.:: Apollo Save Tool</h1><h2>Index of %s</h2><table><thead><tr><th>Name</th><th>Icon</th><th>Title ID</th><th>Folder</th><th>Location</th></tr></thead><tbody>", selected_entry->path);
 
 		int i = 0;
@@ -424,15 +424,9 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 			if (item->type == FILE_TYPE_MENU || !(item->flags & (SAVE_FLAG_PS1|SAVE_FLAG_PSP)))
 				continue;
 
-			fprintf(f, "<tr><td><a href=\"/zip/%08x/%s_%s.zip\">%s</a></td>", i, item->title_id, item->dir_name, item->name);
-			fprintf(f, "<td><img class=\"lazy\" data-src=\"");
-
-			if (item->flags & SAVE_FLAG_PSP)
-				fprintf(f, "/icon/%08x/ICON0.PNG\" width=\"144\" height=\"80", i);
-			else
-				fprintf(f, "/icon/%s/icon0.png\" width=\"128\" height=\"128", item->title_id);
-
-			fprintf(f, "\" alt=\"%s\"></td>", item->name);
+			fprintf(f, "<tr><td><a href=\"/zip/%08d/%s_%s.zip\">%s</a></td>", i, item->title_id, item->dir_name, item->name);
+			fprintf(f, "<td><button type=\"button\" id=\"btn%d\" onclick=\"show(%d,'/icon/%08x/ICON0.PNG", i, i, i);
+			fprintf(f, "')\">Show Icon</button><img id=\"img%d\" alt=\"%s\" height=\"80\"></td>", i, item->name);
 			fprintf(f, "<td>%s</td>", item->title_id);
 			fprintf(f, "<td>%s</td>", item->dir_name);
 			fprintf(f, "<td>%.4s</td></tr>", item->path);
@@ -443,18 +437,60 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 		return 1;
 	}
 
+	// http://psp-ip:8080/PSP/games.txt
+	if (wildcard_match(req->resource, "/PSP/games.txt"))
+	{
+		asprintf(&res->data, "%s%s", APOLLO_LOCAL_CACHE, "PSP_games.txt");
+
+		FILE* f = fopen(res->data, "w");
+		if (!f)
+			return 0;
+
+		for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+		{
+			if (item->type == FILE_TYPE_MENU || !(item->flags & SAVE_FLAG_PSP))
+				continue;
+
+			fprintf(f, "%s=%s\n", item->title_id, item->name);
+		}
+
+		fclose(f);
+		return 1;
+	}
+
+	// http://psp-ip:8080/PSP/BLUS12345/saves.txt
+	if (wildcard_match(req->resource, "/PSP/\?\?\?\?\?\?\?\?\?/saves.txt"))
+	{
+		asprintf(&res->data, "%sweb%.9s_saves.txt", APOLLO_LOCAL_CACHE, req->resource + 5);
+
+		FILE* f = fopen(res->data, "w");
+		if (!f)
+			return 0;
+
+		int i = 0;
+		for (node = list_head(list); (item = list_get(node)); node = list_next(node), i++)
+		{
+			if (item->type == FILE_TYPE_MENU || !(item->flags & SAVE_FLAG_PSP) || strncmp(item->title_id, req->resource + 5, 9))
+				continue;
+
+			fprintf(f, "%08d.zip=(%s) %s\n", i, item->dir_name, item->name);
+		}
+
+		fclose(f);
+		return 1;
+	}
+
 	// http://ps3-ip:8080/zip/00000000/CUSA12345_DIR-NAME.zip
-	if (wildcard_match(req->resource, "/zip/\?\?\?\?\?\?\?\?/\?\?\?\?\?\?\?\?\?_*.zip"))
+	// http://psp-ip:8080/PSP/BLUS12345/00000000.zip
+	if (wildcard_match(req->resource, "/zip/\?\?\?\?\?\?\?\?/\?\?\?\?\?\?\?\?\?_*.zip") ||
+		wildcard_match(req->resource, "/PSP/\?\?\?\?\?\?\?\?\?/*.zip"))
 	{
 		char *base, *path;
 		int id = 0;
 
-		asprintf(&res->data, "%s%s", APOLLO_LOCAL_CACHE, req->resource + 14);
-		sscanf(req->resource + 5, "%08x", &id);
+		sscanf(req->resource + (strncmp(req->resource, "/PSP", 4) == 0 ? 15 : 5), "%08d", &id);
 		item = list_get_item(list, id);
-
-//		if (item->flags & SAVE_FLAG_PSV && item->flags & SAVE_FLAG_HDD && !vita_SaveMount(item))
-//			return 0;
+		asprintf(&res->data, "%s%s_%s.zip", APOLLO_LOCAL_CACHE, item->title_id, item->dir_name);
 
 		base = strdup(item->path);
 		path = strdup(item->path);
@@ -462,12 +498,25 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 		*strrchr(base, '/') = 0;
 
 		id = zip_directory(base, path, res->data);
-//		if (item->flags & SAVE_FLAG_PSV && item->flags & SAVE_FLAG_HDD)
-//			vita_SaveUmount();
 
 		free(base);
 		free(path);
 		return id;
+	}
+
+	// http://psp-ip:8080/PSP/BLUS12345/ICON0.PNG
+	if (wildcard_match(req->resource, "/PSP/\?\?\?\?\?\?\?\?\?/ICON0.PNG"))
+	{
+		for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+		{
+			if (item->type == FILE_TYPE_MENU || !(item->flags & SAVE_FLAG_PSP) || strncmp(item->title_id, req->resource + 5, 9))
+				continue;
+
+			asprintf(&res->data, "%sICON0.PNG", item->path);
+			return (file_exists(res->data) == SUCCESS);
+		}
+
+		return 0;
 	}
 
 	// http://vita-ip:8080/icon/00000000/ICON0.PNG
@@ -487,19 +536,21 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 
 static void enableWebServer(dWebReqHandler_t handler, void* data, int port)
 {
-/*
 	union SceNetApctlInfo ip_info;
+
+	if (!network_up())
+		return;
 
 	memset(&ip_info, 0, sizeof(ip_info));
 	sceNetApctlGetInfo(PSP_NET_APCTL_INFO_IP, &ip_info);
-	LOG("Starting local web server %s:%d ...", ip_info.ip_address, port);
+	LOG("Starting local web server %s:%d ...", ip_info.ip, port);
 
 	if (dbg_webserver_start(port, handler, data))
 	{
-		show_message("Web Server on http://%s:%d\nPress OK to stop the Server.", ip_info.ip_address, port);
+		show_message("Web Server on http://%s:%d\nPress OK to stop the Server.", ip_info.ip, port);
 		dbg_webserver_stop();
 	}
-	else show_message("Error starting Web Server!");*/
+	else show_message("Error starting Web Server!");
 }
 
 static void copyAllSavesUSB(const save_entry_t* save, int dev, int all)

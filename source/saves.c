@@ -473,17 +473,10 @@ list_t * ReadBackupList(const char* userPath)
 	item->type = FILE_TYPE_PRX;
 	list_append(list, item);
 
-/*
-	item = _createSaveEntry(0, CHAR_ICON_NET " Network Tools (Downloader, Web Server)");
+	item = _createSaveEntry(0, CHAR_ICON_NET " Network Tools");
 	item->path = strdup(MS0_PATH);
 	item->type = FILE_TYPE_NET;
 	list_append(list, item);
-
-	item = _createSaveEntry(SAVE_FLAG_PS4, CHAR_ICON_USER " Activate PS Vita Account");
-	asprintf(&item->path, EXDATA_PATH_HDD, apollo_config.user_id);
-	item->type = FILE_TYPE_ACT;
-	list_append(list, item);
-*/
 
 	return list;
 }
@@ -500,8 +493,8 @@ int ReadBackupCodes(save_entry_t * bup)
 
 	case FILE_TYPE_NET:
 		bup->codes = list_alloc();
-		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " URL link Downloader (http, https, ftp, ftps)", CMD_URL_DOWNLOAD);
-		list_append(bup->codes, cmd);
+//		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " URL link Downloader (http, https, ftp, ftps)", CMD_URL_DOWNLOAD);
+//		list_append(bup->codes, cmd);
 		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Local Web Server (full system access)", CMD_NET_WEBSERVER);
 		list_append(bup->codes, cmd);
 		return list_count(bup->codes);
@@ -880,8 +873,8 @@ list_t * ReadUsbList(const char* userPath)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all Saves to Memory Stick (ms0:/PSP)", CMD_COPY_ALL_SAVES_HDD);
 	list_append(item->codes, cmd);
 
-//	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Start local Web Server", CMD_SAVE_WEBSERVER);
-//	list_append(item->codes, cmd);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Start local Web Server", CMD_SAVE_WEBSERVER);
+	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Export all Save-game Keys", CMD_DUMP_FINGERPRINTS);
 	list_append(item->codes, cmd);
@@ -922,8 +915,8 @@ list_t * ReadUserList(const char* userPath)
 	cmd->options = _createOptions(2, "Copy Saves to Backup Storage", CMD_COPY_ALL_SAVES_USB);
 	list_append(item->codes, cmd);
 
-//	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Start local Web Server", CMD_SAVE_WEBSERVER);
-//	list_append(item->codes, cmd);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Start local Web Server", CMD_SAVE_WEBSERVER);
+	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_LOCK " Export all Save-game Keys", CMD_DUMP_FINGERPRINTS);
 	list_append(item->codes, cmd);

@@ -21,6 +21,7 @@ jobs:
       with:
         repository: bucanero/dbglogger
         path: dbglogger
+        ref: psp-web
 
     - name: Checkout un7zip
       uses: actions/checkout@v3
