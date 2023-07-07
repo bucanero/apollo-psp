@@ -23,12 +23,6 @@ jobs:
         path: dbglogger
         ref: psp-web
 
-    - name: Checkout un7zip
-      uses: actions/checkout@v3
-      with:
-        repository: bucanero/libun7zip
-        path: libun7zip
-
       # install latest pspdev sdk
     - name: Download PSP SDK
       run: |
@@ -51,11 +45,6 @@ jobs:
       run: |
         make -f Makefile.psp install
 
-    - name: Install un7zip
-      working-directory: libun7zip
-      run: |
-        make -f Makefile.psp install
-
     - name: Build Apollo App Package
       run: |
         psp-cmake . -DCMAKE_BUILD_TYPE=Release
@@ -68,4 +57,3 @@ jobs:
         name: apollo-psp-build_${{ env.sha_name }}
         path: apollo-psp.zip
         if-no-files-found: error
-        retention-days: 7 # don't keep artifacts for too long
