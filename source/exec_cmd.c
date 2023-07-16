@@ -38,7 +38,7 @@ static void downloadSave(const save_entry_t* entry, const char* file, int dst)
 
 	_set_dest_path(path, dst, PSP_SAVES_PATH_USB);
 	if (dst == STORAGE_MS0_PSP)
-		snprintf(path, sizeof(path), PSP_SAVES_PATH_HDD);
+		snprintf(path, sizeof(path), PSP_SAVES_PATH_HDD, menu_options[3].options[STORAGE_MS0]);
 
 	if (mkdirs(path) != SUCCESS)
 	{
@@ -163,6 +163,11 @@ static int get_psp_save_key(const save_entry_t* entry, uint8_t* key)
 
 	// SGKeyDumper 1.5+ support
 	snprintf(path, sizeof(path), "ms0:/PSP/GAME/SED/gamekey/%s.bin", entry->title_id);
+	if (read_psp_game_key(path, key))
+		return 1;
+
+	// SGKeyDumper 1.6+ support
+	snprintf(path, sizeof(path), "ef0:/PSP/GAME/SED/gamekey/%s.bin", entry->title_id);
 	return (read_psp_game_key(path, key));
 }
 
@@ -170,7 +175,7 @@ static int _copy_save_psp(const save_entry_t* save)
 {
 	char copy_path[256];
 
-	snprintf(copy_path, sizeof(copy_path), PSP_SAVES_PATH_HDD "%s/", save->dir_name);
+	snprintf(copy_path, sizeof(copy_path), PSP_SAVES_PATH_HDD "%s/", menu_options[3].options[apollo_config.storage], save->dir_name);
 
 	LOG("Copying <%s> to %s...", save->path, copy_path);
 	return (copy_directory(save->path, save->path, copy_path) == SUCCESS);
@@ -190,9 +195,11 @@ static void copySaveHDD(const save_entry_t* save)
 	stop_loading_screen();
 
 	if (ret)
-		show_message("Files successfully copied to:\n%s%s", PSP_SAVES_PATH_HDD, save->dir_name);
+		show_message("Save-game successfully copied to:\n%s%s", PSP_SAVES_PATH_HDD,
+			menu_options[3].options[apollo_config.storage], save->dir_name);
 	else
-		show_message("Error! Can't copy Save-game folder:\n%s%s", PSP_SAVES_PATH_HDD, save->dir_name);
+		show_message("Error! Can't copy Save-game folder:\n%s%s", PSP_SAVES_PATH_HDD,
+			menu_options[3].options[apollo_config.storage], save->dir_name);
 }
 
 static void copyAllSavesHDD(const save_entry_t* save, int all)
@@ -218,7 +225,8 @@ static void copyAllSavesHDD(const save_entry_t* save, int all)
 
 	end_progress_bar();
 
-	show_message("%d/%d Saves copied to Memory Stick\n" PSP_SAVES_PATH_HDD, done, done+err_count);
+	show_message("%d/%d Saves copied to Memory Stick\n" PSP_SAVES_PATH_HDD,
+		menu_options[3].options[apollo_config.storage], done, done+err_count);
 }
 
 static void extractArchive(const char* file_path)

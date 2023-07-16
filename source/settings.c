@@ -16,7 +16,7 @@
 #define SGKEY_DUMP_PLUGIN_PATH       "ms0:/seplugins/SGKeyDumper.prx"
 
 char *strcasestr(const char *, const char *);
-static char* ext_src[MAX_USB_DEVICES+1] = {"ms0", "ef0", NULL};
+static char* ext_src[] = {"ms0", "ef0", NULL};
 static char* sort_opt[] = {"Disabled", "by Name", "by Title ID", NULL};
 
 menu_option_t menu_options[] = {
@@ -273,8 +273,8 @@ static int runSaveDialog(int mode, void* data)
 int save_app_settings(app_config_t* config)
 {
 	char filePath[256];
-	Byte dest[4912];
-	uLong destLen = sizeof(dest);
+	Byte dest[SIZE_PARAMSFO];
+	uLong destLen = SIZE_PARAMSFO;
 
 	LOG("Apollo Save Tool v%s - Patch Engine v%s", APOLLO_VERSION, APOLLO_LIB_VERSION);
 	snprintf(filePath, sizeof(filePath), "%s%s%s%s", MS0_PATH, USER_PATH_HDD, "NP0APOLLO-Settings/", "ICON0.PNG");
@@ -285,10 +285,10 @@ int save_app_settings(app_config_t* config)
 	}
 
 	LOG("Saving Settings...");
-	write_buffer(filePath, icon0, size_icon0);
+	write_buffer(filePath, icon0, sizeof(icon0));
 
 	snprintf(filePath, sizeof(filePath), "%s%s%s%s", MS0_PATH, USER_PATH_HDD, "NP0APOLLO-Settings/", "PARAM.SFO");
-	uncompress(dest, &destLen, paramsfo, size_paramsfo);
+	uncompress(dest, &destLen, paramsfo, sizeof(paramsfo));
 	write_buffer(filePath, dest, destLen);
 
 	snprintf(filePath, sizeof(filePath), "%s%s%s%s", MS0_PATH, USER_PATH_HDD, "NP0APOLLO-Settings/", "SETTINGS.BIN");

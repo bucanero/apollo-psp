@@ -164,22 +164,14 @@ int LoadMenuTexture(const char* path, int idx)
 {
 	rawImage_t* tmp;
 
-//	LOG("LoadMenuTexture(%s, %d)", path ? path : "memory", idx);
-	if (path)
-		tmp = imgLoadPngFromFile(path);
-	else
-		tmp = imgLoadPngFromBuffer(menu_textures[idx].buffer);
-
+	tmp = path ? imgLoadPngFromFile(path) : imgLoadPngFromBuffer(menu_textures[idx].buffer);
 	if (!tmp)
 	{
 		LOG("Error Loading texture (%s)!", path);
 		return 0;
 	}
-	else
-	{
-		menu_textures[idx].width = tmp->width;
-		menu_textures[idx].height = tmp->height;
-	}
+	menu_textures[idx].width = tmp->width;
+	menu_textures[idx].height = tmp->height;
 
 	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(tmp->datap, menu_textures[idx].width, menu_textures[idx].height, 32, 4 * menu_textures[idx].width,
 												0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
