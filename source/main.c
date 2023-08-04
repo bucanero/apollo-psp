@@ -8,12 +8,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <pspctrl.h>
-//#include <psp/appmgr.h>
-//#include <psp/apputil.h>
-//#include <psp/system_param.h>
-//#include <psp/sysmodule.h>
 #include <pspaudio.h>
-#include <xmp.h>
 
 #include "saves.h"
 #include "sfo.h"
@@ -32,13 +27,14 @@
 #include "menu_gui.h"
 
 //Sound
+#include "ahx.h"
 #define SAMPLING_FREQ       44100 /* 44.1khz. */
-#define AUDIO_SAMPLES       256   /* audio samples */
+#define AUDIO_SAMPLES       0x780 /* audio samples */
 
 // Audio handle
 static int32_t audio = 0;
-extern const uint8_t _binary_data_haiku_s3m_start;
-extern const uint8_t _binary_data_haiku_s3m_size;
+extern const uint8_t _binary_data_inside_ahx_start;
+extern const uint8_t _binary_data_inside_ahx_size;
 
 
 #define load_menu_texture(name, type) \
@@ -57,7 +53,7 @@ app_config_t apollo_config = {
     .app_name = "APOLLO",
     .app_ver = APOLLO_VERSION,
     .save_db = ONLINE_URL,
-    .music = 0,
+    .music = 1,
     .doSort = 1,
     .doAni = 1,
     .update = 0,
@@ -267,22 +263,18 @@ static int LoadTextures_Menu()
 static int LoadSounds(void* data)
 {
 	uint8_t* play_audio = data;
-	xmp_context xmp = xmp_create_context();
 
-	// Decode a mp3 file to play
-	if (xmp_load_module_from_memory(xmp, (void*) &_binary_data_haiku_s3m_start, (int) &_binary_data_haiku_s3m_size) < 0)
+	// Decode AHX file to play
+	AHXPlayer_Init();
+	AHXPlayer_LoadSongBuffer((void*) &_binary_data_inside_ahx_start, (int) &_binary_data_inside_ahx_size);
+	if (!AHXPlayer_InitSubsong(0))
 	{
 		LOG("[ERROR] Failed to decode audio file");
 		return -1;
 	}
 
-	xmp_set_player(xmp, XMP_PLAYER_VOLUME, 100);
-	xmp_set_player(xmp, XMP_PLAYER_INTERP, XMP_INTERP_SPLINE);
-	xmp_start_player(xmp, SAMPLING_FREQ, 0);
-
 	// Calculate the sample count and allocate a buffer for the sample data accordingly
-	size_t sampleCount = AUDIO_SAMPLES * 2;
-	int16_t *pSampleData = (int16_t *)malloc(sampleCount * sizeof(uint16_t));
+	int16_t *pSampleData = (int16_t *)malloc(AUDIO_SAMPLES * sizeof(int16_t));
 
 	sceAudioChangeChannelVolume(audio, PSP_AUDIO_VOLUME_MAX, PSP_AUDIO_VOLUME_MAX);
 
@@ -296,7 +288,7 @@ static int LoadSounds(void* data)
 		}
 
 		// Decode the audio into pSampleData
-		xmp_play_buffer(xmp, pSampleData, sampleCount * sizeof(uint16_t), 0);
+		AHXOutput_MixBuffer(pSampleData);
 
 		/* Output audio */
 		if (sceAudioOutputBlocking(audio, PSP_AUDIO_VOLUME_MAX, pSampleData) < 0)
@@ -307,9 +299,7 @@ static int LoadSounds(void* data)
 	}
 
 	free(pSampleData);
-	xmp_end_player(xmp);
-	xmp_release_module(xmp);
-	xmp_free_context(xmp);
+	AHXPlayer_FreeSong();
 
 	return 0;
 }
@@ -405,69 +395,6 @@ static int initInternal()
 	return 1;
 }
 
-static int initialize_vitashell_modules()
-{
-	/*
-	SceUID kern_modid, user_modid;
-	char module_path[60] = {0};
-	int search_unk[2];
-	int res = 0;
-
-	// Load kernel module
-	if (_vshKernelSearchModuleByName("VitaShellKernel2", search_unk) < 0)
-	{
-		snprintf(module_path, sizeof(module_path), "ux0:VitaShell/module/kernel.skprx");
-		if (file_exists(module_path) != SUCCESS)
-		{
-			snprintf(module_path, sizeof(module_path), APOLLO_APP_PATH "sce_module/kernel.skprx");
-			if (file_exists(module_path) != SUCCESS)
-			{
-				LOG("Kernel module not found!");
-				return 0;
-			}
-		}
-
-		kern_modid = taiLoadKernelModule(module_path, 0, NULL);
-		if (kern_modid >= 0)
-		{
-			res = taiStartKernelModule(kern_modid, 0, NULL, 0, NULL, NULL);
-			if (res < 0)
-				taiStopUnloadKernelModule(kern_modid, 0, NULL, 0, NULL, NULL);
-		}
-
-		if (kern_modid < 0 || res < 0)
-		{
-			LOG("Kernel module load error: %x\nPlease reboot.", kern_modid);
-			return 0;
-		}
-	}
-
-	// Load user module
-	snprintf(module_path, sizeof(module_path), "ux0:VitaShell/module/user.suprx");
-	if (file_exists(module_path) != SUCCESS)
-	{
-		snprintf(module_path, sizeof(module_path), APOLLO_APP_PATH "sce_module/user.suprx");
-		if (file_exists(module_path) != SUCCESS)
-		{
-			LOG("User module not found!");
-			return 0;
-		}
-	}
-
-	user_modid = sceKernelLoadStartModule(module_path, 0, NULL, 0, NULL, NULL);
-	if (user_modid < 0)
-	{
-		LOG("User module load %s error: %x\nPlease reboot.", module_path, user_modid);
-		return 0;
-	}
-
-	// Allow writing to ux0:app/NP0APOLLO
-	sceAppMgrUmount("app0:");
-	sceAppMgrUmount("savedata0:");
-*/
-    return 1;
-}
-
 /*
 	Program start
 */
@@ -495,7 +422,7 @@ int main(int argc, char *argv[])
 	initPad();
 
 	// Open a handle to audio output device
-	audio = sceAudioChReserve(PSP_AUDIO_NEXT_CHANNEL, AUDIO_SAMPLES, PSP_AUDIO_FORMAT_STEREO);
+	audio = sceAudioChReserve(PSP_AUDIO_NEXT_CHANNEL, PSP_AUDIO_SAMPLE_ALIGN(AUDIO_SAMPLES), PSP_AUDIO_FORMAT_MONO);
 	if (audio < 0)
 	{
 		LOG("[ERROR] Failed to open audio on main port");
@@ -516,10 +443,6 @@ int main(int argc, char *argv[])
 		LOG("SDL_CreateRenderer: %s", SDL_GetError());
 		return (-1);
 	}
-
-	// Initialize jailbreak
-	if (!initialize_vitashell_modules())
-		LOG("Error loading VitaShell modules!");
 
 	mkdirs(APOLLO_DATA_PATH);
 	mkdirs(APOLLO_LOCAL_CACHE);
@@ -569,7 +492,7 @@ int main(int argc, char *argv[])
 	update_callback(!apollo_config.update);
 
 	// Start BGM audio thread
-//	SDL_CreateThread(&LoadSounds, "audio_thread", &apollo_config.music);
+	SDL_CreateThread(&LoadSounds, "audio_thread", &apollo_config.music);
 	Draw_MainMenu_Ani();
 
 	while (!close_app)

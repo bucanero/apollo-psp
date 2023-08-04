@@ -51,7 +51,7 @@ ENDFUNCTION()
 file(GLOB res_files RELATIVE
   ${CMAKE_SOURCE_DIR}
   data/*.png
-  data/*.s3m
+  data/*.ahx
 )
 add_resources(apollo_res ${res_files})
 
@@ -80,6 +80,7 @@ add_executable(${PROJECT_NAME}
   source/kirk_engine.c
   source/psp_decrypter.c
   source/vmp_resign.c
+  source/ahx.c
 )
 
 target_link_libraries(${PROJECT_NAME}
