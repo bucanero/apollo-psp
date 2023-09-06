@@ -325,7 +325,7 @@ void update_usb_path(char* path)
 
 void update_hdd_path(char* path)
 {
-	strcpy(path, PSP_SAVES_PATH_HDD);
+	sprintf(path, PSP_SAVES_PATH_HDD, menu_options[3].options[apollo_config.storage]);
 }
 
 void update_db_path(char* path)
@@ -338,10 +338,7 @@ static void registerSpecialChars()
 	// Register save tags
 	RegisterSpecialCharacter(CHAR_TAG_PS1, 2, 1.5, &menu_textures[tag_ps1_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PS2, 2, 1.5, &menu_textures[tag_ps2_png_index]);
-//	RegisterSpecialCharacter(CHAR_TAG_PS3, 2, 1.5, &menu_textures[tag_ps3_png_index]);
-//	RegisterSpecialCharacter(CHAR_TAG_PS4, 2, 1.5, &menu_textures[tag_ps4_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PSP, 2, 1.5, &menu_textures[tag_psp_png_index]);
-//	RegisterSpecialCharacter(CHAR_TAG_PSV, 2, 1.5, &menu_textures[tag_psv_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_PCE, 2, 1.5, &menu_textures[tag_pce_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_LOCKED, 0, 1.3, &menu_textures[tag_lock_png_index]);
 	RegisterSpecialCharacter(CHAR_TAG_OWNER, 0, 1.3, &menu_textures[tag_own_png_index]);

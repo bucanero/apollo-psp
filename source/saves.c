@@ -213,7 +213,7 @@ static void _addBackupCommands(save_entry_t* item)
 	cmd->options = _createOptions((item->flags & SAVE_FLAG_HDD) ? 2 : 3, "Copy Save to Backup Storage", CMD_COPY_SAVE_USB);
 	if (!(item->flags & SAVE_FLAG_HDD))
 	{
-		asprintf(&cmd->options->name[2], "Copy Save to Memory Stick (ms0:/%s)", "PSP");
+		asprintf(&cmd->options->name[2], "Copy Save to Memory Stick (%s:/PSP)", menu_options[3].options[apollo_config.storage]);
 		asprintf(&cmd->options->value[2], "%c", CMD_COPY_SAVE_HDD);
 	}
 	list_append(item->codes, cmd);
@@ -847,6 +847,7 @@ list_t * ReadUsbList(const char* userPath)
 	save_entry_t *item;
 	code_entry_t *cmd;
 	list_t *list;
+	char name[256];
 
 	if (dir_exists(userPath) != SUCCESS)
 		return NULL;
@@ -860,17 +861,13 @@ list_t * ReadUsbList(const char* userPath)
 	//bulk management hack
 	item->dir_name = malloc(sizeof(void**));
 	((void**)item->dir_name)[0] = list;
-/*
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign selected Saves", CMD_RESIGN_SAVES);
+
+	snprintf(name, sizeof(name), CHAR_ICON_COPY " Copy selected Saves to Memory Stick (%s:/PSP)", menu_options[3].options[apollo_config.storage]);
+	cmd = _createCmdCode(PATCH_COMMAND, name, CMD_COPY_SAVES_HDD);
 	list_append(item->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign all decrypted Saves", CMD_RESIGN_ALL_SAVES);
-	list_append(item->codes, cmd);
-*/
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy selected Saves to Memory Stick (ms0:/PSP)", CMD_COPY_SAVES_HDD);
-	list_append(item->codes, cmd);
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all Saves to Memory Stick (ms0:/PSP)", CMD_COPY_ALL_SAVES_HDD);
+	snprintf(name, sizeof(name), CHAR_ICON_COPY " Copy All Saves to Memory Stick (%s:/PSP)", menu_options[3].options[apollo_config.storage]);
+	cmd = _createCmdCode(PATCH_COMMAND, name, CMD_COPY_ALL_SAVES_HDD);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Start local Web Server", CMD_SAVE_WEBSERVER);
@@ -922,7 +919,7 @@ list_t * ReadUserList(const char* userPath)
 	list_append(item->codes, cmd);
 	list_append(list, item);
 
-	read_psp_savegames(PSP_SAVES_PATH_HDD, list, SAVE_FLAG_HDD);
+	read_psp_savegames(userPath, list, SAVE_FLAG_HDD);
 
 	return list;
 }
