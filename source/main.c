@@ -9,6 +9,7 @@
 #include <dirent.h>
 #include <pspctrl.h>
 #include <pspaudio.h>
+#include <pspthreadman.h>
 
 #include "saves.h"
 #include "sfo.h"
@@ -260,10 +261,8 @@ static int LoadTextures_Menu()
 	return 1;
 }
 
-static int LoadSounds(void* data)
+static int LoadSounds(SceSize args, void* data)
 {
-	uint8_t* play_audio = data;
-
 	// Decode AHX file to play
 	AHXPlayer_Init();
 	AHXPlayer_LoadSongBuffer((void*) &_binary_data_inside_ahx_start, (int) &_binary_data_inside_ahx_size);
@@ -281,7 +280,7 @@ static int LoadSounds(void* data)
 	// Play the song in a loop
 	while (!close_app)
 	{
-		if (*play_audio == 0)
+		if (!apollo_config.music)
 		{
 			usleep(0x1000);
 			continue;
@@ -300,6 +299,7 @@ static int LoadSounds(void* data)
 
 	free(pSampleData);
 	AHXPlayer_FreeSong();
+	sceKernelExitDeleteThread(0);
 
 	return 0;
 }
@@ -492,7 +492,8 @@ int main(int argc, char *argv[])
 	update_callback(!apollo_config.update);
 
 	// Start BGM audio thread
-	SDL_CreateThread(&LoadSounds, "audio_thread", &apollo_config.music);
+	SceUID id = sceKernelCreateThread("audio_thread", &LoadSounds, 0x10, 0x10000, PSP_THREAD_ATTR_USER, NULL);
+	sceKernelStartThread(id, 0, NULL);
 	Draw_MainMenu_Ani();
 
 	while (!close_app)
