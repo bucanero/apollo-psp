@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <zlib.h>
+#include <pspiofilemgr.h>
 
 #include "types.h"
 #include "menu.h"
@@ -42,7 +43,7 @@ menu_option_t menu_options[] = {
 		.options = (char**) ext_src,
 		.type = APP_OPTION_LIST,
 		.value = &apollo_config.storage,
-		.callback = owner_callback
+		.callback = storage_callback
 	},
 	{ .name = "Version Update Check", 
 		.options = NULL, 
@@ -192,7 +193,7 @@ end_update:
 	return;
 }
 
-void owner_callback(int sel)
+void storage_callback(int sel)
 {
 	apollo_config.storage = sel;
 }
@@ -201,6 +202,17 @@ void log_callback(int sel)
 {
 	dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 1);
 	show_message("Debug Logging Enabled!\n\n" APOLLO_PATH "apollo.log");
+}
+
+static int is_psp_go(void)
+{
+    SceDevInf inf;
+    SceDevctlCmd cmd;
+
+    cmd.dev_inf = &inf;
+    memset(&inf, 0, sizeof(SceDevInf));
+
+    return !(sceIoDevctl("ef0:", SCE_PR_GETDEV, &cmd, sizeof(SceDevctlCmd), NULL, 0) < 0);
 }
 
 /*
@@ -297,13 +309,7 @@ int save_app_settings(app_config_t* config)
 		LOG("Error saving settings!");
 		return 0;
 	}
-/*
-	if (!runSaveDialog(PSP_UTILITY_SAVEDATA_AUTOSAVE, config))
-	{
-		LOG("Save ERROR");
-		return 0;
-	}
-*/
+
 	return 1;
 }
 
@@ -314,6 +320,7 @@ int load_app_settings(app_config_t* config)
 	size_t file_size;
 
 	config->user_id = 0;
+	config->storage = is_psp_go();
 
 	snprintf(filePath, sizeof(filePath), "%s%s%s%s", MS0_PATH, USER_PATH_HDD, "NP0APOLLO-Settings/", "SETTINGS.BIN");
 
@@ -332,14 +339,6 @@ int load_app_settings(app_config_t* config)
 		save_app_settings(config);
 		return 0;
 	}
-/*
-	if (!runSaveDialog(PSP_UTILITY_SAVEDATA_AUTOLOAD, config))
-	{
-		LOG("Load ERROR");
-		memcpy(config, &tmp_data, sizeof(app_config_t));
-		return 0;
-	}
-*/
 
 	return 1;
 }
@@ -350,7 +349,7 @@ int install_sgkey_plugin(int install)
 	size_t size;
 
 	mkdirs(SGKEY_DUMP_PLUGIN_PATH);
-	if (write_buffer(SGKEY_DUMP_PLUGIN_PATH, sgk_plugin, size_sgk_plugin) < 0)
+	if (write_buffer(SGKEY_DUMP_PLUGIN_PATH, sgk_plugin, sizeof(sgk_plugin)) < 0)
 		return 0;
 
 	if (read_buffer(GAME_PLUGIN_PATH, (uint8_t**) &data, &size) < 0)
@@ -359,7 +358,7 @@ int install_sgkey_plugin(int install)
 		if (!install)
 			return 0;
 
-		if (write_buffer(GAME_PLUGIN_PATH, SGKEY_DUMP_PLUGIN_PATH " 1\n", 33) < 0)
+		if (write_buffer(GAME_PLUGIN_PATH, SGKEY_DUMP_PLUGIN_PATH " 1\n", strlen(SGKEY_DUMP_PLUGIN_PATH)+3) < 0)
 		{
 			LOG("Error creating game.txt");
 			return 0;
@@ -393,8 +392,7 @@ int install_sgkey_plugin(int install)
 		fclose(fp);
 		return 1;
 	}
-
-	if (!install)
+	else
 	{
 		char *ptr = strcasestr(data, SGKEY_DUMP_PLUGIN_PATH " ");
 		if (ptr != NULL && (ptr[31] == '1' || ptr[31] == '0'))

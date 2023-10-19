@@ -153,7 +153,7 @@ save_list_t user_backup = {
 };
 
 
-static int initPad()
+static int initPad(void)
 {
     // Set sampling mode
     if (pspPadInit() < 0)
@@ -166,7 +166,7 @@ static int initPad()
 }
 
 // Used only in initialization. Allocates 64 mb for textures and loads the font
-static int LoadTextures_Menu()
+static int LoadTextures_Menu(void)
 {
 	texture_mem = malloc(256 * 8 * 4);
 	menu_textures = (png_texture *)calloc(TOTAL_MENU_TEXTURES, sizeof(png_texture));
@@ -323,7 +323,7 @@ void update_db_path(char* path)
 	strcpy(path, apollo_config.save_db);
 }
 
-static void registerSpecialChars()
+static void registerSpecialChars(void)
 {
 	// Register save tags
 	RegisterSpecialCharacter(CHAR_TAG_PS1, 2, 1.5, &menu_textures[tag_ps1_png_index]);
@@ -349,48 +349,13 @@ static void registerSpecialChars()
 	RegisterSpecialCharacter(CHAR_TRP_SYNC, 0, 1.2f, &menu_textures[trp_sync_png_index]);
 }
 
-static void terminate()
+static void terminate(void)
 {
 	LOG("Exiting...");
 
 	sceAudioChRelease(audio);
 }
 
-static int initInternal()
-{/*
-	// load common modules
-	int ret = sceSysmoduleLoadModule(SCE_SYSMODULE_SQLITE);
-	if (ret != SUCCESS) {
-		LOG("load module failed: SQLITE (0x%08x)\n", ret);
-		return 0;
-	}
-
-	ret = sceSysmoduleLoadModule(SCE_SYSMODULE_NOTIFICATION_UTIL);
-	if (ret != SUCCESS) {
-		LOG("load module failed: NOTIFICATION (0x%08x)\n", ret);
-		return 0;
-	}
-
-	ret = sceSysmoduleLoadModule(SCE_SYSMODULE_APPUTIL);
-	if (ret != SUCCESS) {
-		LOG("load module failed: APPUTIL (0x%08x)\n", ret);
-		return 0;
-	}
-
-	SceAppUtilInitParam initParam;
-	SceAppUtilBootParam bootParam;
-
-	memset(&initParam, 0, sizeof(SceAppUtilInitParam));
-	memset(&bootParam, 0, sizeof(SceAppUtilBootParam));
-
-	/* Initialize the application utility library *
-	ret = sceAppUtilInit(&initParam, &bootParam);
-	if (ret == SUCCESS) {
-		sceAppUtilSystemParamGetString(SCE_SYSTEM_PARAM_ID_USERNAME, user_id_str, SCE_SYSTEM_PARAM_USERNAME_MAXSIZE);
-	}
-*/
-	return 1;
-}
 
 /*
 	Program start
@@ -414,7 +379,6 @@ int main(int argc, char *argv[])
 		return (-1);
 	}
 
-	initInternal();
 	http_init();
 	initPad();
 
@@ -514,13 +478,11 @@ int main(int argc, char *argv[])
 			if (pspPadGetConf()->idle > 0x100)
 			{
 				int dec = (pspPadGetConf()->idle - 0x100) * 4;
-				if (dec > alpha)
-					dec = alpha;
-				alpha -= dec;
+				alpha = (dec > alpha) ? 0 : (alpha - dec);
 			}
 			
 			SetFontSize(APP_FONT_SIZE_DESCRIPTION);
-			SetCurrentFont(0);
+			SetCurrentFont(font_adonais_regular);
 			SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
 			SetFontColor(APP_FONT_COLOR | alpha, 0);
 			DrawString(0, SCREEN_HEIGHT - 22, (char *)menu_pad_help[menu_id]);

@@ -29,17 +29,17 @@ typedef struct PspPadConfig
 	unsigned int idle;
 } PspPadConfig;
 
-int pspPadInit();
-void pspPadFinish();
-PspPadConfig *pspPadGetConf();
+int pspPadInit(void);
+void pspPadFinish(void);
+PspPadConfig *pspPadGetConf(void);
 bool pspPadGetButtonHold(unsigned int filter);
 bool pspPadGetButtonPressed(unsigned int filter);
 bool pspPadGetButtonReleased(unsigned int filter);
-unsigned int pspPadGetCurrentButtonsPressed();
-unsigned int pspPadGetCurrentButtonsReleased();
+unsigned int pspPadGetCurrentButtonsPressed(void);
+unsigned int pspPadGetCurrentButtonsReleased(void);
 void pspPadSetCurrentButtonsPressed(unsigned int buttons);
 void pspPadSetCurrentButtonsReleased(unsigned int buttons);
-int pspPadUpdate();
+int pspPadUpdate(void);
 
 #ifdef __cplusplus
 }

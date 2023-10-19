@@ -113,8 +113,7 @@ You need to have installed:
 - [PSP SDK](https://github.com/pspdev/)
 - [Apollo](https://github.com/bucanero/apollo-lib) library
 - [mbedTLS](https://github.com/pspdev/psp-packages/tree/master/mbedtls) library
-- [libcurl](https://github.com/pspdev/psp-packages/tree/master/curl) library
-- [libxmp](https://github.com/pspdev/psp-packages/tree/master/libxmp) library
+- [cURL](https://github.com/pspdev/psp-packages/tree/master/curl) library
 - [libZip](https://github.com/pspdev/psp-packages/tree/master/libzip) library
 - [dbglogger](https://github.com/bucanero/dbglogger) library
 

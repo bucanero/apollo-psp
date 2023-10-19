@@ -17,7 +17,7 @@
 
 static int net_up = 0;
 
-void drawDialogBackground();
+int psp_DisplayNetDialog(void);
 
 char * basename (const char *filename)
 {
@@ -25,85 +25,12 @@ char * basename (const char *filename)
 	return p ? p + 1 : (char *) filename;
 }
 
-static int Net_DisplayNetDialog(void)
-{
-	int ret = 0, done = 0;
-	pspUtilityNetconfData data;
-	struct pspUtilityNetconfAdhoc adhocparam;
-
-	memset(&adhocparam, 0, sizeof(adhocparam));
-	memset(&data, 0, sizeof(pspUtilityNetconfData));
-
-	data.base.size = sizeof(pspUtilityNetconfData);
-	data.base.language = PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
-	data.base.buttonSwap = PSP_UTILITY_ACCEPT_CROSS;
-	data.base.graphicsThread = 17;
-	data.base.accessThread = 19;
-	data.base.fontThread = 18;
-	data.base.soundThread = 16;
-	data.action = PSP_NETCONF_ACTION_CONNECTAP;
-	data.hotspot = 0;
-	data.adhocparam = &adhocparam;
-
-	if ((ret = sceUtilityNetconfInitStart(&data)) < 0) {
-		LOG("sceUtilityNetconfInitStart() failed: 0x%08x\n", ret);
-		return ret;
-	}
-
-	while(!done)
-	{
-		switch(sceUtilityNetconfGetStatus()) {
-			case PSP_UTILITY_DIALOG_NONE:
-				done = 1;
-				break;
-
-			case PSP_UTILITY_DIALOG_VISIBLE:
-				if ((ret = sceUtilityNetconfUpdate(1)) < 0) {
-					LOG("sceUtilityNetconfUpdate(1) failed: 0x%08x\n", ret);
-					done = 1;
-				}
-				break;
-
-			case PSP_UTILITY_DIALOG_QUIT:
-				if ((ret = sceUtilityNetconfShutdownStart()) < 0) {
-					LOG("sceUtilityNetconfShutdownStart() failed: 0x%08x\n", ret);
-					done = 1;
-				}
-				break;
-
-			case PSP_UTILITY_DIALOG_FINISHED:
-				done = 1;
-				break;
-
-			default:
-				break;
-		}
-
-		drawDialogBackground();
-	}
-
-	return 0;
-}
-
-static int Net_isConnected(void)
-{
-	int ret = 0, state = PSP_NET_APCTL_STATE_DISCONNECTED;
-
-	if ((ret  = sceNetApctlGetState(&state)) < 0) {
-		LOG("sceNetApctlGetState() failed: 0x%08x\n", ret);
-		return 0;
-	}
-
-	return (state == PSP_NET_APCTL_STATE_GOT_IP);
-}
-
 int network_up(void)
 {
 	if (net_up)
 		return HTTP_SUCCESS;
 
-	Net_DisplayNetDialog();
-	if (!Net_isConnected())
+	if (!psp_DisplayNetDialog())
 		return HTTP_FAILED;
 
 	net_up = 1;

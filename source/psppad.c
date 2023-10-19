@@ -26,7 +26,7 @@ static uint64_t timeInMilliseconds(void)
     return (((uint64_t)tv.tv_sec)*1000)+(tv.tv_usec/1000);
 }
 
-void pspPadFinish()
+void pspPadFinish(void)
 {
 	int ret;
 
@@ -39,7 +39,7 @@ void pspPadFinish()
 	LOG("ORBISPAD finished");
 }
 
-PspPadConfig *pspPadGetConf()
+PspPadConfig *pspPadGetConf(void)
 {
 	if(orbispad_initialized)
 	{
@@ -49,7 +49,7 @@ PspPadConfig *pspPadGetConf()
 	return NULL; 
 }
 
-static int pspPadInitConf()
+static int pspPadInitConf(void)
 {	
 	if(orbispad_initialized)
 	{
@@ -61,7 +61,7 @@ static int pspPadInitConf()
 	return 0;
 }
 
-unsigned int pspPadGetCurrentButtonsPressed()
+unsigned int pspPadGetCurrentButtonsPressed(void)
 {
 	return pspPadConf.buttonsPressed;
 }
@@ -120,7 +120,7 @@ bool pspPadGetButtonReleased(unsigned int filter)
 	return 0;
 }
 
-int pspPadUpdate()
+int pspPadUpdate(void)
 {
 	int ret;
 	unsigned int actualButtons=0;
@@ -167,7 +167,7 @@ int pspPadUpdate()
 	return -1;
 }
 
-int pspPadInit()
+int pspPadInit(void)
 {
 	int ret;
 

@@ -635,14 +635,3 @@ void Draw_MainMenu()
 {
 	_draw_MainMenu(0xFF);
 }
-
-void drawDialogBackground()
-{
-	SDL_RenderClear(renderer);
-	DrawBackground2D(0xFFFFFFFF);
-
-	//Background
-	DrawBackgroundTexture(0, 0xFF);
-
-	SDL_RenderPresent(renderer);
-}

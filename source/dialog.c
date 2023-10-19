@@ -2,6 +2,9 @@
 #include <stdarg.h>
 #include <string.h>
 #include <psputility.h>
+#include <pspgu.h>
+#include <pspdisplay.h>
+#include <pspnet_apctl.h>
 
 #include "menu.h"
 #include "libfont.h"
@@ -12,6 +15,17 @@ int init_loading_screen(const char* msg);
 void stop_loading_screen(void);
 
 static char progress_bar[128];
+static char disp_list[0x10000] __attribute__((aligned(64)));
+
+static void drawDialogBackground(void)
+{
+    sceGuStart(GU_DIRECT, disp_list);
+    sceGuClearColor(0xFF888888);
+    sceGuClearDepth(0);
+    sceGuClear(GU_COLOR_BUFFER_BIT|GU_DEPTH_BUFFER_BIT);
+    sceGuFinish();
+    sceGuSync(0, 0);
+}
 
 static void ConfigureDialog(pspUtilityDialogCommon *dialog, size_t dialog_size)
 {
@@ -29,7 +43,7 @@ static void ConfigureDialog(pspUtilityDialogCommon *dialog, size_t dialog_size)
 int show_dialog(int tdialog, const char * format, ...)
 {
     pspUtilityMsgDialogParams dialog;
-    va_list	opt;
+    va_list opt;
 
     memset(&dialog, 0, sizeof(dialog));
     ConfigureDialog(&dialog.base, sizeof(dialog));
@@ -46,8 +60,9 @@ int show_dialog(int tdialog, const char * format, ...)
         return 0;
 
     do {
-        tdialog = sceUtilityMsgDialogGetStatus();
+        drawDialogBackground();
 
+        tdialog = sceUtilityMsgDialogGetStatus();
         switch(tdialog)
         {
             case PSP_UTILITY_DIALOG_VISIBLE:
@@ -59,7 +74,8 @@ int show_dialog(int tdialog, const char * format, ...)
                 break;
         }
 
-        drawDialogBackground();
+        sceDisplayWaitVblankStart();
+        sceGuSwapBuffers();
     } while (tdialog != PSP_UTILITY_DIALOG_FINISHED);
 
     return (dialog.buttonPressed == PSP_UTILITY_MSGDIALOG_RESULT_YES);
@@ -248,6 +264,8 @@ int osk_dialog_get_text(const char* title, char* text, uint32_t size)
         return 0;
 
     do {
+        drawDialogBackground();
+
         done = sceUtilityOskGetStatus();
         switch(done)
         {
@@ -260,11 +278,63 @@ int osk_dialog_get_text(const char* title, char* text, uint32_t size)
                 break;
         }
 
-        drawDialogBackground();
-    } while (done != PSP_UTILITY_DIALOG_FINISHED);
+        sceDisplayWaitVblankStart();
+        sceGuSwapBuffers();
+    } while (done != PSP_UTILITY_DIALOG_NONE);
 
     if (data.result == PSP_UTILITY_OSK_RESULT_CANCELLED)
         return 0;
 
     return (convert_from_utf16(data.outtext, text, size - 1));
+}
+
+int psp_DisplayNetDialog(void)
+{
+    int ret = 0, done = 0;
+    pspUtilityNetconfData data;
+    struct pspUtilityNetconfAdhoc adhocparam;
+
+    memset(&adhocparam, 0, sizeof(adhocparam));
+    memset(&data, 0, sizeof(pspUtilityNetconfData));
+
+    ConfigureDialog(&data.base, sizeof(pspUtilityNetconfData));
+    data.action = PSP_NETCONF_ACTION_CONNECTAP;
+    data.hotspot = 0;
+    data.adhocparam = &adhocparam;
+
+    if ((ret = sceUtilityNetconfInitStart(&data)) < 0) {
+        LOG("sceUtilityNetconfInitStart() failed: 0x%08x", ret);
+        return ret;
+    }
+
+    do
+    {
+        drawDialogBackground();
+
+        done = sceUtilityNetconfGetStatus();
+        switch(done) {
+            case PSP_UTILITY_DIALOG_VISIBLE:
+                if ((ret = sceUtilityNetconfUpdate(1)) < 0) {
+                    LOG("sceUtilityNetconfUpdate() failed: 0x%08x", ret);
+                }
+                break;
+
+            case PSP_UTILITY_DIALOG_QUIT:
+                if ((ret = sceUtilityNetconfShutdownStart()) < 0) {
+                    LOG("sceUtilityNetconfShutdownStart() failed: 0x%08x", ret);
+                }
+                break;
+        }
+
+        sceDisplayWaitVblankStart();
+        sceGuSwapBuffers();
+    } while(done != PSP_UTILITY_DIALOG_NONE);
+
+    done = PSP_NET_APCTL_STATE_DISCONNECTED;
+    if ((ret = sceNetApctlGetState(&done)) < 0) {
+        LOG("sceNetApctlGetState() failed: 0x%08x", ret);
+        return 0;
+    }
+
+    return (done == PSP_NET_APCTL_STATE_GOT_IP);
 }
