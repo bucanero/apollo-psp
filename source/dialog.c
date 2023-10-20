@@ -20,7 +20,7 @@ static char disp_list[0x10000] __attribute__((aligned(64)));
 static void drawDialogBackground(void)
 {
     sceGuStart(GU_DIRECT, disp_list);
-    sceGuClearColor(0xFF888888);
+    sceGuClearColor(0xFF686868);
     sceGuClearDepth(0);
     sceGuClear(GU_COLOR_BUFFER_BIT|GU_DEPTH_BUFFER_BIT);
     sceGuFinish();

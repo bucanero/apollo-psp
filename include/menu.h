@@ -1,10 +1,6 @@
 #ifndef __ARTEMIS_MENU_H__
 #define __ARTEMIS_MENU_H__
 
-#ifdef __APPLE__
-#undef __APPLE__
-#endif
-
 #include <SDL2/SDL.h>
 
 #include "types.h"

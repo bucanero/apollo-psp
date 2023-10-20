@@ -40,11 +40,4 @@ typedef struct __attribute__((packed))
 extern menu_option_t menu_options[];
 extern app_config_t apollo_config;
 
-void log_callback(int sel);
-void storage_callback(int sel);
-void music_callback(int sel);
-void sort_callback(int sel);
-void ani_callback(int sel);
 void update_callback(int sel);
-void clearcache_callback(int sel);
-void upd_appdata_callback(int sel);

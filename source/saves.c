@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <time.h>
 #include <dirent.h>
+#include <pspiofilemgr.h>
+#include <psprtc.h>
 
 #include "saves.h"
 #include "common.h"
@@ -324,7 +326,7 @@ static void add_psp_commands(save_entry_t* item)
 	return;
 }
 
-option_entry_t* get_file_entries(const char* path, const char* mask)
+static option_entry_t* get_file_entries(const char* path, const char* mask)
 {
 	return _getFileOptions(path, mask, CMD_CODE_NULL);
 }
@@ -390,26 +392,34 @@ int ReadTrophies(save_entry_t * game)
  */
 int ReadOnlineSaves(save_entry_t * game)
 {
+	SceIoStat stat;
 	code_entry_t* item;
 	char path[256];
 	snprintf(path, sizeof(path), APOLLO_LOCAL_CACHE "%s.txt", game->title_id);
 
-	if (file_exists(path) == SUCCESS && strcmp(apollo_config.save_db, ONLINE_URL) == 0)
+	if (sceIoGetstat(path, &stat) == SUCCESS && strcmp(apollo_config.save_db, ONLINE_URL) == 0)
 	{
-		struct stat stats;
-		stat(path, &stats);
+		time_t ftime, ltime;
+
+		sceRtcGetTime_t((pspTime*) &stat.sce_st_mtime, &ftime);
+		sceRtcGetCurrentClockLocalTime((pspTime*) &stat.sce_st_atime);
+		sceRtcGetTime_t((pspTime*) &stat.sce_st_atime, &ltime);
+
+		LOG("File '%s' is %ld seconds old", path, (ltime - ftime));
 		// re-download if file is +1 day old
-		if ((stats.st_mtime + ONLINE_CACHE_TIMEOUT) < time(NULL))
-			http_download(game->path, "saves.txt", path, 0);
+		if ((int)(ltime - ftime - ONLINE_CACHE_TIMEOUT) > 0 && !http_download(game->path, "saves.txt", path, 0))
+			return 0;
 	}
 	else
 	{
 		if (!http_download(game->path, "saves.txt", path, 0))
-			return -1;
+			return 0;
 	}
 
 	long fsize;
 	char *data = readTextFile(path, &fsize);
+	if (!data)
+		return 0;
 	
 	char *ptr = data;
 	char *end = data + fsize;
@@ -673,67 +683,6 @@ int sortSaveList_Compare_TitleID(const void* a, const void* b)
 	return strcasecmp(ta, tb);
 }
 
-static void read_usb_encrypted_saves(const char* userPath, list_t *list, uint64_t account)
-{
-	DIR *d, *d2;
-	struct dirent *dir, *dir2;
-	save_entry_t *item;
-	char savePath[256];
-
-	d = opendir(userPath);
-
-	if (!d)
-		return;
-
-	while ((dir = readdir(d)) != NULL)
-	{
-		if (dir->d_type & DT_DIR || strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
-			continue;
-
-		snprintf(savePath, sizeof(savePath), "%s%s", userPath, dir->d_name);
-		d2 = opendir(savePath);
-
-		if (!d2)
-			continue;
-
-		LOG("Reading %s...", savePath);
-
-		while ((dir2 = readdir(d2)) != NULL)
-		{
-			if (!(dir2->d_type & DT_REG) || endsWith(dir2->d_name, ".bin"))
-				continue;
-
-			snprintf(savePath, sizeof(savePath), "%s%s/%s.bin", userPath, dir->d_name, dir2->d_name);
-			if (file_exists(savePath) != SUCCESS)
-				continue;
-
-			snprintf(savePath, sizeof(savePath), "(Encrypted) %s/%s", dir->d_name, dir2->d_name);
-			item = _createSaveEntry(SAVE_FLAG_PSP | 0, savePath);
-			item->type = FILE_TYPE_PSV;
-
-			asprintf(&item->path, "%s%s/", userPath, dir->d_name);
-			asprintf(&item->title_id, "%.9s", dir->d_name);
-			item->dir_name = strdup(dir2->d_name);
-
-//			if (apollo_config.account_id == account)
-//				item->flags |= SAVE_FLAG_OWNER;
-
-			snprintf(savePath, sizeof(savePath), "%s%s/%s", userPath, dir->d_name, dir2->d_name);
-			
-			uint64_t size = 0;
-			get_file_size(savePath, &size);
-//			item->blocks = size / ORBIS_SAVE_DATA_BLOCK_SIZE;
-
-			LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
-			list_append(list, item);
-
-		}
-		closedir(d2);
-	}
-
-	closedir(d);
-}
-
 static void read_psp_savegames(const char* userPath, list_t *list, int flags)
 {
 	DIR *d;
@@ -774,58 +723,6 @@ static void read_psp_savegames(const char* userPath, list_t *list, int flags)
 		}
 
 		sfo_free(sfo);
-		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
-		list_append(list, item);
-	}
-
-	closedir(d);
-}
-
-static void read_usb_savegames(const char* userPath, list_t *list)
-{
-	DIR *d;
-	struct dirent *dir;
-	save_entry_t *item;
-	char sfoPath[256];
-
-	d = opendir(userPath);
-
-	if (!d)
-		return;
-
-	while ((dir = readdir(d)) != NULL)
-	{
-		if (!(dir->d_type & DT_DIR) || strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
-			continue;
-
-		snprintf(sfoPath, sizeof(sfoPath), "%s%s/sce_sys/param.sfo", userPath, dir->d_name);
-		if (file_exists(sfoPath) != SUCCESS)
-			continue;
-
-		LOG("Reading %s...", sfoPath);
-
-		sfo_context_t* sfo = sfo_alloc();
-		if (sfo_read(sfo, sfoPath) < 0) {
-			LOG("Unable to read from '%s'", sfoPath);
-			sfo_free(sfo);
-			continue;
-		}
-
-		char *sfo_data = (char*)(sfo_get_param_value(sfo, "PARAMS") + 0x28);
-		item = _createSaveEntry(SAVE_FLAG_PSP, sfo_data);
-		item->type = FILE_TYPE_PSV;
-		asprintf(&item->path, "%s%s/", userPath, dir->d_name);
-		asprintf(&item->title_id, "%.9s", sfo_data);
-
-		sfo_data = (char*)(sfo_get_param_value(sfo, "PARENT_DIRECTORY") + 1);
-		item->dir_name = strdup(sfo_data);
-
-//		uint64_t* int_data = (uint64_t*) sfo_get_param_value(sfo, "ACCOUNT_ID");
-//		if (int_data && (apollo_config.account_id == *int_data))
-//			item->flags |= SAVE_FLAG_OWNER;
-
-		sfo_free(sfo);
-			
 		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
 		list_append(list, item);
 	}
@@ -877,7 +774,6 @@ list_t * ReadUsbList(const char* userPath)
 	list_append(item->codes, cmd);
 	list_append(list, item);
 
-	read_usb_savegames(userPath, list);
 	read_psp_savegames(userPath, list, 0);
 
 	return list;
@@ -935,18 +831,24 @@ list_t * ReadUserList(const char* userPath)
  */
 static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 {
+	SceIoStat stat;
 	save_entry_t *item;
 	char path[256];
 
 	snprintf(path, sizeof(path), APOLLO_LOCAL_CACHE "%04X_games.txt", flag);
 
-	if (file_exists(path) == SUCCESS && strcmp(apollo_config.save_db, ONLINE_URL) == 0)
+	if (sceIoGetstat(path, &stat) == SUCCESS && strcmp(apollo_config.save_db, ONLINE_URL) == 0)
 	{
-		struct stat stats;
-		stat(path, &stats);
+		time_t ftime, ltime;
+
+		sceRtcGetTime_t((pspTime*) &stat.sce_st_mtime, &ftime);
+		sceRtcGetCurrentClockLocalTime((pspTime*) &stat.sce_st_atime);
+		sceRtcGetTime_t((pspTime*) &stat.sce_st_atime, &ltime);
+
+		LOG("File '%s' is %ld seconds old", path, (ltime - ftime));
 		// re-download if file is +1 day old
-		if ((stats.st_mtime + ONLINE_CACHE_TIMEOUT) < time(NULL))
-			http_download(urlPath, "games.txt", path, 0);
+		if ((int)(ltime - ftime - ONLINE_CACHE_TIMEOUT) > 0 && !http_download(urlPath, "games.txt", path, 0))
+			return;
 	}
 	else
 	{
@@ -956,6 +858,8 @@ static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 	
 	long fsize;
 	char *data = readTextFile(path, &fsize);
+	if (!data)
+		return;
 	
 	char *ptr = data;
 	char *end = data + fsize;
@@ -999,19 +903,13 @@ list_t * ReadOnlineList(const char* urlPath)
 	char url[256];
 	list_t *list = list_alloc();
 
-	// PSV save-games (Zip folder)
+	// PS1 save-games (Zip PSV)
 	snprintf(url, sizeof(url), "%s" "PS1/", urlPath);
 	_ReadOnlineListEx(url, SAVE_FLAG_PS1, list);
 
 	// PSP save-games (Zip folder)
 	snprintf(url, sizeof(url), "%sPSP/", urlPath);
 	_ReadOnlineListEx(url, SAVE_FLAG_PSP, list);
-
-/*
-	// PS1 save-games (Zip PSV)
-	//snprintf(url, sizeof(url), "%s" "PS1/", urlPath);
-	//_ReadOnlineListEx(url, SAVE_FLAG_PS1, list);
-*/
 
 	if (!list_count(list))
 	{
@@ -1095,8 +993,6 @@ list_t * ReadTrophyList(const char* userPath)
 int get_save_details(const save_entry_t* save, char **details)
 {
 	char sfoPath[256];
-	sdslot_dat_t* sdslot;
-	size_t size;
 
 	if (save->flags & SAVE_FLAG_PSP || save->flags & SAVE_FLAG_PS1)
 	{
@@ -1132,115 +1028,6 @@ int get_save_details(const save_entry_t* save, char **details)
 		asprintf(details, "%s\n\nTitle: %s\n", save->path, save->name);
 		return 1;
 	}
-/*
-	if (save->flags & SAVE_FLAG_TROPHY)
-	{
-		snprintf(sfoPath, sizeof(sfoPath), TROPHY_PATH_HDD "db/trophy_local.db", apollo_config.user_id);
-		if ((db = open_sqlite_db(sfoPath)) == NULL)
-			return 0;
 
-		char* query = sqlite3_mprintf("SELECT id, description, trophy_num, unlocked_trophy_num, progress,"
-			"platinum_num, unlocked_platinum_num, gold_num, unlocked_gold_num, silver_num, unlocked_silver_num,"
-			"bronze_num, unlocked_bronze_num FROM tbl_trophy_title WHERE id = %d", save->blocks);
-
-		if (sqlite3_prepare_v2(db, query, -1, &res, NULL) != SQLITE_OK || sqlite3_step(res) != SQLITE_ROW)
-		{
-			LOG("Failed to fetch data: %s", sqlite3_errmsg(db));
-			sqlite3_free(query);
-			sqlite3_close(db);
-			return 0;
-		}
-
-		asprintf(details, "Trophy-Set Details\n\n"
-			"Title: %s\n"
-			"Description: %s\n"
-			"NP Comm ID: %s\n"
-			"Progress: %d/%d - %d%%\n"
-			"%c Platinum: %d/%d\n"
-			"%c Gold: %d/%d\n"
-			"%c Silver: %d/%d\n"
-			"%c Bronze: %d/%d\n",
-			save->name, sqlite3_column_text(res, 1), save->title_id,
-			sqlite3_column_int(res, 3), sqlite3_column_int(res, 2), sqlite3_column_int(res, 4),
-			CHAR_TRP_PLATINUM, sqlite3_column_int(res, 6), sqlite3_column_int(res, 5),
-			CHAR_TRP_GOLD, sqlite3_column_int(res, 8), sqlite3_column_int(res, 7),
-			CHAR_TRP_SILVER, sqlite3_column_int(res, 10), sqlite3_column_int(res, 9),
-			CHAR_TRP_BRONZE, sqlite3_column_int(res, 12), sqlite3_column_int(res, 11));
-
-		sqlite3_free(query);
-		sqlite3_finalize(res);
-		sqlite3_close(db);
-
-		return 1;
-	}
-
-	if(save->flags & SAVE_FLAG_LOCKED)
-	{
-		asprintf(details, "%s\n\n"
-			"Title ID: %s\n"
-			"Dir Name: %s\n"
-			"Blocks: %d\n"
-			"Account ID: %.16s\n",
-			save->path,
-			save->title_id,
-			save->dir_name,
-			save->blocks,
-			save->path + 23);
-
-		return 1;
-	}
-*/
-
-	snprintf(sfoPath, sizeof(sfoPath), "%ssce_sys/param.sfo", save->path);
-	LOG("Save Details :: Reading %s...", sfoPath);
-
-	sfo_context_t* sfo = sfo_alloc();
-	if (sfo_read(sfo, sfoPath) < 0) {
-		LOG("Unable to read from '%s'", sfoPath);
-		sfo_free(sfo);
-		return 0;
-	}
-
-	strcpy(strrchr(sfoPath, '/'), "/sdslot.dat");
-	LOG("Save Details :: Reading %s...", sfoPath);
-	if (read_buffer(sfoPath, (uint8_t**) &sdslot, &size) != SUCCESS) {
-		LOG("Unable to read from '%s'", sfoPath);
-		sfo_free(sfo);
-		return 0;
-	}
-
-	if (sdslot->header.magic == 0x4C534453)
-		memcpy(sfoPath, sdslot->header.active_slots, sizeof(sfoPath));
-	else
-		memset(sfoPath, 0, sizeof(sfoPath));
-
-	char* out = *details = (char*) sdslot;
-	uint64_t* account_id = (uint64_t*) sfo_get_param_value(sfo, "ACCOUNT_ID");
-
-	out += sprintf(out, "%s\n----- Save -----\n"
-		"Title: %s\n"
-		"Title ID: %s\n"
-		"Dir Name: %s\n"
-		"Account ID: %016llx\n",
-		save->path, save->name,
-		save->title_id,
-		save->dir_name,
-		*account_id);
-
-	for (int i = 0; (i < 256) && sfoPath[i]; i++)
-	{
-		out += sprintf(out, "----- Slot %03d -----\n"
-			"Date: %d/%02d/%02d %02d:%02d:%02d\n"
-			"Title: %s\n"
-			"Subtitle: %s\n"
-			"Details: %s\n",
-			(i+1), sdslot->slots[i].year, sdslot->slots[i].month, sdslot->slots[i].day,
-			sdslot->slots[i].hour, sdslot->slots[i].min, sdslot->slots[i].sec,
-			sdslot->slots[i].title,
-			sdslot->slots[i].subtitle,
-			sdslot->slots[i].description);
-	}
-
-	sfo_free(sfo);
 	return 1;
 }
