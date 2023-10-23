@@ -215,8 +215,11 @@ static void storage_callback(int sel)
 
 static void log_callback(int sel)
 {
-	dbglogger_init_mode(FILE_LOGGER, APOLLO_PATH "apollo.log", 1);
-	show_message("Debug Logging Enabled!\n\n" APOLLO_PATH "apollo.log");
+	char path[256];
+
+	snprintf(path, sizeof(path), APOLLO_PATH "apollo.log", USER_STORAGE_DEV);
+	dbglogger_init_mode(FILE_LOGGER, path, 1);
+	show_message("Debug Logging Enabled!\n\n%s", path);
 }
 
 static void db_url_callback(int sel)

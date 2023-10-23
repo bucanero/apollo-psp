@@ -6,6 +6,8 @@
 #define MENU_SPLIT_OFF			100			//Offset from left of sub/split menu to start drawing
 #define OPTION_ITEM_OFF         365         //Offset from left of settings item/value
 
+#define USER_STORAGE_DEV        menu_options[3].options[apollo_config.storage]
+
 enum app_option_type
 {
     APP_OPTION_NONE,

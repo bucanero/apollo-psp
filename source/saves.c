@@ -215,7 +215,7 @@ static void _addBackupCommands(save_entry_t* item)
 	cmd->options = _createOptions((item->flags & SAVE_FLAG_HDD) ? 2 : 3, "Copy Save to Backup Storage", CMD_COPY_SAVE_USB);
 	if (!(item->flags & SAVE_FLAG_HDD))
 	{
-		asprintf(&cmd->options->name[2], "Copy Save to Memory Stick (%s:/PSP)", menu_options[3].options[apollo_config.storage]);
+		asprintf(&cmd->options->name[2], "Copy Save to Memory Stick (%s:/PSP)", USER_STORAGE_DEV);
 		asprintf(&cmd->options->value[2], "%c", CMD_COPY_SAVE_HDD);
 	}
 	list_append(item->codes, cmd);
@@ -296,7 +296,7 @@ static void add_ps1_commands(save_entry_t* save)
 	cmd->options = _getFileOptions(save->path, "*.VMP", CMD_EXP_VMP2MCR);
 	list_append(save->codes, cmd);
 
-	snprintf(path, sizeof(path), PS1_SAVES_PATH_HDD "%s/", save->title_id);
+	snprintf(path, sizeof(path), PS1_SAVES_PATH_HDD "%s/", USER_STORAGE_DEV, save->title_id);
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Import .MCR files to SCEVMC0.VMP", CMD_CODE_NULL);
 	cmd->options_count = 1;
 	cmd->options = _getFileOptions(path, "*.MCR", CMD_IMP_MCR2VMP0);
@@ -666,7 +666,19 @@ int sortCodeList_Compare(const void* a, const void* b)
  */
 int sortSaveList_Compare(const void* a, const void* b)
 {
-	return strcasecmp(((save_entry_t*) a)->name, ((save_entry_t*) b)->name);
+	uint8_t* ta = ((save_entry_t*) a)->name;
+	uint8_t* tb = ((save_entry_t*) b)->name;
+
+	for (int t = 0; *ta && *tb; ta++, tb++)
+	{
+		t = tolower(*ta) - tolower(*tb);
+		if (t < 0)
+			return -1;
+		else if (t > 0)
+			return 1;
+	}
+
+	return 0;
 }
 
 int sortSaveList_Compare_TitleID(const void* a, const void* b)
@@ -759,11 +771,11 @@ list_t * ReadUsbList(const char* userPath)
 	item->dir_name = malloc(sizeof(void**));
 	((void**)item->dir_name)[0] = list;
 
-	snprintf(name, sizeof(name), CHAR_ICON_COPY " Copy selected Saves to Memory Stick (%s:/PSP)", menu_options[3].options[apollo_config.storage]);
+	snprintf(name, sizeof(name), CHAR_ICON_COPY " Copy selected Saves to Memory Stick (%s:/PSP)", USER_STORAGE_DEV);
 	cmd = _createCmdCode(PATCH_COMMAND, name, CMD_COPY_SAVES_HDD);
 	list_append(item->codes, cmd);
 
-	snprintf(name, sizeof(name), CHAR_ICON_COPY " Copy All Saves to Memory Stick (%s:/PSP)", menu_options[3].options[apollo_config.storage]);
+	snprintf(name, sizeof(name), CHAR_ICON_COPY " Copy All Saves to Memory Stick (%s:/PSP)", USER_STORAGE_DEV);
 	cmd = _createCmdCode(PATCH_COMMAND, name, CMD_COPY_ALL_SAVES_HDD);
 	list_append(item->codes, cmd);
 

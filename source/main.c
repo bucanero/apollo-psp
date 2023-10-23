@@ -306,7 +306,7 @@ static int LoadSounds(SceSize args, void* data)
 
 void update_usb_path(char* path)
 {
-	sprintf(path, USB_PATH PSP_SAVES_PATH_USB, menu_options[3].options[apollo_config.storage]);
+	sprintf(path, USB_PATH PSP_SAVES_PATH_USB, USER_STORAGE_DEV);
 	if (dir_exists(path) == SUCCESS)
 		return;
 
@@ -315,7 +315,7 @@ void update_usb_path(char* path)
 
 void update_hdd_path(char* path)
 {
-	sprintf(path, PSP_SAVES_PATH_HDD, menu_options[3].options[apollo_config.storage]);
+	sprintf(path, PSP_SAVES_PATH_HDD, USER_STORAGE_DEV);
 }
 
 void update_db_path(char* path)

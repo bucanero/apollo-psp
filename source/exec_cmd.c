@@ -175,7 +175,7 @@ static int _copy_save_psp(const save_entry_t* save)
 {
 	char copy_path[256];
 
-	snprintf(copy_path, sizeof(copy_path), PSP_SAVES_PATH_HDD "%s/", menu_options[3].options[apollo_config.storage], save->dir_name);
+	snprintf(copy_path, sizeof(copy_path), PSP_SAVES_PATH_HDD "%s/", USER_STORAGE_DEV, save->dir_name);
 
 	LOG("Copying <%s> to %s...", save->path, copy_path);
 	return (copy_directory(save->path, save->path, copy_path) == SUCCESS);
@@ -195,11 +195,11 @@ static void copySaveHDD(const save_entry_t* save)
 	stop_loading_screen();
 
 	if (ret)
-		show_message("Save-game successfully copied to:\n%s%s", PSP_SAVES_PATH_HDD,
-			menu_options[3].options[apollo_config.storage], save->dir_name);
+		show_message("Save-game successfully copied to:\n" PSP_SAVES_PATH_HDD "%s",
+			USER_STORAGE_DEV, save->dir_name);
 	else
-		show_message("Error! Can't copy Save-game folder:\n%s%s", PSP_SAVES_PATH_HDD,
-			menu_options[3].options[apollo_config.storage], save->dir_name);
+		show_message("Error! Can't copy Save-game folder:\n" PSP_SAVES_PATH_HDD "%s",
+			USER_STORAGE_DEV, save->dir_name);
 }
 
 static void copyAllSavesHDD(const save_entry_t* save, int all)
@@ -226,7 +226,7 @@ static void copyAllSavesHDD(const save_entry_t* save, int all)
 	end_progress_bar();
 
 	show_message("%d/%d Saves copied to Memory Stick\n" PSP_SAVES_PATH_HDD,
-		menu_options[3].options[apollo_config.storage], done, done+err_count);
+		done, done+err_count, USER_STORAGE_DEV);
 }
 
 static void extractArchive(const char* file_path)
@@ -278,7 +278,7 @@ static int pspDumpKey(const save_entry_t* save, int verbose)
 		return 0;
 	}
 
-	snprintf(fpath, sizeof(fpath), APOLLO_PATH "gamekeys.txt");
+	snprintf(fpath, sizeof(fpath), APOLLO_PATH "gamekeys.txt", USER_STORAGE_DEV);
 	FILE *fp = fopen(fpath, "a");
 	if (!fp)
 	{
@@ -308,7 +308,7 @@ static void pspExportKey(const save_entry_t* save)
 		return;
 	}
 
-	snprintf(fpath, sizeof(fpath), APOLLO_USER_PATH "%s/%s.bin", save->dir_name, save->title_id);
+	snprintf(fpath, sizeof(fpath), APOLLO_USER_PATH "%s/%s.bin", USER_STORAGE_DEV, save->dir_name, save->title_id);
 	mkdirs(fpath);
 
 	if (write_buffer(fpath, buffer, sizeof(buffer)) == SUCCESS)
@@ -338,64 +338,8 @@ static void dumpAllFingerprints(const save_entry_t* save)
 	}
 
 	end_progress_bar();
-	show_message("%d/%d game keys dumped to:\n%sgamekeys.txt", count, count+err, APOLLO_PATH);
+	show_message("%d/%d game keys dumped to:\n" APOLLO_PATH "gamekeys.txt", count, count+err, USER_STORAGE_DEV);
 }
-
-/*
-static void copySavePFS(const save_entry_t* save)
-{
-	char src_path[256];
-	char hdd_path[256];
-	char mount[32];
-	sfo_patch_t patch = {
-		.user_id = apollo_config.user_id,
-		.account_id = apollo_config.account_id,
-	};
-
-	if (!vita_SaveMount(save, mount))
-	{
-		LOG("[!] Error: can't create/mount save!");
-		return;
-	}
-	vita_SaveUmount(mount);
-
-	snprintf(src_path, sizeof(src_path), "%s%s", save->path, save->dir_name);
-	snprintf(hdd_path, sizeof(hdd_path), "/user/home/%08x/savedata/%s/sdimg_%s", apollo_config.user_id, save->title_id, save->dir_name);
-	LOG("Copying <%s> to %s...", src_path, hdd_path);
-	if (copy_file(src_path, hdd_path) != SUCCESS)
-	{
-		LOG("[!] Error: can't copy %s", hdd_path);
-		return;
-	}
-
-	snprintf(src_path, sizeof(src_path), "%s%s.bin", save->path, save->dir_name);
-	snprintf(hdd_path, sizeof(hdd_path), "/user/home/%08x/savedata/%s/%s.bin", apollo_config.user_id, save->title_id, save->dir_name);
-	LOG("Copying <%s> to %s...", src_path, hdd_path);
-	if (copy_file(src_path, hdd_path) != SUCCESS)
-	{
-		LOG("[!] Error: can't copy %s", hdd_path);
-		return;
-	}
-
-	if (!vita_SaveMount(save, mount))
-	{
-		LOG("[!] Error: can't remount save");
-		show_message("Error! Can't mount encrypted save.\n(incompatible save-game firmware version)");
-		return;
-	}
-
-	snprintf(hdd_path, sizeof(hdd_path), APOLLO_SANDBOX_PATH "sce_sys/param.sfo", mount);
-	if (show_dialog(1, "Resign save %s/%s?", save->title_id, save->dir_name))
-		patch_sfo(hdd_path, &patch);
-
-//	*strrchr(hdd_path, 'p') = 0;
-//	_update_save_details(hdd_path, mount);
-	vita_SaveUmount(mount);
-
-	show_message("Encrypted save copied successfully!\n%s/%s", save->title_id, save->dir_name);
-	return;
-}
-*/
 
 static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 {
@@ -809,7 +753,7 @@ static void import_mcr2vmp(const save_entry_t* save, const char* src, int dst_id
 {
 	char mcrPath[256], vmpPath[256];
 
-	snprintf(mcrPath, sizeof(mcrPath), PS1_SAVES_PATH_HDD "%s/%s", save->title_id, src);
+	snprintf(mcrPath, sizeof(mcrPath), PS1_SAVES_PATH_HDD "%s/%s", USER_STORAGE_DEV, save->title_id, src);
 	snprintf(vmpPath, sizeof(vmpPath), "%sSCEVMC%d.VMP", save->path, dst_id);
 
 	if (ps1_mcr2vmp(mcrPath, vmpPath))
@@ -823,7 +767,7 @@ static void export_vmp2mcr(const save_entry_t* save, const char* src_vmp)
 	char mcrPath[256], vmpPath[256];
 
 	snprintf(vmpPath, sizeof(vmpPath), "%s%s", save->path, src_vmp);
-	snprintf(mcrPath, sizeof(mcrPath), PS1_SAVES_PATH_HDD "%s/%s", save->title_id, src_vmp);
+	snprintf(mcrPath, sizeof(mcrPath), PS1_SAVES_PATH_HDD "%s/%s", USER_STORAGE_DEV, save->title_id, src_vmp);
 	strcpy(strrchr(mcrPath, '.'), ".MCR");
 	mkdirs(mcrPath);
 
@@ -866,7 +810,7 @@ static void decryptSaveFile(const save_entry_t* entry, const char* filename)
 		return;
 	}
 
-	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/", entry->dir_name);
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/", USER_STORAGE_DEV, entry->dir_name);
 	mkdirs(path);
 
 	LOG("Decrypt '%s%s' to '%s'...", entry->path, filename, path);
@@ -894,14 +838,14 @@ static void encryptSaveFile(const save_entry_t* entry, const char* filename)
 		return;
 	}
 
-	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/%s", entry->dir_name, filename);
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/%s", USER_STORAGE_DEV, entry->dir_name, filename);
 	if (file_exists(path) != SUCCESS)
 	{
 		show_message("Error! Can't find decrypted save-game file:\n%s", path);
 		return;
 	}
 
-	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/", entry->dir_name);
+	snprintf(path, sizeof(path), APOLLO_USER_PATH "%s/", USER_STORAGE_DEV, entry->dir_name);
 	LOG("Encrypt '%s%s' to '%s'...", path, filename, entry->path);
 
 	if (_copy_save_file(path, entry->path, filename))

@@ -2,7 +2,7 @@
 #include <dbglogger.h>
 #define LOG dbglogger_log
 
-#define APOLLO_PATH				"ms0:/APOLLO/"
+#define APOLLO_PATH				"%s:/APOLLO/"
 #define APOLLO_APP_PATH			"./"
 #define APOLLO_USER_PATH		APOLLO_PATH "FILES/"
 #define APOLLO_DATA_PATH		APOLLO_APP_PATH "DATA/"
@@ -24,7 +24,6 @@
 #define PS1_IMP_PATH_USB        "PS1/SAVEDATA/"
 
 #define EXPORT_PATH             "APOLLO/EXPORT/"
-#define EXPORT_ZRIF_PATH        APOLLO_PATH "zrif/"
 
 #define IMP_PS2VMC_PATH_USB     USB_PATH "PS2/VMC/"
 #define IMPORT_RAP_PATH_USB     USB_PATH PS3_LICENSE_PATH

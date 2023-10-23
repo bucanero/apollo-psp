@@ -94,7 +94,7 @@ target_link_libraries(${PROJECT_NAME}
   pthread
   pspnet
   pspnet_apctl
-#  unrar
+  pspwlan
   zip
   un7zip
   xmp

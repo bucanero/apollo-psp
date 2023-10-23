@@ -617,7 +617,7 @@ static void doCodeOptionsMenu()
 				execCodeCommand(code, code->options[option_index].value[menu_sel]+1);
 
 				memset(&hex_data, 0, sizeof(hex_data));
-				snprintf(hex_data.filepath, sizeof(hex_data.filepath), APOLLO_USER_PATH "%s/%s", selected_entry->dir_name, code->options[0].name[code->options[0].sel]);
+				snprintf(hex_data.filepath, sizeof(hex_data.filepath), APOLLO_USER_PATH "%s/%s", USER_STORAGE_DEV, selected_entry->dir_name, code->options[0].name[code->options[0].sel]);
 				if (read_buffer(hex_data.filepath, &hex_data.data, &hex_data.size) < 0)
 				{
 					show_message("Unable to load\n%s", hex_data.filepath);
