@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <sys/time.h>
 #include <dbglogger.h>
+#include <psputility.h>
 #include "psppad.h"
 
 #define LOG dbglogger_log
@@ -97,6 +98,9 @@ bool pspPadGetButtonHold(unsigned int filter)
 
 bool pspPadGetButtonPressed(unsigned int filter)
 {
+	if (!pspPadConf.crossButtonOK && (filter & (PSP_CTRL_CROSS|PSP_CTRL_CIRCLE)))
+		filter ^= (PSP_CTRL_CROSS|PSP_CTRL_CIRCLE);
+
 	if((pspPadConf.buttonsPressed&filter)==filter)
 	{
 		pspPadConf.buttonsPressed ^= filter;
@@ -183,6 +187,13 @@ int pspPadInit(void)
 	{
 		LOG("sceCtrlSetSamplingMode Error 0x%8X", ret);
 		return -1;
+	}
+
+	ret = sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &pspPadConf.crossButtonOK); // X/O button swap
+	if (ret < 0)
+	{
+		LOG("sceUtilityGetSystemParamInt error 0x%08X", ret);
+		pspPadConf.crossButtonOK = 1;
 	}
 
 	orbispad_initialized=1;

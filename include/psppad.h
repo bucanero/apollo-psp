@@ -27,6 +27,7 @@ typedef struct PspPadConfig
 	unsigned int buttonsReleased;
 	unsigned int buttonsHold;
 	unsigned int idle;
+	int crossButtonOK;
 } PspPadConfig;
 
 int pspPadInit(void);
