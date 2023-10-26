@@ -475,6 +475,7 @@ list_t * ReadBackupList(const char* userPath)
 
 	item = _createSaveEntry(SAVE_FLAG_ZIP, CHAR_ICON_ZIP " Extract Archives (Zip, 7z)");
 	item->path = strdup(MS0_PATH);
+	item->title_id = strdup(item->path);
 	item->type = FILE_TYPE_ZIP;
 	list_append(list, item);
 
@@ -488,7 +489,59 @@ list_t * ReadBackupList(const char* userPath)
 	item->type = FILE_TYPE_NET;
 	list_append(list, item);
 
+	item = _createSaveEntry(SAVE_FLAG_PSP, CHAR_ICON_COPY " Decompress .CSO to .ISO");
+	item->path = strdup(MS0_PATH "ISO/");
+	item->title_id = strdup(item->path);
+	item->type = FILE_TYPE_CSO;
+	list_append(list, item);
+
+	item = _createSaveEntry(SAVE_FLAG_PSP, CHAR_ICON_COPY " Compress .ISO to .CSO");
+	item->path = strdup(MS0_PATH "ISO/");
+	item->title_id = strdup(item->path);
+	item->type = FILE_TYPE_ISO;
+	list_append(list, item);
+
 	return list;
+}
+
+static size_t load_iso_files(save_entry_t * bup, int type)
+{
+	DIR *d;
+	struct dirent *dir;
+	code_entry_t * cmd;
+	char tmp[256];
+
+	bup->codes = list_alloc();
+	LOG("Loading files from '%s'...", bup->path);
+
+	d = opendir(bup->path);
+	if (d)
+	{
+		while ((dir = readdir(d)) != NULL)
+		{
+			if ((type == FILE_TYPE_ISO && !endsWith(dir->d_name, ".ISO")) || (type == FILE_TYPE_CSO && !endsWith(dir->d_name, ".CSO")))
+				continue;
+
+			snprintf(tmp, sizeof(tmp), CHAR_ICON_COPY " Convert %s", dir->d_name);
+			cmd = _createCmdCode(PATCH_COMMAND, tmp, (type == FILE_TYPE_ISO) ? CMD_CONV_ISO2CSO : CMD_CONV_CSO2ISO);
+			asprintf(&cmd->file, "%s%s", bup->path, dir->d_name);
+
+			LOG("[%s] name '%s'", cmd->file, cmd->name +2);
+			list_append(bup->codes, cmd);
+		}
+		closedir(d);
+	}
+
+	if (!list_count(bup->codes))
+	{
+		list_free(bup->codes);
+		bup->codes = NULL;
+		return 0;
+	}
+
+	LOG("%ld items loaded", list_count(bup->codes));
+
+	return list_count(bup->codes);	
 }
 
 int ReadBackupCodes(save_entry_t * bup)
@@ -500,6 +553,10 @@ int ReadBackupCodes(save_entry_t * bup)
 	{
 	case FILE_TYPE_ZIP:
 		break;
+
+	case FILE_TYPE_ISO:
+	case FILE_TYPE_CSO:
+		return load_iso_files(bup, bup->type);
 
 	case FILE_TYPE_NET:
 		bup->codes = list_alloc();
