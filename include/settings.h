@@ -35,7 +35,7 @@ typedef struct __attribute__((packed))
     uint8_t doAni;
     uint8_t storage;
     uint8_t update;
-    uint32_t user_id;
+    uint64_t psid[2];
     char save_db[256];
 } app_config_t;
 

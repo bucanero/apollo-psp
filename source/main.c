@@ -59,7 +59,7 @@ app_config_t apollo_config = {
     .doAni = 1,
     .update = 0,
     .storage = 0,
-    .user_id = 0,
+    .psid = {0, 0},
 };
 
 int close_app = 0;

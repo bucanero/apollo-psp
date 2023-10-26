@@ -4,6 +4,8 @@
 #include <time.h>
 #include <polarssl/md5.h>
 #include <pspnet_apctl.h>
+#include <psputility.h>
+#include <pspwlan.h>
 
 #include "saves.h"
 #include "menu.h"
@@ -11,6 +13,7 @@
 #include "utils.h"
 #include "sfo.h"
 
+static char host_buf[256];
 
 static int _set_dest_path(char* path, int dest, const char* folder)
 {
@@ -81,6 +84,7 @@ static void zipSave(const save_entry_t* entry, int dst)
 	char* export_file;
 	char* tmp;
 	uint32_t fid;
+	int ret;
 
 	_set_dest_path(exp_path, dst, EXPORT_PATH);
 	if (mkdirs(exp_path) != SUCCESS)
@@ -98,23 +102,28 @@ static void zipSave(const save_entry_t* entry, int dst)
 	*strrchr(tmp, '/') = 0;
 	*strrchr(tmp, '/') = 0;
 
-	zip_directory(tmp, entry->path, export_file);
-
-	sprintf(export_file, "%s%08x.txt", exp_path, apollo_config.user_id);
-	FILE* f = fopen(export_file, "a");
-	if (f)
+	ret = zip_directory(tmp, entry->path, export_file);
+	if (ret)
 	{
-		fprintf(f, "%08d.zip=[%s] %s\n", fid, entry->title_id, entry->name);
-		fclose(f);
+		sprintf(export_file, "%s%016" PRIx64 " %016" PRIx64 " .txt", exp_path, ES64(apollo_config.psid[0]), ES64(apollo_config.psid[1]));
+		FILE* f = fopen(export_file, "a");
+		if (f)
+		{
+			fprintf(f, "%08d.zip=[%s] %s\n", fid, entry->title_id, entry->name);
+			fclose(f);
+		}
 	}
-
-	sprintf(export_file, "%s%s", exp_path, OWNER_XML_FILE);
-//	save_xml_owner(export_file);
 
 	free(export_file);
 	free(tmp);
 
 	stop_loading_screen();
+	if (!ret)
+	{
+		show_message("Error! Can't export save game to:\n%s%08d.zip", exp_path, fid);
+		return;
+	}
+
 	show_message("Zip file successfully saved to:\n%s%08d.zip", exp_path, fid);
 }
 
@@ -614,6 +623,43 @@ static int psp_is_decrypted(list_t* list, const char* fname)
 	return 0;
 }
 
+static void* psp_host_callback(int id, int* size)
+{
+	memset(host_buf, 0, sizeof(host_buf));
+
+	switch (id)
+	{
+	case APOLLO_HOST_TEMP_PATH:
+		return APOLLO_LOCAL_CACHE;
+
+	case APOLLO_HOST_USERNAME:
+		return "APOLLO-PSP";
+
+	case APOLLO_HOST_PSID:
+		memcpy(host_buf, apollo_config.psid, 16);
+		if (size) *size = 16;
+		return host_buf;
+
+	case APOLLO_HOST_SYS_NAME:
+		if (sceUtilityGetSystemParamString(PSP_SYSTEMPARAM_ID_STRING_NICKNAME, host_buf, sizeof(host_buf)) < 0)
+			LOG("Error getting system Nickname");
+
+		if (size) *size = strlen(host_buf);
+		return host_buf;
+
+	case APOLLO_HOST_LAN_ADDR:
+	case APOLLO_HOST_WLAN_ADDR:
+		if (sceWlanGetEtherAddr(host_buf) < 0)
+			LOG("Error getting Wlan Ethernet Address");
+
+		if (size) *size = 6;
+		return host_buf;
+	}
+
+	if (size) *size = 1;
+	return host_buf;
+}
+
 static int apply_cheat_patches(const save_entry_t* entry)
 {
 	int ret = 1;
@@ -664,7 +710,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 			}
 		}
 
-		if (!apply_cheat_patch_code(tmpfile, entry->title_id, code, APOLLO_LOCAL_CACHE))
+		if (!apply_cheat_patch_code(tmpfile, entry->title_id, code, &psp_host_callback))
 		{
 			LOG("Error: failed to apply (%s)", code->name);
 			ret = 0;
@@ -696,7 +742,7 @@ static void resignSave(save_entry_t* entry)
 {
     sfo_patch_t patch = {
         .flags = 0,
-        .user_id = apollo_config.user_id,
+        .psid = (uint8_t*) apollo_config.psid,
         .directory = NULL,
     };
 
@@ -721,7 +767,7 @@ static void resignAllSaves(const save_entry_t* save, int all)
 	uint64_t progress = 0;
 	list_t *list = ((void**)save->dir_name)[0];
 	sfo_patch_t patch = {
-		.user_id = apollo_config.user_id,
+		.psid = (uint8_t*) apollo_config.psid,
 	};
 
 	init_progress_bar("Resigning all saves...");

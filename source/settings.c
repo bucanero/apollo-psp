@@ -4,6 +4,7 @@
 #include <time.h>
 #include <zlib.h>
 #include <pspiofilemgr.h>
+#include <pspopenpsid.h>
 
 #include "types.h"
 #include "menu.h"
@@ -346,7 +347,7 @@ int load_app_settings(app_config_t* config)
 	app_config_t* file_data;
 	size_t file_size;
 
-	config->user_id = 0;
+	sceOpenPSIDGetOpenPSID((PspOpenPSID*) config->psid);
 	config->storage = is_psp_go();
 
 	snprintf(filePath, sizeof(filePath), "%s%s%s%s", MS0_PATH, USER_PATH_HDD, "NP0APOLLO-Settings/", "SETTINGS.BIN");
@@ -354,10 +355,10 @@ int load_app_settings(app_config_t* config)
 	LOG("Loading Settings...");
 	if (read_buffer(filePath, (uint8_t**) &file_data, &file_size) == SUCCESS && file_size == sizeof(app_config_t))
 	{
-		file_data->user_id = config->user_id;
+		memcpy(file_data->psid, config->psid, sizeof(PspOpenPSID));
 		memcpy(config, file_data, file_size);
 
-		LOG("Settings loaded: UserID (%08x)", config->user_id);
+		LOG("Settings loaded: PSID (%016" PRIX64 " %016" PRIX64 ")", config->psid[0], config->psid[1]);
 		free(file_data);
 	}
 	else

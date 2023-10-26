@@ -95,6 +95,7 @@ target_link_libraries(${PROJECT_NAME}
   pspnet
   pspnet_apctl
   pspwlan
+  pspopenpsid
   zip
   un7zip
   xmp
