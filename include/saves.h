@@ -56,7 +56,6 @@ enum cmd_code_enum
     CMD_VIEW_RAW_PATCH,
     CMD_RESIGN_VMP,
     CMD_EXP_FINGERPRINT,
-    CMD_CONVERT_TO_PSV,
     CMD_HEX_EDIT_FILE,
     CMD_IMPORT_DATA_FILE,
 
@@ -71,14 +70,14 @@ enum cmd_code_enum
     CMD_SAVE_WEBSERVER,
 
 // Export commands
-    CMD_EXP_KEYSTONE,
+    CMD_CONV_ISO2CSO,
     CMD_SETUP_PLUGIN,
     CMD_EXP_VMP2MCR,
     CMD_EXP_PSPKEY,
     CMD_DUMP_PSPKEY,
 
 // Import commands
-    CMD_IMP_KEYSTONE,
+    CMD_CONV_CSO2ISO,
     CMD_IMP_MCR2VMP0,
     CMD_IMP_MCR2VMP1,
     CMD_EXTRACT_ARCHIVE,
@@ -107,7 +106,6 @@ enum save_type_enum
 {
     FILE_TYPE_NULL,
     FILE_TYPE_PSV,
-    FILE_TYPE_TRP,
     FILE_TYPE_MENU,
     FILE_TYPE_PSP,
 
@@ -116,12 +114,12 @@ enum save_type_enum
 
     // License Files
     FILE_TYPE_PRX,
-    FILE_TYPE_RAP,
+    FILE_TYPE_NET,
     FILE_TYPE_ACT,
 
     // ISO Files
     FILE_TYPE_ISO,
-    FILE_TYPE_NET,
+    FILE_TYPE_CSO,
 };
 
 enum char_flag_enum
@@ -225,9 +223,8 @@ void stop_loading_screen(void);
 
 void execCodeCommand(code_entry_t* code, const char* codecmd);
 
-int regMgr_GetUserName(int userNumber, char* outString);
-
-int create_savegame_folder(const char* folder);
+int convert_cso2iso(const char *fname_in);
+int convert_iso2cso(const char *fname_in);
 int get_save_details(const save_entry_t *save, char** details);
 
 int read_psp_game_key(const char* fkey, uint8_t* key);
