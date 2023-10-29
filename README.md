@@ -2,10 +2,11 @@
 
 [![Downloads][img_downloads]][app_downloads] [![Release][img_latest]][app_latest] [![License][img_license]][app_license]
 [![Build app package](https://github.com/bucanero/apollo-psp/actions/workflows/build.yml/badge.svg)](https://github.com/bucanero/apollo-psp/actions/workflows/build.yml)
+[![Twitter](https://img.shields.io/twitter/follow/dparrino?label=Follow)](https://twitter.com/dparrino)
 
 **Apollo Save Tool** is an application to manage save-game files on the PlayStation Portable.
 
-This homebrew app allows to download, unlock, patch and resign save-game files directly on your PSP.
+This homebrew app allows you to download, unlock, patch, and resign save-game files directly on your PSP.
 
 ![image](./docs/screenshots/screenshot-main.png)
 
@@ -119,10 +120,9 @@ You need to have installed:
 
 Run `cmake . && make` to create a release build. If you want to include the [latest save patches](https://github.com/bucanero/apollo-patches) in your `.zip` file, run `make createzip`.
 
-To enable debug logging, pass `-DAPOLLO_ENABLE_LOGGING=ON` argument to cmake. The application will send debug messages to
-UDP multicast address `239.255.0.100:30000`. To receive them you can use [socat][] on your computer:
+To enable debug logging, pass `-DAPOLLO_ENABLE_LOGGING=ON` argument to cmake. The application will write debug messages to
 
-    $ socat udp4-recv:30000,ip-add-membership=239.255.0.100:0.0.0.0 -
+    ms0:/pkgi-psp.log
 
 You can also set the `PSPIP` environment variable to your PSP's IP address, and use `make send` to upload `EBOOT.PBP` directly to the `ms0:/PSP/GAME/APOLLO` folder.
 

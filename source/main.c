@@ -187,7 +187,7 @@ static int LoadTextures_Menu(void)
 	//Init Main Menu textures
 	load_menu_texture(bgimg, png);
 	load_menu_texture(cheat, png);
-//	load_menu_texture(leon, jpg);
+	load_menu_texture(leon_luna, png);
 
 	load_menu_texture(circle_loading_bg, png);
 	load_menu_texture(circle_loading_seek, png);

@@ -404,16 +404,22 @@ static void doMainMenu()
 	Draw_MainMenu();
 }
 
-static void doAboutMenu()
+static void doAboutMenu(void)
 {
+	static int ll = 0;
 	// Check the pads.
 	if (pspPadGetButtonPressed(PSP_CTRL_CIRCLE))
 	{
+		ll = 0;
 		SetMenu(MENU_MAIN_SCREEN);
 		return;
 	}
+	else if (pspPadGetButtonPressed(PSP_CTRL_SELECT))
+	{
+		ll = 1;
+	}
 
-	Draw_AboutMenu();
+	Draw_AboutMenu(ll);
 }
 
 static void doOptionsMenu()

@@ -105,7 +105,7 @@ static void zipSave(const save_entry_t* entry, int dst)
 	ret = zip_directory(tmp, entry->path, export_file);
 	if (ret)
 	{
-		sprintf(export_file, "%s%016" PRIx64 " %016" PRIx64 " .txt", exp_path, ES64(apollo_config.psid[0]), ES64(apollo_config.psid[1]));
+		sprintf(export_file, "%s%016" PRIx64 "%016" PRIx64 ".txt", exp_path, ES64(apollo_config.psid[0]), ES64(apollo_config.psid[1]));
 		FILE* f = fopen(export_file, "a");
 		if (f)
 		{
@@ -120,7 +120,7 @@ static void zipSave(const save_entry_t* entry, int dst)
 	stop_loading_screen();
 	if (!ret)
 	{
-		show_message("Error! Can't export save game to:\n%s%08d.zip", exp_path, fid);
+		show_message("Error! Can't export save game to:\n%s", exp_path);
 		return;
 	}
 
@@ -160,6 +160,7 @@ static void copySave(const save_entry_t* save, int dev)
 
 static int get_psp_save_key(const save_entry_t* entry, uint8_t* key)
 {
+	FILE* fp;
 	char path[256];
 
 	snprintf(path, sizeof(path), "ms0:/PSP/SAVEPLAIN/%s/%s.bin", entry->dir_name, entry->title_id);
@@ -177,7 +178,35 @@ static int get_psp_save_key(const save_entry_t* entry, uint8_t* key)
 
 	// SGKeyDumper 1.6+ support
 	snprintf(path, sizeof(path), "ef0:/PSP/GAME/SED/gamekey/%s.bin", entry->title_id);
-	return (read_psp_game_key(path, key));
+	if (read_psp_game_key(path, key))
+		return 1;
+
+	snprintf(path, sizeof(path), APOLLO_DATA_PATH "gamekeys.txt");
+	if ((fp = fopen(path, "r")) == NULL)
+		return 0;
+
+	while(fgets(path, sizeof(path), fp))
+	{
+		char *ptr = strchr(path, '=');
+
+		if (!ptr || path[0] == ';')
+			continue;
+
+		*ptr++ = 0;
+		ptr[32] = 0;
+		if (strncasecmp(entry->dir_name, path, strlen(path)) == 0)
+		{
+			LOG("[DB] %s Key found: %s", path, ptr);
+			ptr = x_to_u8_buffer(ptr);
+			memcpy(key, ptr, 16);
+			free(ptr);
+
+			return 1;
+		}
+	}
+	fclose(fp);
+
+	return 0;
 }
 
 static int _copy_save_psp(const save_entry_t* save)
@@ -295,7 +324,7 @@ static int pspDumpKey(const save_entry_t* save, int verbose)
 		return 0;
 	}
 
-	fprintf(fp, "%s=", save->title_id);
+	fprintf(fp, "%s=", save->dir_name);
 	for (size_t i = 0; i < sizeof(buffer); i++)
 		fprintf(fp, "%02X", buffer[i]);
 
@@ -1037,7 +1066,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_CONV_CSO2ISO:
 			if (convert_cso2iso(code->file))
-				show_message("ISO successfully saved to %s:/ISO", "ms0");
+				show_message("ISO successfully saved to %s", selected_entry->path);
 			else
 				show_message("Error! ISO couldn't be created");
 			code->activated = 0;
@@ -1045,7 +1074,7 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_CONV_ISO2CSO:
 			if (convert_iso2cso(code->file))
-				show_message("CSO successfully saved to %s:/ISO", "ms0");
+				show_message("CSO successfully saved to %s", selected_entry->path);
 			else
 				show_message("Error! CSO couldn't be created");
 			code->activated = 0;

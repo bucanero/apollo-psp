@@ -2,10 +2,11 @@
 
 [![Downloads][img_downloads]][app_downloads] [![Release][img_latest]][app_latest] [![License][img_license]][app_license]
 [![Build app package](https://github.com/bucanero/apollo-psp/actions/workflows/build.yml/badge.svg)](https://github.com/bucanero/apollo-psp/actions/workflows/build.yml)
+[![Twitter](https://img.shields.io/twitter/follow/dparrino?label=Follow)](https://twitter.com/dparrino)
 
 **Apollo Save Tool** is an application to manage save-game files on the PlayStation Portable.
 
-This homebrew app allows to download, unlock, patch and resign save-game files directly on your PSP.
+This homebrew app allows you to download, unlock, patch, and resign save-game files directly on your PSP.
 
 ![image](./screenshots/screenshot-main.png)
 
@@ -104,7 +105,7 @@ The Online Database project aims to [add more save-games](https://github.com/buc
 * [Berion](https://www.psx-place.com/members/berion.1431/): GUI design
 * [flatz](https://github.com/flatz): [SFO tools](https://github.com/bucanero/pfd_sfo_tools/)
 * [aldostools](https://aldostools.org/): [Bruteforce Save Data](https://bruteforcesavedata.forumms.net/)
-* [Nobody/Wild Light](https://github.com/nobodo): [Background music track](https://github.com/bucanero/apollo-vita/blob/main/data/haiku.s3m)
+* [PiNk/abyss](http://amigascne.org/abyss/pink/index.html): [Background music track](https://github.com/bucanero/apollo-ps2/blob/main/data/inside.ahx)
 
 # Building
 
@@ -112,18 +113,16 @@ You need to have installed:
 
 - [PSP SDK](https://github.com/pspdev/)
 - [Apollo](https://github.com/bucanero/apollo-lib) library
-- [mbedTLS](https://github.com/pspdev/psp-packages/tree/master/mbedTLS) library
-- [libcurl](https://github.com/pspdev/psp-packages/tree/master/curl) library
-- [libxmp](https://github.com/pspdev/psp-packages/tree/master/libxmp) library
+- [mbedTLS](https://github.com/pspdev/psp-packages/tree/master/mbedtls) library
+- [cURL](https://github.com/pspdev/psp-packages/tree/master/curl) library
 - [libZip](https://github.com/pspdev/psp-packages/tree/master/libzip) library
 - [dbglogger](https://github.com/bucanero/dbglogger) library
 
 Run `cmake . && make` to create a release build. If you want to include the [latest save patches](https://github.com/bucanero/apollo-patches) in your `.zip` file, run `make createzip`.
 
-To enable debug logging, pass `-DAPOLLO_ENABLE_LOGGING=ON` argument to cmake. The application will send debug messages to
-UDP multicast address `239.255.0.100:30000`. To receive them you can use [socat][] on your computer:
+To enable debug logging, pass `-DAPOLLO_ENABLE_LOGGING=ON` argument to cmake. The application will write debug messages to
 
-    $ socat udp4-recv:30000,ip-add-membership=239.255.0.100:0.0.0.0 -
+    ms0:/pkgi-psp.log
 
 You can also set the `PSPIP` environment variable to your PSP's IP address, and use `make send` to upload `EBOOT.PBP` directly to the `ms0:/PSP/GAME/APOLLO` folder.
 

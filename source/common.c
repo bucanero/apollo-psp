@@ -67,13 +67,14 @@ int unlink_secure(const char *path)
 */
 int mkdirs(const char* dir)
 {
+    SceIoStat stat;
     char path[256];
     snprintf(path, sizeof(path), "%s", dir);
 
     char* ptr = strrchr(path, '/');
     *ptr = 0;
 
-    if (dir_exists(path) == SUCCESS)
+    if (sceIoGetstat(path, &stat) == SUCCESS && FIO_S_ISDIR(stat.st_mode))
         return SUCCESS;
 
     ptr = strchr(path, '/');
@@ -101,8 +102,10 @@ int mkdirs(const char* dir)
         *ptr++ = last;
         if (last == 0)
             break;
-
     }
+
+    if (sceIoGetstat(path, &stat) < 0 || !FIO_S_ISDIR(stat.st_mode))
+        return FAILED;
 
     return SUCCESS;
 }

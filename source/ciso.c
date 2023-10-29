@@ -73,7 +73,7 @@ int convert_cso2iso(const char *fname_in)
 
 	uint64_t file_size, read_pos, read_size;
 	uint32_t index;
-	int index_size, block, plain;
+	int index_size, plain, ret = 0;
 
 	strncpy(fname_out, fname_in, sizeof(fname_out));
 	strcpy(strrchr(fname_out, '.'), ".ISO");
@@ -129,7 +129,7 @@ int convert_cso2iso(const char *fname_in)
 	if( fread(index_buf, 1, index_size, fin) != index_size )
 	{
 		LOG("file read error\n");
-		return 0;
+		goto end_iso;
 	}
 
 	/* show info */
@@ -145,7 +145,7 @@ int convert_cso2iso(const char *fname_in)
 	/* decompress data */
 	init_progress_bar("Decompressing...");
 
-	for(block = 0;block < ciso_total_block ; block++)
+	for(int block = 0;block < ciso_total_block ; block++)
 	{
 		if (block % 0x100 == 0)
 		{
@@ -155,7 +155,7 @@ int convert_cso2iso(const char *fname_in)
 		if (inflateInit2(&z,-15) != Z_OK)
 		{
 			LOG("deflateInit : %s\n", (z.msg) ? z.msg : "error");
-			return 0;
+			goto end_iso;
 		}
 
 		/* check index */
@@ -177,7 +177,7 @@ int convert_cso2iso(const char *fname_in)
 		if(z.avail_in != read_size)
 		{
 			LOG("block=%d : read error\n",block);
-			return 0;
+			goto end_iso;
 		}
 
 		if(plain)
@@ -194,30 +194,32 @@ int convert_cso2iso(const char *fname_in)
 			if (inflate(&z, Z_FINISH) != Z_STREAM_END)
 			{
 				LOG("block %d:inflate : %s\n", block,(z.msg) ? z.msg : "error");
-				return 0;
+				goto end_iso;
 			}
 			if(z.total_out != ciso.block_size)
 			{
 				LOG("block %d : block size error %d != %d\n",block, z.total_out, ciso.block_size);
-				return 0;
+				goto end_iso;
 			}
 		}
 		/* write decompressed block */
 		if(fwrite(block_buf1, 1, z.total_out, fout) != z.total_out)
 		{
 			LOG("block %d : Write error\n",block);
-			return 0;
+			goto end_iso;
 		}
 
 		/* term zlib */
 		if (inflateEnd(&z) != Z_OK)
 		{
 			LOG("inflateEnd : %s\n", (z.msg) ? z.msg : "error");
-			return 0;
+			goto end_iso;
 		}
 	}
 	update_progress_bar(ciso_total_block, ciso_total_block, "Done!");
+	ret = 1;
 
+end_iso:
 	/* close files */
 	fclose(fin);
 	fclose(fout);
@@ -230,7 +232,7 @@ int convert_cso2iso(const char *fname_in)
 	if(block_buf1) free(block_buf1);
 	if(block_buf2) free(block_buf2);
 
-	return 1;
+	return ret;
 }
 
 /****************************************************************************
@@ -242,7 +244,7 @@ int convert_iso2cso(const char *fname_in)
 	FILE *fin,*fout;
 	z_stream z;
 	CISO_Hdr ciso;
-	int ciso_total_block;
+	int ciso_total_block, ret = 0;
 
 	uint32_t *index_buf = NULL;
 	uint8_t *block_buf1 = NULL;
@@ -316,7 +318,7 @@ int convert_iso2cso(const char *fname_in)
 		if (deflateInit2(&z, Z_BEST_COMPRESSION, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY) != Z_OK)
 		{
 			LOG("deflateInit : %s\n", (z.msg) ? z.msg : "error");
-			return 0;
+			goto end_cso;
 		}
 
 		/* mark offset index */
@@ -330,7 +332,7 @@ int convert_iso2cso(const char *fname_in)
 		if(z.avail_in != ciso.block_size)
 		{
 			LOG("block=%d : read error\n",block);
-			return 0;
+			goto end_cso;
 		}
 
 		/* compress block */
@@ -346,7 +348,7 @@ int convert_iso2cso(const char *fname_in)
 		if(fwrite(block_buf2, 1, z.total_out, fout) != z.total_out)
 		{
 			LOG("block %d : Write error\n",block);
-			return 0;
+			goto end_cso;
 		}
 
 		/* mark next index */
@@ -356,10 +358,11 @@ int convert_iso2cso(const char *fname_in)
 		if (deflateEnd(&z) != Z_OK)
 		{
 			LOG("deflateEnd : %s\n", (z.msg) ? z.msg : "error");
-			return 0;
+			goto end_cso;
 		}
 	}
 	update_progress_bar(ciso_total_block, ciso_total_block, "Done!");
+	ret = 1;
 
 	/* last position (total size)*/
 	index_buf[block] = write_pos>>(ciso.align);
@@ -369,6 +372,7 @@ int convert_iso2cso(const char *fname_in)
 	fwrite(index_buf,1,index_size,fout);
 	fseek(fout,0,SEEK_END);
 
+end_cso:
 	/* close files */
 	fclose(fin);
 	fclose(fout);
@@ -382,7 +386,7 @@ int convert_iso2cso(const char *fname_in)
 	if(block_buf1) free(block_buf1);
 	if(block_buf2) free(block_buf2);
 
-	return 1;
+	return ret;
 }
 
 /****************************************************************************

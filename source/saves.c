@@ -474,7 +474,7 @@ list_t * ReadBackupList(const char* userPath)
 	list_t *list = list_alloc();
 
 	item = _createSaveEntry(SAVE_FLAG_ZIP, CHAR_ICON_ZIP " Extract Archives (Zip, 7z)");
-	item->path = strdup(MS0_PATH);
+	asprintf(&item->path, USB_PATH, USER_STORAGE_DEV);
 	item->title_id = strdup(item->path);
 	item->type = FILE_TYPE_ZIP;
 	list_append(list, item);
@@ -485,18 +485,18 @@ list_t * ReadBackupList(const char* userPath)
 	list_append(list, item);
 
 	item = _createSaveEntry(0, CHAR_ICON_NET " Network Tools");
-	item->path = strdup(MS0_PATH);
+	asprintf(&item->path, USB_PATH, USER_STORAGE_DEV);
 	item->type = FILE_TYPE_NET;
 	list_append(list, item);
 
 	item = _createSaveEntry(SAVE_FLAG_PSP, CHAR_ICON_COPY " Decompress .CSO to .ISO");
-	item->path = strdup(MS0_PATH "ISO/");
+	asprintf(&item->path, USB_PATH "ISO/", USER_STORAGE_DEV);
 	item->title_id = strdup(item->path);
 	item->type = FILE_TYPE_CSO;
 	list_append(list, item);
 
 	item = _createSaveEntry(SAVE_FLAG_PSP, CHAR_ICON_COPY " Compress .ISO to .CSO");
-	item->path = strdup(MS0_PATH "ISO/");
+	asprintf(&item->path, USB_PATH "ISO/", USER_STORAGE_DEV);
 	item->title_id = strdup(item->path);
 	item->type = FILE_TYPE_ISO;
 	list_append(list, item);
