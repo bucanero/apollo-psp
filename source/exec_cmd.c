@@ -81,7 +81,7 @@ static uint32_t get_filename_id(const char* dir)
 static void zipSave(const save_entry_t* entry, int dst)
 {
 	char exp_path[256];
-	char* export_file;
+	char export_file[256];
 	char* tmp;
 	uint32_t fid;
 	int ret;
@@ -96,16 +96,18 @@ static void zipSave(const save_entry_t* entry, int dst)
 	init_loading_screen("Exporting save game...");
 
 	fid = get_filename_id(exp_path);
-	asprintf(&export_file, "%s%08d.zip", exp_path, fid);
+	snprintf(export_file, sizeof(export_file), "%s%08d.zip", exp_path, fid);
 
 	tmp = strdup(entry->path);
 	*strrchr(tmp, '/') = 0;
 	*strrchr(tmp, '/') = 0;
 
 	ret = zip_directory(tmp, entry->path, export_file);
+	free(tmp);
+
 	if (ret)
 	{
-		sprintf(export_file, "%s%016" PRIx64 "%016" PRIx64 ".txt", exp_path, ES64(apollo_config.psid[0]), ES64(apollo_config.psid[1]));
+		snprintf(export_file, sizeof(export_file), "%s%016" PRIx64 "%016" PRIx64 ".txt", exp_path, ES64(apollo_config.psid[0]), ES64(apollo_config.psid[1]));
 		FILE* f = fopen(export_file, "a");
 		if (f)
 		{
@@ -113,9 +115,6 @@ static void zipSave(const save_entry_t* entry, int dst)
 			fclose(f);
 		}
 	}
-
-	free(export_file);
-	free(tmp);
 
 	stop_loading_screen();
 	if (!ret)
