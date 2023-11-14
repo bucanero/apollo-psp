@@ -28,7 +28,8 @@
 #define KIRK_ENGINE
 typedef unsigned char u8;
 typedef unsigned short int u16;
-typedef unsigned int u32;
+#include <stdint.h>
+typedef uint32_t u32;
 
 //Kirk return values
 #define KIRK_OPERATION_SUCCESS 0
