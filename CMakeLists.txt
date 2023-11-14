@@ -102,6 +102,7 @@ target_link_libraries(${PROJECT_NAME}
   xmp
   bz2
   z
+  pspchnnlsv
 )
 
 create_pbp_file(
