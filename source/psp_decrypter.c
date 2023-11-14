@@ -24,6 +24,7 @@
 #include <apollo.h>
 #include <dbglogger.h>
 #include "kirk_engine.h"
+#include <pspchnnlsv.h>
 
 #define LOG dbglogger_log
 #define read16(X) *(uint16_t*)(X)
@@ -558,13 +559,13 @@ static void EncryptSavedata(uint8_t* buf, int size, uint8_t *key, uint8_t *hash,
 }
 
 static void GenerateSavedataHash(uint8_t *data, int size, int mode, uint8_t *hash) {
-	_SD_Ctx1 ctx1;
+	pspChnnlsvContext1 ctx1;
 	memset(&ctx1,0,sizeof(ctx1));
 
 	// Generate a new hash using a key.
-	hleSdSetIndex(&ctx1, mode);
-	hleSdRemoveValue(&ctx1, data, size);
-	if(hleSdGetLastIndex(&ctx1, hash, NULL)<0)
+	sceChnnlsv_E7833020(&ctx1, mode);
+	sceChnnlsv_F21A1FCA(&ctx1, data, size);
+	if(sceChnnlsv_C4C494F8(&ctx1, hash, NULL)<0)
 		memset(hash,1,0x10);
 }
 
