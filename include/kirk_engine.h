@@ -26,10 +26,7 @@
 
 #ifndef KIRK_ENGINE
 #define KIRK_ENGINE
-typedef unsigned char u8;
-typedef unsigned short int u16;
-#include <stdint.h>
-typedef uint32_t u32;
+#include <psptypes.h>
 
 //Kirk return values
 #define KIRK_OPERATION_SUCCESS 0
@@ -206,7 +203,6 @@ int kirk_CMD14(u8* outbuff, int outsize);
 int kirk_init(); //CMD 0xF?
 
 //sce-like funcs
-int sceUtilsSetFuseID(u8*fuse);
 int sceUtilsBufferCopyWithRange(u8* outbuff, int outsize, u8* inbuff, int insize, int cmd);
 
 #endif

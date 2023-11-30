@@ -23,8 +23,8 @@
 #include <sys/stat.h>
 #include <apollo.h>
 #include <dbglogger.h>
-#include "kirk_engine.h"
 #include <pspchnnlsv.h>
+#include "kirk_engine.h"
 
 #define LOG dbglogger_log
 #define read16(X) *(uint16_t*)(X)
