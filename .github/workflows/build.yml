@@ -21,7 +21,6 @@ jobs:
       with:
         repository: bucanero/dbglogger
         path: dbglogger
-        ref: psp-web
 
       # install latest pspdev sdk
     - name: Download PSP SDK
