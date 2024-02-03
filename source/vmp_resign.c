@@ -13,11 +13,15 @@
 
 #include "utils.h"
 
+#define PSV_SEED_OFFSET 0x8
+#define PSV_HASH_OFFSET 0x1C
+#define PSV_TYPE_OFFSET 0x3C
 #define VMP_SEED_OFFSET 0xC
 #define VMP_HASH_OFFSET 0x20
 #define MCR_OFFSET      0x80
 #define MCR_MAGIC       0x0000434D
 #define VMP_MAGIC       0x564D5000
+#define PSV_MAGIC       0x56535000
 #define VMP_SIZE        0x20080
 #define MC_SIZE         0x20000
 
@@ -43,16 +47,16 @@ static void XorWithIv(uint8_t* buf, const uint8_t* Iv)
 		buf[i] ^= Iv[i];
 }
  
-static void generateHash(const uint8_t *input, uint8_t *dest, size_t sz)
+static void generateHash(const uint8_t *input, uint8_t *salt_seed, uint8_t *dest, size_t sz)
 {
 	aes_context aes_ctx;
 	sha1_context sha1_ctx;
 	uint8_t salt[0x40];
 	uint8_t work_buf[0x14];
-	const uint8_t *salt_seed = input + VMP_SEED_OFFSET;
 
 	memset(salt , 0, sizeof(salt));
 	memset(&aes_ctx, 0, sizeof(aes_context));
+	memcpy(salt_seed, "www.bucanero.com.ar", 20);
 
 	LOG("Signing VMP Memory Card File...");
 	//idk why the normal cbc doesn't work.
@@ -102,15 +106,13 @@ int vmp_resign(const char *src_vmp)
 		return 0;
 	}
 
-	if (*(uint32_t*)input != VMP_MAGIC || sz != VMP_SIZE) {
+	if (sz != VMP_SIZE || *(uint32_t*)input != VMP_MAGIC) {
 		LOG("Not a VMP file");
 		free(input);
 		return 0;
 	}
-//	LOG("Old signature:");
-//	dump_data(input+VMP_HASH_OFFSET, 20);
 
-	generateHash(input, input + VMP_HASH_OFFSET, sz);
+	generateHash(input, input + VMP_SEED_OFFSET, input + VMP_HASH_OFFSET, sz);
 
 	LOG("New signature:");
 	dump_data(input+VMP_HASH_OFFSET, 20);
@@ -127,6 +129,39 @@ int vmp_resign(const char *src_vmp)
 	return 1;
 }
 
+int psv_resign(const char *src_psv)
+{
+	size_t sz;
+	uint8_t *input;
+
+	if (read_buffer(src_psv, &input, &sz) < 0) {
+		LOG("Failed to open input file");
+		return 0;
+	}
+
+	if (sz < 0x2000 || *(uint32_t*)input != PSV_MAGIC || input[PSV_TYPE_OFFSET] != 0x01) {
+		LOG("Not a PS1 PSV file");
+		free(input);
+		return 0;
+	}
+
+	generateHash(input, input + VMP_SEED_OFFSET, input + VMP_HASH_OFFSET, sz);
+
+	LOG("New signature:");
+	dump_data(input+VMP_HASH_OFFSET, 20);
+
+	if (write_buffer(src_psv, input, sz) < 0) {
+		LOG("Failed to open output file");
+		free(input);
+		return 0;
+	}
+
+	free(input);
+	LOG("PSV resigned successfully: %s", src_psv);
+
+	return 1;
+}
+
 int ps1_mcr2vmp(const char* mcrfile, const char* dstName)
 {
 	uint32_t hdr[0x20];
@@ -139,7 +174,7 @@ int ps1_mcr2vmp(const char* mcrfile, const char* dstName)
 		return 0;
 	}
 
-	if (*(uint32_t*)input != MCR_MAGIC || sz != MC_SIZE) {
+	if (sz != MC_SIZE || *(uint32_t*)input != MCR_MAGIC) {
 		LOG("Not a .mcr file");
 		free(input);
 		return 0;
@@ -153,7 +188,6 @@ int ps1_mcr2vmp(const char* mcrfile, const char* dstName)
 	}
 
 	memset(hdr, 0, sizeof(hdr));
-	memcpy(&hdr[3], "bucanero.com.ar", 0x10);
 	hdr[0] = VMP_MAGIC;
 	hdr[1] = MCR_OFFSET;
 
@@ -175,7 +209,7 @@ int ps1_vmp2mcr(const char* vmpfile, const char* dstName)
 		return 0;
 	}
 
-	if (*(uint32_t*)input != VMP_MAGIC || sz != VMP_SIZE) {
+	if (sz != VMP_SIZE || *(uint32_t*)input != VMP_MAGIC) {
 		LOG("Not a .VMP file");
 		free(input);
 		return 0;

@@ -232,5 +232,6 @@ int psp_DecryptSavedata(const char* fpath, const char* fname, uint8_t* key);
 int psp_EncryptSavedata(const char* fpath, const char* fname, uint8_t* key);
 
 int vmp_resign(const char *src_vmp);
+int psv_resign(const char *src_psv);
 int ps1_mcr2vmp(const char* mcrfile, const char* vmp_path);
 int ps1_vmp2mcr(const char* vmpfile, const char* mcr_path);

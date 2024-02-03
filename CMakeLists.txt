@@ -80,6 +80,7 @@ add_executable(${PROJECT_NAME}
   source/kirk_engine.c
   source/psp_decrypter.c
   source/vmp_resign.c
+  source/ps1card.c
   source/ahx.c
   source/ciso.c
 )

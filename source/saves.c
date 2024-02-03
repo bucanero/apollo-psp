@@ -401,9 +401,9 @@ int ReadOnlineSaves(save_entry_t * game)
 	{
 		time_t ftime, ltime;
 
-		sceRtcGetTime_t((pspTime*) &stat.sce_st_mtime, &ftime);
-		sceRtcGetCurrentClockLocalTime((pspTime*) &stat.sce_st_atime);
-		sceRtcGetTime_t((pspTime*) &stat.sce_st_atime, &ltime);
+		sceRtcGetTime_t(&stat.sce_st_mtime, &ftime);
+		sceRtcGetCurrentClockLocalTime(&stat.sce_st_atime);
+		sceRtcGetTime_t(&stat.sce_st_atime, &ltime);
 
 		LOG("File '%s' is %ld seconds old", path, (ltime - ftime));
 		// re-download if file is +1 day old
@@ -910,9 +910,9 @@ static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 	{
 		time_t ftime, ltime;
 
-		sceRtcGetTime_t((pspTime*) &stat.sce_st_mtime, &ftime);
-		sceRtcGetCurrentClockLocalTime((pspTime*) &stat.sce_st_atime);
-		sceRtcGetTime_t((pspTime*) &stat.sce_st_atime, &ltime);
+		sceRtcGetTime_t(&stat.sce_st_mtime, &ftime);
+		sceRtcGetCurrentClockLocalTime(&stat.sce_st_atime);
+		sceRtcGetTime_t(&stat.sce_st_atime, &ltime);
 
 		LOG("File '%s' is %ld seconds old", path, (ltime - ftime));
 		// re-download if file is +1 day old

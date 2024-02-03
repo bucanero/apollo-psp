@@ -410,13 +410,16 @@ static void doAboutMenu(void)
 	// Check the pads.
 	if (pspPadGetButtonPressed(PSP_CTRL_CIRCLE))
 	{
+		if (ll)
+			apollo_config.music = (ll & 0x01);
+
 		ll = 0;
 		SetMenu(MENU_MAIN_SCREEN);
 		return;
 	}
 	else if (pspPadGetButtonPressed(PSP_CTRL_SELECT))
 	{
-		ll = 1;
+		ll = (0x02 | apollo_config.music);
 	}
 
 	Draw_AboutMenu(ll);
