@@ -140,7 +140,7 @@ static rawImage_t *imgLoadPngFromBuffer(const void *buffer)
 	if(png_sig_cmp((png_byte *)buffer, 0, PNG_SIGSIZE) != 0) 
 		return NULL;
 
-	uint64_t buffer_address=(uint64_t)buffer+PNG_SIGSIZE;
+	uint64_t buffer_address=(uint32_t)buffer+PNG_SIGSIZE;
 
 	return imgLoadPngGeneric((void *)&buffer_address, imgReadPngFromBuffer);
 }
@@ -160,6 +160,19 @@ static rawImage_t *imgLoadPngFromFile(const char *path)
 	return img;
 }
 
+void LoadRawTexture(int idx, void* data, int width, int height)
+{
+	menu_textures[idx].width = width;
+	menu_textures[idx].height = height;
+
+	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(data, width, height, 32, 4 * width,
+												0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+
+	menu_textures[idx].texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_SetTextureScaleMode(menu_textures[idx].texture, SDL_ScaleModeBest);
+	SDL_FreeSurface(surface);
+}
+
 int LoadMenuTexture(const char* path, int idx)
 {
 	rawImage_t* tmp;
@@ -170,15 +183,8 @@ int LoadMenuTexture(const char* path, int idx)
 		LOG("Error Loading texture (%s)!", path);
 		return 0;
 	}
-	menu_textures[idx].width = tmp->width;
-	menu_textures[idx].height = tmp->height;
+	LoadRawTexture(idx, tmp->datap, tmp->width, tmp->height);
 
-	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(tmp->datap, menu_textures[idx].width, menu_textures[idx].height, 32, 4 * menu_textures[idx].width,
-												0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
-
-	menu_textures[idx].texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-	SDL_FreeSurface(surface);
 	free(tmp->datap);
 	free(tmp);
 
@@ -210,7 +216,7 @@ static void _drawListBackground(int off, int icon)
 		case cat_sav_png_index:
 			DrawTexture(&menu_textures[help_png_index], help_png_x, help_png_y, 0, help_png_w, help_png_h, 0xFFFFFF00 | 0xFF);
 
-			if (menu_textures[icon_png_file_index].size)
+			if (menu_textures[icon_png_file_index].texture)
 			{
 				int off = (menu_textures[icon_png_file_index].width > 128) ? 20 : -40;
 				DrawTexture(&menu_textures[help_png_index], SCREEN_WIDTH - 162 - off, help_png_y + 2, 0, menu_textures[icon_png_file_index].width + 4, menu_textures[icon_png_file_index].height + 4, 0xFFFFFF00 | 0xFF);

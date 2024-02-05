@@ -16,6 +16,8 @@
 #define USER_PATH_HDD           "PSP/SAVEDATA/"
 
 #define PSP_SAVES_PATH_USB      "APOLLO/SAVEDATA/"
+#define PS1_SAVES_PATH_USB      "PS1/SAVEDATA/"
+#define PS3_SAVES_PATH_USB      "PS3/EXPORT/PSV/"
 #define PS1_SAVES_PATH_HDD      APOLLO_PATH "PS1/"
 #define PSP_SAVES_PATH_HDD      USB_PATH USER_PATH_HDD
 
@@ -75,11 +77,14 @@ enum cmd_code_enum
     CMD_EXP_VMP2MCR,
     CMD_EXP_PSPKEY,
     CMD_DUMP_PSPKEY,
+    CMD_EXP_VMCSAVE,
+    CMD_EXP_SAVES_VMC,
+    CMD_EXP_ALL_SAVES_VMC,
 
 // Import commands
     CMD_CONV_CSO2ISO,
-    CMD_IMP_MCR2VMP0,
-    CMD_IMP_MCR2VMP1,
+    CMD_IMP_MCR2VMP,
+    CMD_IMP_VMCSAVE,
     CMD_EXTRACT_ARCHIVE,
     CMD_URL_DOWNLOAD,
     CMD_NET_WEBSERVER,
@@ -96,7 +101,7 @@ enum cmd_code_enum
 #define SAVE_FLAG_SELECTED      2
 #define SAVE_FLAG_ZIP           4
 #define SAVE_FLAG_PS1           8
-#define SAVE_FLAG_PS2           16
+#define SAVE_FLAG_VMC           16
 #define SAVE_FLAG_PSP           32
 #define SAVE_FLAG_ISO           64
 #define SAVE_FLAG_CSO           128
@@ -105,7 +110,7 @@ enum cmd_code_enum
 enum save_type_enum
 {
     FILE_TYPE_NULL,
-    FILE_TYPE_PSV,
+    FILE_TYPE_PS1,
     FILE_TYPE_MENU,
     FILE_TYPE_PSP,
 
@@ -115,7 +120,7 @@ enum save_type_enum
     // License Files
     FILE_TYPE_PRX,
     FILE_TYPE_NET,
-    FILE_TYPE_ACT,
+    FILE_TYPE_VMC,
 
     // ISO Files
     FILE_TYPE_ISO,
@@ -126,7 +131,7 @@ enum char_flag_enum
 {
     CHAR_TAG_NULL,
     CHAR_TAG_PS1,
-    CHAR_TAG_PS2,
+    CHAR_TAG_VMC,
     CHAR_TAG_UNUSED1,
     CHAR_TAG_PSP,
     CHAR_TAG_UNUSED2,
@@ -189,14 +194,14 @@ list_t * ReadUsbList(const char* userPath);
 list_t * ReadUserList(const char* userPath);
 list_t * ReadOnlineList(const char* urlPath);
 list_t * ReadBackupList(const char* userPath);
-list_t * ReadTrophyList(const char* userPath);
+list_t * ReadVmcList(const char* userPath);
 void UnloadGameList(list_t * list);
 char * readTextFile(const char * path, long* size);
 int sortSaveList_Compare(const void* A, const void* B);
 int sortSaveList_Compare_TitleID(const void* A, const void* B);
 int sortCodeList_Compare(const void* A, const void* B);
 int ReadCodes(save_entry_t * save);
-int ReadTrophies(save_entry_t * game);
+int ReadVmcCodes(save_entry_t * game);
 int ReadOnlineSaves(save_entry_t * game);
 int ReadBackupCodes(save_entry_t * bup);
 
@@ -235,3 +240,5 @@ int vmp_resign(const char *src_vmp);
 int psv_resign(const char *src_psv);
 int ps1_mcr2vmp(const char* mcrfile, const char* vmp_path);
 int ps1_vmp2mcr(const char* vmpfile, const char* mcr_path);
+
+char* sjis2utf8(char* input);

@@ -9,10 +9,11 @@
 #include "psppad.h"
 #include "common.h"
 #include "utils.h"
+#include "ps1card.h"
 
 extern save_list_t hdd_saves;
 extern save_list_t usb_saves;
-extern save_list_t trophies;
+extern save_list_t vmc_saves;
 extern save_list_t online_saves;
 extern save_list_t user_backup;
 
@@ -31,7 +32,7 @@ code_entry_t* selected_centry;
 int option_index = 0;
 static hexedit_data_t hex_data;
 
-void initMenuOptions()
+void initMenuOptions(void)
 {
 	menu_options_maxopt = 0;
 	while (menu_options[menu_options_maxopt].name)
@@ -47,16 +48,6 @@ void initMenuOptions()
 				menu_options_maxsel[i]++;
 		}
 	}
-}
-
-static void LoadFileTexture(const char* fname, int idx)
-{
-	LOG("Loading '%s'", fname);
-	if (menu_textures[idx].texture)
-		SDL_DestroyTexture(menu_textures[idx].texture);
-
-	menu_textures[idx].texture = NULL;
-	menu_textures[idx].size = LoadMenuTexture(fname, idx);
 }
 
 static int ReloadUserSaves(save_list_t* save_list)
@@ -117,13 +108,25 @@ static void SetMenu(int id)
 {
 	switch (menu_id) //Leaving menu
 	{
+		case MENU_VMC_SAVES:
+			if (id == MENU_MAIN_SCREEN)
+			{
+				LOG("Saving VMC changes...");
+				UnloadGameList(vmc_saves.list);
+				vmc_saves.list = NULL;
+				saveMemoryCard(vmc_saves.path, 0, 0);
+			}
+
 		case MENU_MAIN_SCREEN: //Main Menu
-		case MENU_TROPHIES:
 		case MENU_USB_SAVES: //USB Saves Menu
 		case MENU_HDD_SAVES: //HHD Saves Menu
 		case MENU_ONLINE_DB: //Cheats Online Menu
 		case MENU_USER_BACKUP: //Backup Menu
-			menu_textures[icon_png_file_index].size = 0;
+			if (menu_textures[icon_png_file_index].texture)
+			{
+				SDL_DestroyTexture(menu_textures[icon_png_file_index].texture);
+				menu_textures[icon_png_file_index].texture = NULL;
+			}
 			break;
 
 		case MENU_SETTINGS: //Options Menu
@@ -166,12 +169,12 @@ static void SetMenu(int id)
 				Draw_MainMenu_Ani();
 			break;
 
-		case MENU_TROPHIES: //Trophies Menu
-			if (!trophies.list && !ReloadUserSaves(&trophies))
+		case MENU_VMC_SAVES: //VMC Menu
+			if (!vmc_saves.list && !ReloadUserSaves(&vmc_saves))
 				return;
 
 			if (apollo_config.doAni)
-				Draw_UserCheatsMenu_Ani(&trophies);
+				Draw_UserCheatsMenu_Ani(&vmc_saves);
 			break;
 
 		case MENU_USB_SAVES: //USB saves Menu
@@ -219,10 +222,16 @@ static void SetMenu(int id)
 
 		case MENU_PATCHES: //Cheat Selection Menu
 			//if entering from game list, don't keep index, otherwise keep
-			if (menu_id == MENU_USB_SAVES || menu_id == MENU_HDD_SAVES || menu_id == MENU_ONLINE_DB || menu_id == MENU_TROPHIES)
+			if (menu_id == MENU_USB_SAVES || menu_id == MENU_HDD_SAVES || menu_id == MENU_ONLINE_DB || menu_id == MENU_VMC_SAVES)
 				menu_old_sel[MENU_PATCHES] = 0;
 
-			char iconfile[256];
+			char iconfile[256] = {0};
+
+			if (menu_textures[icon_png_file_index].texture)
+			{
+				SDL_DestroyTexture(menu_textures[icon_png_file_index].texture);
+				menu_textures[icon_png_file_index].texture = NULL;
+			}
 
 			if (selected_entry->flags & SAVE_FLAG_ONLINE)
 			{
@@ -234,13 +243,19 @@ static void SetMenu(int id)
 //				if (selected_entry->flags & SAVE_FLAG_PSV && file_exists(iconfile) != SUCCESS)
 //					http_download(selected_entry->path, "icon0.png", iconfile, 0);
 			}
+			else if (selected_entry->flags & SAVE_FLAG_VMC)
+			{
+				uint8_t* icon = getIconRGBA(selected_entry->blocks, 0);
+				LoadRawTexture(icon_png_file_index, icon, 16, 16);
+				menu_textures[icon_png_file_index].height = 48;
+				menu_textures[icon_png_file_index].width = 48;
+				free(icon);
+			}
 			else if (selected_entry->flags & (SAVE_FLAG_PSP | SAVE_FLAG_PS1))
 				snprintf(iconfile, sizeof(iconfile), "%sICON0.PNG", selected_entry->path);
 
-			if (file_exists(iconfile) == SUCCESS)
-				LoadFileTexture(iconfile, icon_png_file_index);
-			else
-				menu_textures[icon_png_file_index].size = 0;
+			if (iconfile[0] && file_exists(iconfile) == SUCCESS)
+				LoadMenuTexture(iconfile, icon_png_file_index);
 
 			if (apollo_config.doAni && menu_id != MENU_PATCH_VIEW && menu_id != MENU_CODE_OPTIONS)
 				Draw_CheatsMenu_Selection_Ani();
@@ -344,6 +359,13 @@ static void doSaveMenu(save_list_t * save_list)
 	{
 		selected_entry = list_get_item(save_list->list, menu_sel);
 
+		if (selected_entry->type == FILE_TYPE_VMC && selected_entry->flags & SAVE_FLAG_VMC)
+		{
+			strncpy(vmc_saves.path, selected_entry->path, sizeof(vmc_saves.path));
+			SetMenu(MENU_VMC_SAVES);
+			return;
+		}
+
 		if (!selected_entry->codes && !save_list->ReadCodes(selected_entry))
 		{
 			show_message("No data found in folder:\n%s", selected_entry->path);
@@ -382,7 +404,7 @@ static void doSaveMenu(save_list_t * save_list)
 	Draw_UserCheatsMenu(save_list, menu_sel, 0xFF);
 }
 
-static void doMainMenu()
+static void doMainMenu(void)
 {
 	// Check the pads.
 	if(pspPadGetButtonHold(PSP_CTRL_LEFT))
@@ -425,7 +447,7 @@ static void doAboutMenu(void)
 	Draw_AboutMenu(ll);
 }
 
-static void doOptionsMenu()
+static void doOptionsMenu(void)
 {
 	// Check the pads.
 	if(pspPadGetButtonHold(PSP_CTRL_UP))
@@ -568,13 +590,12 @@ static void doHexEditor(void)
 	Draw_HexEditor(&hex_data);
 }
 
-static int count_code_lines()
+static int count_code_lines(const char * str)
 {
 	//Calc max
 	int max = 0;
-	const char * str;
 
-	for(str = selected_centry->codes; *str; ++str)
+	for(max = 0; *str; ++str)
 		max += (*str == '\n');
 
 	if (max <= 0)
@@ -583,10 +604,10 @@ static int count_code_lines()
 	return max;
 }
 
-static void doPatchViewMenu()
+static void doPatchViewMenu(void)
 {
 	// Check the pads.
-	if (updatePadSelection(count_code_lines()))
+	if (updatePadSelection(count_code_lines(selected_centry->codes)))
 		(void)0;
 
 	else if (pspPadGetButtonPressed(PSP_CTRL_CIRCLE))
@@ -598,7 +619,7 @@ static void doPatchViewMenu()
 	Draw_CheatsMenu_View("Patch view");
 }
 
-static void doCodeOptionsMenu()
+static void doCodeOptionsMenu(void)
 {
     code_entry_t* code = selected_centry;
 	// Check the pads.
@@ -655,10 +676,10 @@ static void doCodeOptionsMenu()
 	Draw_CheatsMenu_Options();
 }
 
-static void doSaveDetailsMenu()
+static void doSaveDetailsMenu(void)
 {
 	// Check the pads.
-	if (updatePadSelection(count_code_lines()))
+	if (updatePadSelection(count_code_lines(selected_centry->codes)))
 		(void)0;
 
 	if (pspPadGetButtonPressed(PSP_CTRL_CIRCLE))
@@ -670,7 +691,7 @@ static void doSaveDetailsMenu()
 	Draw_CheatsMenu_View(selected_entry->name);
 }
 
-static void doPatchMenu()
+static void doPatchMenu(void)
 {
 	// Check the pads.
 	if (updatePadSelection(list_count(selected_entry->codes)))
@@ -753,7 +774,7 @@ static void doPatchMenu()
 }
 
 // Resets new frame
-void drawScene()
+void drawScene(void)
 {
 	switch (menu_id)
 	{
@@ -761,8 +782,8 @@ void drawScene()
 			doMainMenu();
 			break;
 
-		case MENU_TROPHIES: //Trophies Menu
-			doSaveMenu(&trophies);
+		case MENU_VMC_SAVES: //VMC Menu
+			doSaveMenu(&vmc_saves);
 			break;
 
 		case MENU_USB_SAVES: //USB Saves Menu

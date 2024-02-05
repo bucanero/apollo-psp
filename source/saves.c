@@ -12,9 +12,11 @@
 #include "sfo.h"
 #include "settings.h"
 #include "utils.h"
+#include "ps1card.h"
 
 #define UTF8_CHAR_STAR		"\xE2\x98\x85"
 
+#define CHAR_ICON_VMC		"\x02"
 #define CHAR_ICON_NET		"\x09"
 #define CHAR_ICON_ZIP		"\x0C"
 #define CHAR_ICON_COPY		"\x0B"
@@ -278,33 +280,25 @@ static option_entry_t* _getSaveTitleIDs(const char* title_id)
 	return opt;
 }
 
-static void add_ps1_commands(save_entry_t* save)
+static void add_vmp_commands(save_entry_t* save)
 {
 	char path[256];
 	code_entry_t* cmd;
 
-	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " VMP Memory Cards " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " VMP Memory Card " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(save->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign Memory Card", CMD_CODE_NULL);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign Memory Card", CMD_RESIGN_VMP);
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .MCR", CMD_EXP_VMP2MCR);
+	list_append(save->codes, cmd);
+
+	snprintf(path, sizeof(path), CHAR_ICON_COPY " Import .MCR files to %s", strrchr(save->path, '/')+1);
+	cmd = _createCmdCode(PATCH_COMMAND, path, CMD_CODE_NULL);
 	cmd->options_count = 1;
-	cmd->options = _getFileOptions(save->path, "*.VMP", CMD_RESIGN_VMP);
-	list_append(save->codes, cmd);
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .MCR", CMD_CODE_NULL);
-	cmd->options_count = 1;
-	cmd->options = _getFileOptions(save->path, "*.VMP", CMD_EXP_VMP2MCR);
-	list_append(save->codes, cmd);
-
 	snprintf(path, sizeof(path), PS1_SAVES_PATH_HDD "%s/", USER_STORAGE_DEV, save->title_id);
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Import .MCR files to SCEVMC0.VMP", CMD_CODE_NULL);
-	cmd->options_count = 1;
-	cmd->options = _getFileOptions(path, "*.MCR", CMD_IMP_MCR2VMP0);
-	list_append(save->codes, cmd);
-
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Import .MCR files to SCEVMC1.VMP", CMD_CODE_NULL);
-	cmd->options_count = 1;
-	cmd->options = _getFileOptions(path, "*.MCR", CMD_IMP_MCR2VMP1);
+	cmd->options = _getFileOptions(path, "*.MCR", CMD_IMP_MCR2VMP);
 	list_append(save->codes, cmd);
 
 	return;
@@ -349,11 +343,7 @@ int ReadCodes(save_entry_t * save)
 
 	save->codes = list_alloc();
 	_addBackupCommands(save);
-
-	if (save->flags & SAVE_FLAG_PS1)
-		add_ps1_commands(save);
-	else
-		add_psp_commands(save);
+	add_psp_commands(save);
 
 	snprintf(filePath, sizeof(filePath), APOLLO_DATA_PATH "%s.savepatch", save->title_id);
 	if ((buffer = readTextFile(filePath, NULL)) == NULL)
@@ -375,9 +365,109 @@ skip_end:
 	return list_count(save->codes);
 }
 
-int ReadTrophies(save_entry_t * game)
+static void add_vmc_import_saves(list_t* list, const char* path, const char* folder)
 {
-	return (0);
+	code_entry_t * cmd;
+	DIR *d;
+	struct dirent *dir;
+	char psvPath[256];
+	char data[64];
+	int type, toff;
+
+	snprintf(psvPath, sizeof(psvPath), "%s%s", path, folder);
+	d = opendir(psvPath);
+
+	if (!d)
+		return;
+
+	while ((dir = readdir(d)) != NULL)
+	{
+		if (!S_ISREG(dir->d_type))
+			continue;
+
+		if (endsWith(dir->d_name, ".PSV"))
+		{
+			toff = 0x80;
+			type = FILE_TYPE_PS1;
+		}
+		else if (endsWith(dir->d_name, ".MCS"))
+		{
+			toff = 0x40;
+			type = FILE_TYPE_PS1;
+		}
+		else continue;
+
+		snprintf(psvPath, sizeof(psvPath), "%s%s%s", path, folder, dir->d_name);
+		LOG("Reading %s...", psvPath);
+
+/*
+		FILE *fp = fopen(psvPath, "rb");
+		if (!fp) {
+			LOG("Unable to open '%s'", psvPath);
+			continue;
+		}
+
+		fseek(fp, toff, SEEK_SET);
+		fread(data, 1, sizeof(data), fp);
+		fclose(fp);
+*/
+
+		cmd = _createCmdCode(PATCH_COMMAND, psvPath, CMD_IMP_VMCSAVE);
+		cmd->file = strdup(psvPath);
+		cmd->codes[1] = type;
+		sprintf(cmd->name, "%s %s", CHAR_ICON_COPY, dir->d_name);
+		list_append(list, cmd);
+
+		LOG("[%s] F(%X) name '%s'", cmd->file, cmd->flags, cmd->name+2);
+	}
+
+	closedir(d);
+}
+
+int ReadVmcCodes(save_entry_t * save)
+{
+	code_entry_t * cmd;
+	char filePath[256];
+
+	save->codes = list_alloc();
+
+	if (save->type == FILE_TYPE_MENU)
+	{
+		add_vmc_import_saves(save->codes, save->path, PS1_SAVES_PATH_USB);
+		add_vmc_import_saves(save->codes, save->path, PS3_SAVES_PATH_USB);
+		if (!list_count(save->codes))
+		{
+			list_free(save->codes);
+			save->codes = NULL;
+			return 0;
+		}
+
+		list_bubbleSort(save->codes, &sortCodeList_Compare);
+
+		return list_count(save->codes);
+	}
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " File Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export save game to MCS format", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(2, "Copy Save to Mass Storage", CMD_EXP_VMCSAVE);
+	cmd->options[0].id = PS1SAVE_MCS;
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export save game to PSV format", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(2, "Copy Save to Mass Storage", CMD_EXP_VMCSAVE);
+	cmd->options[0].id = PS1SAVE_PSV;
+	list_append(save->codes, cmd);
+
+	LOG("Loaded %ld codes", list_count(save->codes));
+
+	return list_count(save->codes);
 }
 
 /*
@@ -778,17 +868,32 @@ static void read_psp_savegames(const char* userPath, list_t *list, int flags)
 			continue;
 		}
 
-		item = _createSaveEntry(SAVE_FLAG_PSP | flags, (char*) sfo_get_param_value(sfo, "TITLE"));
-		item->type = FILE_TYPE_PSP;
-		item->dir_name = strdup((char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY"));
-		asprintf(&item->title_id, "%.9s", item->dir_name);
-		asprintf(&item->path, "%s%s/", userPath, dir->d_name);
-
-		if (strcmp((char*) sfo_get_param_value(sfo, "SAVEDATA_FILE_LIST"), "CONFIG.BIN") == 0)
+		snprintf(sfoPath, sizeof(sfoPath), "%s%s/SCEVMC0.VMP", userPath, dir->d_name);
+		if ((strcmp((char*) sfo_get_param_value(sfo, "SAVEDATA_FILE_LIST"), "CONFIG.BIN") == 0) &&
+			(file_exists(sfoPath) == SUCCESS))
 		{
-			snprintf(sfoPath, sizeof(sfoPath), "%s%s/SCEVMC0.VMP", userPath, dir->d_name);
-			if (file_exists(sfoPath) == SUCCESS)
-				item->flags ^= (SAVE_FLAG_PS1 | SAVE_FLAG_PSP);
+			snprintf(sfoPath, sizeof(sfoPath), "%s (VMC 0)", sfo_get_param_value(sfo, "TITLE"));
+			item = _createSaveEntry(SAVE_FLAG_PS1 | SAVE_FLAG_VMC | flags, sfoPath);
+			item->type = FILE_TYPE_VMC;
+			item->dir_name = strdup((char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY"));
+			asprintf(&item->title_id, "%.9s", item->dir_name);
+			asprintf(&item->path, "%s%s/SCEVMC0.VMP", userPath, dir->d_name);
+			list_append(list, item);
+
+			snprintf(sfoPath, sizeof(sfoPath), "%s (VMC 1)", sfo_get_param_value(sfo, "TITLE"));
+			item = _createSaveEntry(SAVE_FLAG_PS1 | SAVE_FLAG_VMC | flags, sfoPath);
+			item->type = FILE_TYPE_VMC;
+			item->dir_name = strdup((char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY"));
+			asprintf(&item->title_id, "%.9s", item->dir_name);
+			asprintf(&item->path, "%s%s/SCEVMC1.VMP", userPath, dir->d_name);
+		}
+		else
+		{
+			item = _createSaveEntry(SAVE_FLAG_PSP | flags, (char*) sfo_get_param_value(sfo, "TITLE"));
+			item->type = FILE_TYPE_PSP;
+			item->dir_name = strdup((char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY"));
+			asprintf(&item->title_id, "%.9s", item->dir_name);
+			asprintf(&item->path, "%s%s/", userPath, dir->d_name);
 		}
 
 		sfo_free(sfo);
@@ -989,19 +1094,27 @@ list_t * ReadOnlineList(const char* urlPath)
 	return list;
 }
 
-list_t * ReadTrophyList(const char* userPath)
+list_t * ReadVmcList(const char* userPath)
 {
 	char filePath[256];
 	save_entry_t *item;
 	code_entry_t *cmd;
 	list_t *list;
-/*
-	if ((db = open_sqlite_db(userPath)) == NULL)
+	ps1mcData_t* mcdata;
+
+	if (!openMemoryCard(userPath, 0))
+	{
+		LOG("Error: no PS1 Memory Card detected! (%s)", userPath);
+		return NULL;
+	}
+
+	mcdata = getMemoryCardData();
+	if (!mcdata)
 		return NULL;
 
 	list = list_alloc();
 
-	item = _createSaveEntry(SAVE_FLAG_PSV, CHAR_ICON_COPY " Bulk Trophy Management");
+	item = _createSaveEntry(SAVE_FLAG_PS1, CHAR_ICON_VMC " Memory Card Management");
 	item->type = FILE_TYPE_MENU;
 	item->path = strdup(userPath);
 	item->codes = list_alloc();
@@ -1009,53 +1122,47 @@ list_t * ReadTrophyList(const char* userPath)
 	item->dir_name = malloc(sizeof(void**));
 	((void**)item->dir_name)[0] = list;
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup selected Trophies to Backup Storage", CMD_CODE_NULL);
+	strncpy(filePath, userPath, sizeof(filePath));
+	strrchr(filePath, '/')[0] = 0;
+	item->title_id = strdup(strrchr(filePath, '/')+1);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export selected Saves to Backup Storage", CMD_CODE_NULL);
 	cmd->options_count = 1;
-	cmd->options = _createOptions(2, "Copy Trophies to Backup Storage", CMD_COPY_TROPHIES_USB);
+	cmd->options = _createOptions(2, "Copy Saves to Backup Storage", CMD_EXP_SAVES_VMC);
 	list_append(item->codes, cmd);
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Backup all Trophies to Backup Storage", CMD_CODE_NULL);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export all Saves to Backup Storage", CMD_CODE_NULL);
 	cmd->options_count = 1;
-	cmd->options = _createOptions(2, "Copy Trophies to Backup Storage", CMD_COPY_ALL_TROP_USB);
+	cmd->options = _createOptions(2, "Copy Saves to Backup Storage", CMD_EXP_ALL_SAVES_VMC);
 	list_append(item->codes, cmd);
+	add_vmp_commands(item);
 	list_append(list, item);
 
-	for (int i = 0; i < 3; i++)
+	item = _createSaveEntry(SAVE_FLAG_PS1, CHAR_ICON_COPY " Import Saves to Virtual Card");
+	asprintf(&item->path, "%s:/", USER_STORAGE_DEV);
+	asprintf(&item->title_id, " %s", item->path);
+	item->type = FILE_TYPE_MENU;
+	list_append(list, item);
+
+	for (int i = 0; i < PS1CARD_MAX_SLOTS; i++)
 	{
-		snprintf(filePath, sizeof(filePath), "%s" TROPHIES_PATH_USB, dev[i]);
-		if (i && dir_exists(filePath) != SUCCESS)
+		if (mcdata[i].saveType != PS1BLOCK_INITIAL)
 			continue;
 
-		item = _createSaveEntry(SAVE_FLAG_PSV | SAVE_FLAG_TROPHY, CHAR_ICON_COPY " Import Trophies");
-		asprintf(&item->path, "%s" TROPHIES_PATH_USB, dev[i]);
-		asprintf(&item->title_id, " %s", dev[i]);
-		item->type = FILE_TYPE_MENU;
-		list_append(list, item);
-	}
+		LOG("Reading '%s'...", mcdata[i].saveName);
 
-	sqlite3_create_collation(db, "trophy_collator", SQLITE_UTF8, NULL, &sqlite_trophy_collate);
-	int rc = sqlite3_prepare_v2(db, "SELECT id, npcommid, title FROM tbl_trophy_title WHERE status = 0", -1, &res, NULL);
-	if (rc != SQLITE_OK)
-	{
-		LOG("Failed to fetch data: %s", sqlite3_errmsg(db));
-		sqlite3_close(db);
-		return NULL;
-	}
-
-	while (sqlite3_step(res) == SQLITE_ROW)
-	{
-		item = _createSaveEntry(SAVE_FLAG_PSV | SAVE_FLAG_TROPHY | SAVE_FLAG_HDD, (const char*) sqlite3_column_text(res, 2));
-		item->blocks = sqlite3_column_int(res, 0);
-		item->title_id = strdup((const char*) sqlite3_column_text(res, 1));
-		asprintf(&item->path, TROPHY_PATH_HDD "data/%s/", apollo_config.user_id, item->title_id);
-		item->type = FILE_TYPE_TRP;
+		char* tmp = sjis2utf8(mcdata[i].saveTitle);
+		item = _createSaveEntry(SAVE_FLAG_PS1 | SAVE_FLAG_VMC, tmp);
+		item->blocks = i;
+		item->type = FILE_TYPE_PS1;
+		item->dir_name = strdup(mcdata[i].saveName);
+		item->title_id = strdup(mcdata[i].saveProdCode);
+		asprintf(&item->path, "%s\n%s/", userPath, mcdata[i].saveName);
+		free(tmp);
 
 		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
 		list_append(list, item);
 	}
 
-	sqlite3_finalize(res);
-	sqlite3_close(db);
-*/
 	return list;
 }
 
@@ -1063,9 +1170,25 @@ int get_save_details(const save_entry_t* save, char **details)
 {
 	char sfoPath[256];
 
+	if (save->type == FILE_TYPE_PS1)
+	{
+		asprintf(details, "%s\n----- PS1 Save -----\n"
+			"Game: %s\n"
+			"Title ID: %s\n"
+			"Folder: %s\n",
+			save->path,
+			save->name,
+			save->title_id,
+			save->dir_name);
+		return 1;
+	}
+
 	if (save->flags & SAVE_FLAG_PSP || save->flags & SAVE_FLAG_PS1)
 	{
 		snprintf(sfoPath, sizeof(sfoPath), "%sPARAM.SFO", save->path);
+		if (save->flags & SAVE_FLAG_VMC)
+			strcpy(strrchr(sfoPath, '/'), "/PARAM.SFO");
+
 		LOG("Save Details :: Reading %s...", sfoPath);
 
 		sfo_context_t* sfo = sfo_alloc();

@@ -202,10 +202,9 @@ int kirk_CMD10(u8* inbuff, int insize);
 int kirk_CMD11(u8* outbuff, u8* inbuff, int size);
 int kirk_CMD14(u8* outbuff, int outsize);
 
-int kirk_init(); //CMD 0xF?
+int kirk_init(void); //CMD 0xF?
 
 //sce-like funcs
-int sceUtilsSetFuseID(u8*fuse);
 int sceUtilsBufferCopyWithRange(u8* outbuff, int outsize, u8* inbuff, int insize, int cmd);
 
 #endif

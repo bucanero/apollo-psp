@@ -13,7 +13,7 @@ extern SDL_Renderer* renderer;
 enum menu_screen_ids
 {
 	MENU_MAIN_SCREEN,		/* 0 - Main Menu */
-	MENU_TROPHIES,			/* 1 - Trophies */
+	MENU_VMC_SAVES,			/* 1 - PS1 VMP Menu */
 	MENU_USB_SAVES,			/* 2 - USB Menu (User List) */
 	MENU_HDD_SAVES,			/* 3 - HDD Menu (User List) */
 	MENU_ONLINE_DB,			/* 4 - Online Menu (Online List) */
@@ -70,7 +70,7 @@ enum texture_index
 	tag_own_png_index,
 	tag_pce_png_index,
 	tag_ps1_png_index,
-	tag_ps2_png_index,
+	tag_vmc_png_index,
 	tag_psp_png_index,
 	tag_warning_png_index,
 	tag_transfer_png_index,
@@ -245,6 +245,7 @@ extern void Draw_MainMenu_Ani(void);
 extern void Draw_HexEditor(const hexedit_data_t* hex);
 extern void Draw_HexEditor_Ani(const hexedit_data_t* hex);
 int LoadMenuTexture(const char* path, int idx);
+void LoadRawTexture(int idx, void* data, int width, int height);
 void initMenuOptions(void);
 
 void drawScene(void);

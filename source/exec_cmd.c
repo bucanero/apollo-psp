@@ -12,6 +12,7 @@
 #include "common.h"
 #include "utils.h"
 #include "sfo.h"
+#include "ps1card.h"
 
 static char host_buf[256];
 
@@ -579,7 +580,7 @@ static void copyAllSavesUSB(const save_entry_t* save, int dev, int all)
 	end_progress_bar();
 	show_message("%d/%d Saves copied to:\n%s", done, done+err_count, dst_path);
 }
-
+/*
 static int apply_sfo_patches(save_entry_t* entry, sfo_patch_t* patch)
 {
     code_entry_t* code;
@@ -639,7 +640,7 @@ static int apply_sfo_patches(save_entry_t* entry, sfo_patch_t* patch)
 
 	return (patch_sfo(in_file_path, patch) == SUCCESS);
 }
-
+*/
 static int psp_is_decrypted(list_t* list, const char* fname)
 {
 	list_node_t *node;
@@ -823,44 +824,38 @@ static void resignAllSaves(const save_entry_t* save, int all)
 		show_message("All saves successfully resigned!");
 }
 
-static void import_mcr2vmp(const save_entry_t* save, const char* src, int dst_id)
+static void import_mcr2vmp(const save_entry_t* save, const char* src)
 {
-	char mcrPath[256], vmpPath[256];
+	char mcrPath[256];
 
 	snprintf(mcrPath, sizeof(mcrPath), PS1_SAVES_PATH_HDD "%s/%s", USER_STORAGE_DEV, save->title_id, src);
-	snprintf(vmpPath, sizeof(vmpPath), "%sSCEVMC%d.VMP", save->path, dst_id);
 
-	if (ps1_mcr2vmp(mcrPath, vmpPath))
-		show_message("Memory card successfully imported to:\n%s", vmpPath);
+	if (ps1_mcr2vmp(mcrPath, save->path))
+		show_message("Memory card successfully imported to:\n%s", save->path);
 	else
 		show_message("Error importing memory card:\n%s", mcrPath);
 }
 
-static void export_vmp2mcr(const save_entry_t* save, const char* src_vmp)
+static void export_vmp2mcr(const save_entry_t* save)
 {
-	char mcrPath[256], vmpPath[256];
+	char mcrPath[256];
 
-	snprintf(vmpPath, sizeof(vmpPath), "%s%s", save->path, src_vmp);
-	snprintf(mcrPath, sizeof(mcrPath), PS1_SAVES_PATH_HDD "%s/%s", USER_STORAGE_DEV, save->title_id, src_vmp);
+	snprintf(mcrPath, sizeof(mcrPath), PS1_SAVES_PATH_HDD "%s/%s", USER_STORAGE_DEV, save->title_id, strrchr(save->path, '/') + 1);
 	strcpy(strrchr(mcrPath, '.'), ".MCR");
 	mkdirs(mcrPath);
 
-	if (ps1_vmp2mcr(vmpPath, mcrPath))
+	if (ps1_vmp2mcr(save->path, mcrPath))
 		show_message("Memory card successfully exported to:\n%s", mcrPath);
 	else
-		show_message("Error exporting memory card:\n%s", vmpPath);
+		show_message("Error exporting memory card:\n%s", save->path);
 }
 
-static void resignVMP(const save_entry_t* save, const char* src_vmp)
+static void resignVMP(const save_entry_t* save)
 {
-	char vmpPath[256];
-
-	snprintf(vmpPath, sizeof(vmpPath), "%s%s", save->path, src_vmp);
-
-	if (vmp_resign(vmpPath))
-		show_message("Memory card successfully resigned:\n%s", vmpPath);
+	if (vmp_resign(save->path))
+		show_message("Memory card successfully resigned:\n%s", save->path);
 	else
-		show_message("Error resigning memory card:\n%s", vmpPath);
+		show_message("Error resigning memory card:\n%s", save->path);
 }
 
 static int _copy_save_file(const char* src_path, const char* dst_path, const char* filename)
@@ -994,19 +989,18 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			code->activated = 0;
 			break;
 
-		case CMD_IMP_MCR2VMP0:
-		case CMD_IMP_MCR2VMP1:
-			import_mcr2vmp(selected_entry, code->options[0].name[code->options[0].sel], codecmd[0] == CMD_IMP_MCR2VMP1);
+		case CMD_IMP_MCR2VMP:
+			import_mcr2vmp(selected_entry, code->options[0].name[code->options[0].sel]);
 			code->activated = 0;
 			break;
 
 		case CMD_EXP_VMP2MCR:
-			export_vmp2mcr(selected_entry, code->options[0].name[code->options[0].sel]);
+			export_vmp2mcr(selected_entry);
 			code->activated = 0;
 			break;
 
 		case CMD_RESIGN_VMP:
-			resignVMP(selected_entry, code->options[0].name[code->options[0].sel]);
+			resignVMP(selected_entry);
 			code->activated = 0;
 			break;
 

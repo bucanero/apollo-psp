@@ -724,31 +724,6 @@ int setSaveBytes(const uint8_t* saveBytes, int saveBytes_Length, int* reqSlots)
     return true;
 }
 
-//Set Product code, Identifier and Region in the header of the selected save
-static void setHeaderData(int slotNumber, const char* sProdCode, const char* sIdentifier, uint16_t sRegion)
-{
-    //Clear existing data from header
-    memset(&ps1saves[slotNumber].headerData[10], 0, 20);
-
-    //Merge Product code and Identifier
-    //Inject new data to header
-    snprintf((char*) &ps1saves[slotNumber].headerData[12], 18, "%s%s", sProdCode, sIdentifier);
-
-    //Add region to header
-    ps1saves[slotNumber].headerData[10] = (uint8_t)(sRegion & 0xFF);
-    ps1saves[slotNumber].headerData[11] = (uint8_t)(sRegion >> 8);
-
-    //Reload data
-    loadStringData();
-    loadRegion();
-
-    //Calculate XOR
-    calculateXOR();
-
-    //Set changedFlag to edited
-    changedFlag = true;
-}
-
 //Get icon data as bytes
 uint8_t* getIconRGBA(int slotNumber, int frame)
 {
@@ -820,18 +795,22 @@ int saveSingleSave(const char* fileName, int slotNumber, int singleSaveType)
     //Check what kind of file to output according to singleSaveType
     switch (singleSaveType)
     {
-        case PS1SAVE_AR:        //Action Replay single save
+        //Action Replay single save
+        case PS1SAVE_AR:
             setArHeader(ps1saves[slotNumber].saveName, binWriter);
             break;
 
-        case PS1SAVE_MCS:         //MCS single save
+        //MCS single save
+        case PS1SAVE_MCS:
             fwrite(outputData, 1, PS1CARD_HEADER_SIZE, binWriter);
             break;
 
-        case PS1SAVE_RAW:         //RAW single save
+        //RAW single save
+        case PS1SAVE_RAW:
             break;
 
-        case PS1SAVE_PSV:         //PS3 unsigned save
+        //PS3 unsigned save
+        case PS1SAVE_PSV:
             setPsvHeader(ps1saves[slotNumber].saveName, outputData_Length - PS1CARD_HEADER_SIZE, binWriter);
             break;
     }
@@ -865,9 +844,8 @@ int openSingleSave(const char* fileName, int* requiredSlots)
         return false;
     }
 
-    //Check the format of the save and if it's supported load it (filter illegal characters from types)
-
-    // 'Q':           //MCS single save
+    //Check the format of the save and if it's supported load it
+    //MCS single save
     if (inputData[0] == 'Q')
     {
         finalData_Length = inputData_Length;
@@ -875,8 +853,8 @@ int openSingleSave(const char* fileName, int* requiredSlots)
 
         memcpy(finalData, inputData, finalData_Length);
     }
-    // 'SC':          //RAW single save
-    // 'sc':          //Also valid as seen with MMX4 save
+    //RAW single save
+    //Also valid as seen with MMX4 save
     else if (toupper(inputData[0]) == 'S' && toupper(inputData[1]) == 'C')
     {
         finalData_Length = inputData_Length + PS1CARD_HEADER_SIZE;
@@ -892,7 +870,7 @@ int openSingleSave(const char* fileName, int* requiredSlots)
         //Copy save data
         memcpy(&finalData[PS1CARD_HEADER_SIZE], inputData, inputData_Length);
     }
-    // 'VSP':           //PSV single save (PS3 virtual save)
+    //PSV single save (PS3 virtual save)
     else if (memcmp(inputData, "\0VSP", 4) == 0 && inputData[60] == 1)
     {
         // Check if this is a PS1 type save
@@ -944,13 +922,15 @@ int saveMemoryCard(const char* fileName, int memoryCardType, int fixData)
 {
     FILE* binWriter = NULL;
 
+    if (!changedFlag && !memoryCardType)
+        return false;
+
     binWriter = fopen(fileName, "wb");
     //Check if the file is allowed to be opened for writing
     if (!binWriter)
-    {
         return false;
-    }
 
+    //Save as original format if memoryCardType is not set
     if (!memoryCardType)
         memoryCardType = cardType;
 
@@ -960,26 +940,31 @@ int saveMemoryCard(const char* fileName, int memoryCardType, int fixData)
     //Check what kind of file to output according to memoryCardType
     switch (memoryCardType)
     {
-        case PS1CARD_GME:         //GME Memory Card
+        //GME Memory Card
+        case PS1CARD_GME:
             fillGmeHeader(binWriter);
             fwrite(rawMemoryCard, 1, PS1CARD_SIZE, binWriter);
             break;
 
-        case PS1CARD_VGS:         //VGS Memory Card
+        //VGS Memory Card
+        case PS1CARD_VGS:
             setVGSheader(binWriter);
             fwrite(rawMemoryCard, 1, PS1CARD_SIZE, binWriter);
             break;
 
-        case PS1CARD_VMP:         //VMP Memory Card
+        //VMP Memory Card
+        case PS1CARD_VMP:
             setVmpCardHeader(binWriter);
             fwrite(rawMemoryCard, 1, PS1CARD_SIZE, binWriter);
             break;
 
-        case PS1CARD_MCX:         //MCX Memory Card
+        //MCX Memory Card
+        case PS1CARD_MCX:
             MakeMcxCard(rawMemoryCard, binWriter);
             break;
 
-        default:        //Raw Memory Card
+        //Raw Memory Card
+        default:
             fwrite(rawMemoryCard, 1, PS1CARD_SIZE, binWriter);
             break;
     }
@@ -1038,9 +1023,11 @@ void openMemoryCardStream(const uint8_t* memCardData, int fixData)
     changedFlag = true;
 }
 
-//Open Memory Card from the given filename (return error message if operation is not sucessfull)
+//Open Memory Card from the given filename
 int openMemoryCard(const char* fileName, int fixData)
 {
+    cardType = PS1CARD_NULL;
+
     //Check if the Memory Card should be opened or created
     if (fileName != NULL)
     {
@@ -1053,44 +1040,38 @@ int openMemoryCard(const char* fileName, int fixData)
 
         //File cannot be opened, return error message
         if (!binReader)
-        {
-            //Return the error description
-            return 0;
-        }
+            return false;
 
         //Put data into temp array
         if (fread(tempData, 1, 134976, binReader) < PS1CARD_SIZE)
         {
             fclose(binReader);
-            return 0;
+            return false;
         }
 
         //File is sucesfully read, close the stream
         fclose(binReader);
 
-        //Check the format of the card and if it's supported load it (filter illegal characters from types)
-        // "MC":              //Standard raw Memory Card
+        //Check the format of the card and if it's supported load it
+        //Standard raw Memory Card
         if (memcmp(tempData, "MC", 2) == 0)
         {
             startOffset = 0;
             cardType = PS1CARD_RAW;
         }
-        // "123-456-STD":     //DexDrive GME Memory Card
+        //DexDrive GME Memory Card
         else if (memcmp(tempData, "123-456-STD", 11) == 0)
         {
             startOffset = 3904;
             cardType = PS1CARD_GME;
-
-            //Copy input data to gmeHeader
-//            for (int i = 0; i < 3904; i++) gmeHeader[i] = tempData[i];
         }
-        // "VgsM":            //VGS Memory Card
+        //VGS Memory Card
         else if (memcmp(tempData, "VgsM", 4) == 0)
         {
             startOffset = 64;
             cardType = PS1CARD_VGS;
         }
-        // "PMV":             //PSP virtual Memory Card
+        //PSP virtual Memory Card
         else if (memcmp(tempData, "\0PMV", 4) == 0)
         {
             startOffset = 128;
@@ -1102,7 +1083,7 @@ int openMemoryCard(const char* fileName, int fixData)
             startOffset = 128;
             cardType = PS1CARD_MCX;
         }
-        else return 0;
+        else return false;
 
         //Copy data to rawMemoryCard array with offset from input data
         memcpy(rawMemoryCard, tempData + startOffset, PS1CARD_SIZE);
@@ -1115,10 +1096,10 @@ int openMemoryCard(const char* fileName, int fixData)
     {
         loadDataToRawCard(true);
         formatMemoryCard();
-
-        //Set changedFlag to false since this is created card
-        changedFlag = false;
     }
+
+    //Set changedFlag to false since this is created card
+    changedFlag = false;
 
     //Calculate XOR checksum (in case if any of the saveHeaders have corrputed XOR)
     if(fixData) calculateXOR();
@@ -1145,5 +1126,5 @@ int openMemoryCard(const char* fileName, int fixData)
     loadIcons();
 
     //Everything went well, no error messages
-    return 1;
+    return true;
 }
