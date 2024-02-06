@@ -580,6 +580,59 @@ static void copyAllSavesUSB(const save_entry_t* save, int dev, int all)
 	end_progress_bar();
 	show_message("%d/%d Saves copied to:\n%s", done, done+err_count, dst_path);
 }
+
+static void exportAllSavesVMC(const save_entry_t* save, int dev, int all)
+{
+	char outPath[256];
+	int done = 0, err_count = 0;
+	list_node_t *node;
+	save_entry_t *item;
+	uint64_t progress = 0;
+	list_t *list = ((void**)save->dir_name)[0];
+
+	init_progress_bar("Exporting all VMC saves...");
+	_set_dest_path(outPath, dev, PS3_SAVES_PATH_USB);
+	mkdirs(outPath);
+
+	LOG("Exporting all saves from '%s' to %s...", save->path, outPath);
+	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+	{
+		update_progress_bar(progress++, list_count(list), item->name);
+		if (!all && !(item->flags & SAVE_FLAG_SELECTED))
+			continue;
+
+		if (item->type & FILE_TYPE_PS1)
+			(saveSingleSave(outPath, item->blocks, PS1SAVE_PSV) ? done++ : err_count++);
+	}
+
+	end_progress_bar();
+
+	show_message("%d/%d Saves exported to\n%s", done, done+err_count, outPath);
+}
+
+static void exportVmcSave(const save_entry_t* save, int type, int dst_id)
+{
+	int ret = 0;
+	char outPath[256];
+	struct tm t;
+
+	_set_dest_path(outPath, dst_id, (type == PS1SAVE_PSV) ? PS3_SAVES_PATH_USB : PS1_SAVES_PATH_USB);
+	mkdirs(outPath);
+	if (type != PS1SAVE_PSV)
+	{
+		// build file path
+		gmtime_r(&(time_t){time(NULL)}, &t);
+		sprintf(strrchr(outPath, '/'), "/%s_%d-%02d-%02d_%02d%02d%02d.%s", save->title_id,
+			t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec,
+			(type == PS1SAVE_MCS) ? "mcs" : "psx");
+	}
+
+	if (saveSingleSave(outPath, save->blocks, type))
+		show_message("Save successfully exported to:\n%s", outPath);
+	else
+		show_message("Error exporting save:\n%s", save->path);
+}
+
 /*
 static int apply_sfo_patches(save_entry_t* entry, sfo_patch_t* patch)
 {
@@ -1029,6 +1082,25 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 		case CMD_COPY_SAVES_HDD:
 		case CMD_COPY_ALL_SAVES_HDD:
 			copyAllSavesHDD(selected_entry, codecmd[0] == CMD_COPY_ALL_SAVES_HDD);
+			code->activated = 0;
+			break;
+
+		case CMD_EXP_SAVES_VMC:
+		case CMD_EXP_ALL_SAVES_VMC:
+			exportAllSavesVMC(selected_entry, codecmd[1], codecmd[0] == CMD_EXP_ALL_SAVES_VMC);
+			code->activated = 0;
+			break;
+
+		case CMD_EXP_VMCSAVE:
+			exportVmcSave(selected_entry, code->options[0].id, codecmd[1]);
+			code->activated = 0;
+			break;
+
+		case CMD_IMP_VMCSAVE:
+			if (openSingleSave(code->file, (int*) host_buf))
+				show_message("Save successfully imported:\n%s", code->file);
+			else
+				show_message("Error! Couldn't import save:\n%s", code->file);
 			code->activated = 0;
 			break;
 

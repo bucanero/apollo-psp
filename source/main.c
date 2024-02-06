@@ -119,8 +119,8 @@ save_list_t usb_saves = {
 * Trophy list
 */
 save_list_t vmc_saves = {
-	.icon_id = cat_usb_png_index,
-	.title = "Virtual Memory Card",
+    .icon_id = cat_usb_png_index,
+    .title = "Virtual Memory Card",
     .list = NULL,
     .path = "",
     .ReadList = &ReadVmcList,

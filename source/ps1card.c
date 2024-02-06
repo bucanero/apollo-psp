@@ -779,16 +779,27 @@ void formatMemoryCard(void)
 //Save single save to the given filename
 int saveSingleSave(const char* fileName, int slotNumber, int singleSaveType)
 {
+    char psvName[0x100 + 4];
     FILE* binWriter;
     uint32_t outputData_Length;
     uint8_t* outputData;
 
+    if (singleSaveType == PS1SAVE_PSV)
+    {
+        snprintf(psvName, sizeof(psvName), "%s%c%c%s", fileName, ps1saves[slotNumber].saveRegion & 0xFF, ps1saves[slotNumber].saveRegion >> 8, ps1saves[slotNumber].saveProdCode);
+        for(char *c = ps1saves[slotNumber].saveIdentifier; *c; c++)
+        {
+            snprintf(&psvName[0x100], 4, "%02X", *c);
+            strcat(psvName, &psvName[0x100]);
+        }
+        strcat(psvName, ".PSV");
+        fileName = psvName;
+    }
+
     //Check if the file is allowed to be opened for writing
     binWriter = fopen(fileName, "wb");
     if (!binWriter)
-    {
         return false;
-    }
 
     outputData = getSaveBytes(slotNumber, &outputData_Length);
 
@@ -903,6 +914,14 @@ int openSingleSave(const char* fileName, int* requiredSlots)
         free(inputData);
         return false;
     }
+
+    //If save already exists, remove it (overwrite)
+    for (int i = 0; i < PS1CARD_MAX_SLOTS; i++)
+        if (strncmp(ps1saves[i].saveName, &finalData[10], 20) == 0)
+        {
+            formatSave(i);
+            break;
+        }
 
     //Import the save to Memory Card
     if (setSaveBytes(finalData, finalData_Length, requiredSlots))

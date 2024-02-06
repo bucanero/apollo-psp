@@ -22,7 +22,7 @@
 #define MCR_OFFSET      0x80
 #define MCR_MAGIC       0x0000434D
 #define VMP_MAGIC       0x564D5000
-#define PSV_MAGIC       0x56535000
+#define PSV_MAGIC       0x50535600
 #define VMP_SIZE        0x20080
 #define MC_SIZE         0x20000
 
@@ -155,10 +155,10 @@ int psv_resign(const char *src_psv)
 		return 0;
 	}
 
-	generateHash(input, input + VMP_SEED_OFFSET, input + VMP_HASH_OFFSET, sz);
+	generateHash(input, input + PSV_SEED_OFFSET, input + PSV_HASH_OFFSET, sz);
 
 	LOG("New signature:");
-	dump_data(input+VMP_HASH_OFFSET, 20);
+	dump_data(input + PSV_HASH_OFFSET, 20);
 
 	if (write_buffer(src_psv, input, sz) < 0) {
 		LOG("Failed to open output file");

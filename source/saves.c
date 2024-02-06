@@ -209,7 +209,7 @@ static void _addBackupCommands(save_entry_t* item)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
 	list_append(item->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " File Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Save Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy save game", CMD_CODE_NULL);
@@ -371,8 +371,6 @@ static void add_vmc_import_saves(list_t* list, const char* path, const char* fol
 	DIR *d;
 	struct dirent *dir;
 	char psvPath[256];
-	char data[64];
-	int type, toff;
 
 	snprintf(psvPath, sizeof(psvPath), "%s%s", path, folder);
 	d = opendir(psvPath);
@@ -382,40 +380,14 @@ static void add_vmc_import_saves(list_t* list, const char* path, const char* fol
 
 	while ((dir = readdir(d)) != NULL)
 	{
-		if (!S_ISREG(dir->d_type))
+		if (!endsWith(dir->d_name, ".PSV") && !endsWith(dir->d_name, ".MCS") && !endsWith(dir->d_name, ".PSX") &&
+			!endsWith(dir->d_name, ".PS1") && !endsWith(dir->d_name, ".MCB") && !endsWith(dir->d_name, ".PDA"))
 			continue;
 
-		if (endsWith(dir->d_name, ".PSV"))
-		{
-			toff = 0x80;
-			type = FILE_TYPE_PS1;
-		}
-		else if (endsWith(dir->d_name, ".MCS"))
-		{
-			toff = 0x40;
-			type = FILE_TYPE_PS1;
-		}
-		else continue;
-
-		snprintf(psvPath, sizeof(psvPath), "%s%s%s", path, folder, dir->d_name);
-		LOG("Reading %s...", psvPath);
-
-/*
-		FILE *fp = fopen(psvPath, "rb");
-		if (!fp) {
-			LOG("Unable to open '%s'", psvPath);
-			continue;
-		}
-
-		fseek(fp, toff, SEEK_SET);
-		fread(data, 1, sizeof(data), fp);
-		fclose(fp);
-*/
-
+		snprintf(psvPath, sizeof(psvPath), "%s %s", CHAR_ICON_COPY, dir->d_name);
 		cmd = _createCmdCode(PATCH_COMMAND, psvPath, CMD_IMP_VMCSAVE);
-		cmd->file = strdup(psvPath);
-		cmd->codes[1] = type;
-		sprintf(cmd->name, "%s %s", CHAR_ICON_COPY, dir->d_name);
+		asprintf(&cmd->file, "%s%s%s", path, folder, dir->d_name);
+		cmd->codes[1] = FILE_TYPE_PS1;
 		list_append(list, cmd);
 
 		LOG("[%s] F(%X) name '%s'", cmd->file, cmd->flags, cmd->name+2);
@@ -450,7 +422,7 @@ int ReadVmcCodes(save_entry_t * save)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
 	list_append(save->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " File Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Save Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(save->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export save game to MCS format", CMD_CODE_NULL);
@@ -463,6 +435,12 @@ int ReadVmcCodes(save_entry_t * save)
 	cmd->options_count = 1;
 	cmd->options = _createOptions(2, "Copy Save to Mass Storage", CMD_EXP_VMCSAVE);
 	cmd->options[0].id = PS1SAVE_PSV;
+	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export save game to PSX format", CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _createOptions(2, "Copy Save to Mass Storage", CMD_EXP_VMCSAVE);
+	cmd->options[0].id = PS1SAVE_AR;
 	list_append(save->codes, cmd);
 
 	LOG("Loaded %ld codes", list_count(save->codes));
