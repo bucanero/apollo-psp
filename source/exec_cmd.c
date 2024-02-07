@@ -880,13 +880,18 @@ static void resignAllSaves(const save_entry_t* save, int all)
 static void import_mcr2vmp(const save_entry_t* save, const char* src)
 {
 	char mcrPath[256];
+	uint8_t *data = NULL;
+	size_t size = 0;
 
 	snprintf(mcrPath, sizeof(mcrPath), PS1_SAVES_PATH_HDD "%s/%s", USER_STORAGE_DEV, save->title_id, src);
+	read_buffer(mcrPath, &data, &size);
 
-	if (ps1_mcr2vmp(mcrPath, save->path))
+	if (openMemoryCardStream(data, size, 0) && saveMemoryCard(save->path, 0, 0))
 		show_message("Memory card successfully imported to:\n%s", save->path);
 	else
 		show_message("Error importing memory card:\n%s", mcrPath);
+
+	free(data);
 }
 
 static void export_vmp2mcr(const save_entry_t* save)
@@ -897,7 +902,7 @@ static void export_vmp2mcr(const save_entry_t* save)
 	strcpy(strrchr(mcrPath, '.'), ".MCR");
 	mkdirs(mcrPath);
 
-	if (ps1_vmp2mcr(save->path, mcrPath))
+	if (saveMemoryCard(mcrPath, PS1CARD_RAW, 0))
 		show_message("Memory card successfully exported to:\n%s", mcrPath);
 	else
 		show_message("Error exporting memory card:\n%s", save->path);

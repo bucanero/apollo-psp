@@ -285,11 +285,14 @@ static void add_vmp_commands(save_entry_t* save)
 	char path[256];
 	code_entry_t* cmd;
 
-	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " VMP Memory Card " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
+	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Virtual Memory Card " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(save->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign Memory Card", CMD_RESIGN_VMP);
-	list_append(save->codes, cmd);
+	if (endsWith(save->path, ".VMP"))
+	{
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Resign Memory Card", CMD_RESIGN_VMP);
+		list_append(save->codes, cmd);
+	}
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export Memory Card to .MCR", CMD_EXP_VMP2MCR);
 	list_append(save->codes, cmd);
@@ -391,6 +394,39 @@ static void add_vmc_import_saves(list_t* list, const char* path, const char* fol
 		list_append(list, cmd);
 
 		LOG("[%s] F(%X) name '%s'", cmd->file, cmd->flags, cmd->name+2);
+	}
+
+	closedir(d);
+}
+
+static void read_vmc_files(const char* path, list_t* list)
+{
+	save_entry_t *item;
+	DIR *d;
+	struct dirent *dir;
+	char vmcPath[256];
+
+	snprintf(vmcPath, sizeof(vmcPath), "%s%s", path, PS1_VMC_PATH_USB);
+	d = opendir(vmcPath);
+
+	if (!d)
+		return;
+
+	while ((dir = readdir(d)) != NULL)
+	{
+		if (!endsWith(dir->d_name, ".VMP") && !endsWith(dir->d_name, ".MCR") && !endsWith(dir->d_name, ".GME") &&
+			!endsWith(dir->d_name, ".VM1") && !endsWith(dir->d_name, ".MCD") && !endsWith(dir->d_name, ".VGS") &&
+			!endsWith(dir->d_name, ".VMC") && !endsWith(dir->d_name, ".BIN") && !endsWith(dir->d_name, ".SRM"))
+			continue;
+
+		item = _createSaveEntry(SAVE_FLAG_PS1 | SAVE_FLAG_VMC, dir->d_name);
+		item->type = FILE_TYPE_VMC;
+		item->title_id = strdup("VMC");
+		item->dir_name = strdup(PS1_VMC_PATH_USB);
+		asprintf(&item->path, "%s%s", vmcPath, dir->d_name);
+		list_append(list, item);
+
+		LOG("[%s] F(%X) name '%s'", item->path, item->flags, item->name);
 	}
 
 	closedir(d);
@@ -906,7 +942,7 @@ list_t * ReadUsbList(const char* userPath)
 	item = _createSaveEntry(SAVE_FLAG_PSP, CHAR_ICON_COPY " Bulk Save Management");
 	item->type = FILE_TYPE_MENU;
 	item->codes = list_alloc();
-	item->path = strdup(userPath);
+	asprintf(&item->path, "%s%s", userPath, PSP_SAVES_PATH_USB);
 	//bulk management hack
 	item->dir_name = malloc(sizeof(void**));
 	((void**)item->dir_name)[0] = list;
@@ -926,7 +962,8 @@ list_t * ReadUsbList(const char* userPath)
 	list_append(item->codes, cmd);
 	list_append(list, item);
 
-	read_psp_savegames(userPath, list, 0);
+	read_psp_savegames(item->path, list, 0);
+	read_vmc_files(userPath, list);
 
 	return list;
 }

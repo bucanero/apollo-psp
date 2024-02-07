@@ -23,6 +23,7 @@
 
 #define EXPORT_PATH             "APOLLO/EXPORT/"
 #define ISO_CSO_PATH_USB        USB_PATH "ISO/"
+#define PS1_VMC_PATH_USB        "PS1/VMC/"
 
 #define ONLINE_URL              "https://bucanero.github.io/apollo-saves/"
 #define ONLINE_PATCH_URL        "https://bucanero.github.io/apollo-patches/PSP/"
@@ -238,7 +239,4 @@ int psp_EncryptSavedata(const char* fpath, const char* fname, uint8_t* key);
 
 int vmp_resign(const char *src_vmp);
 int psv_resign(const char *src_psv);
-int ps1_mcr2vmp(const char* mcrfile, const char* vmp_path);
-int ps1_vmp2mcr(const char* vmpfile, const char* mcr_path);
-
 char* sjis2utf8(char* input);

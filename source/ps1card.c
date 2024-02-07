@@ -222,7 +222,7 @@ static void setPsvHeader(const char* saveFilename, uint32_t saveLength, FILE* fp
     psvSave[0x60] = 3;
     psvSave[0x61] = 0x90;
 
-    memcpy(&psvSave[0x64], saveFilename, 0x20);
+    memcpy(&psvSave[0x64], saveFilename, 20);
     memcpy(&psvSave[0x40], &saveLength, sizeof(uint32_t));
 
     fwrite(psvSave, 1, sizeof(psvSave), fp);
@@ -433,15 +433,13 @@ static void loadSlotTypes(void)
 //Load Save name, Product code and Identifier from the header data
 static void loadStringData(void)
 {
-    //Temp array used for conversion
-    char tempByteArray[64];
-
     for (int slotNumber = 0; slotNumber < PS1CARD_MAX_SLOTS; slotNumber++)
     {
         //Clear existing data
         memset(ps1saves[slotNumber].saveProdCode, 0, 11);
         memset(ps1saves[slotNumber].saveIdentifier, 0, 9);
         memset(ps1saves[slotNumber].saveName, 0, 21);
+        memset(ps1saves[slotNumber].saveTitle, 0, 65);
 
         //Copy Product code
         strncpy(ps1saves[slotNumber].saveProdCode, (char*) &ps1saves[slotNumber].headerData[12], 10);
@@ -452,25 +450,8 @@ static void loadStringData(void)
         //Copy Save filename
         strncpy(ps1saves[slotNumber].saveName, (char*) &ps1saves[slotNumber].headerData[10], 20);
 
-        //Copy bytes from save data to temp array
-        memset(tempByteArray, 0, sizeof(tempByteArray));
-        for (int currentByte = 0; currentByte < 64; currentByte++)
-        {
-            uint8_t b = ps1saves[slotNumber].saveData[currentByte + 4];
-            if (currentByte % 2 == 0 && b == 0)
-            {
-//                Array.Resize(ref tempByteArray, currentByte);
-                break;
-            }
-            tempByteArray[currentByte] = b;
-        }
-
+        //Copy save title from Shift-JIS
         memcpy(ps1saves[slotNumber].saveTitle, &ps1saves[slotNumber].saveData[4], 64);
-        //Convert save name from Shift-JIS to UTF-16 and normalize full-width characters
-//        saveName[slotNumber] = Encoding.GetEncoding(932).GetString(tempByteArray).Normalize(NormalizationForm.FormKC);
-
-        //Check if the title converted properly, get ASCII if it didn't
-//        if (saveName[slotNumber] == NULL) saveName[slotNumber] = Encoding.Default.GetString(tempByteArray, 0, 32);
     }
 }
 
@@ -1021,8 +1002,11 @@ ps1mcData_t* getMemoryCardData(void)
 }
 
 //Open memory card from the given byte stream
-void openMemoryCardStream(const uint8_t* memCardData, int fixData)
+int openMemoryCardStream(const uint8_t* memCardData, int dataSize, int fixData)
 {
+    if (!memCardData || (dataSize != PS1CARD_SIZE))
+        return false;
+
     //Set the reference for the recieved data
     memcpy(rawMemoryCard, memCardData, sizeof(rawMemoryCard));
 
@@ -1040,12 +1024,15 @@ void openMemoryCardStream(const uint8_t* memCardData, int fixData)
 
     //Since the stream is of the unknown origin Memory Card is treated as edited
     changedFlag = true;
+
+    return true;
 }
 
 //Open Memory Card from the given filename
 int openMemoryCard(const char* fileName, int fixData)
 {
     cardType = PS1CARD_NULL;
+    changedFlag = fixData;
 
     //Check if the Memory Card should be opened or created
     if (fileName != NULL)
@@ -1083,6 +1070,10 @@ int openMemoryCard(const char* fileName, int fixData)
         {
             startOffset = 3904;
             cardType = PS1CARD_GME;
+
+            //Copy comments from GME header
+            for (int i = 0; i < PS1CARD_MAX_SLOTS; i++)
+                memcpy(saveComments[i], &tempData[64 + (256 * i)], 256);
         }
         //VGS Memory Card
         else if (memcmp(tempData, "VgsM", 4) == 0)
@@ -1117,9 +1108,6 @@ int openMemoryCard(const char* fileName, int fixData)
         formatMemoryCard();
     }
 
-    //Set changedFlag to false since this is created card
-    changedFlag = false;
-
     //Calculate XOR checksum (in case if any of the saveHeaders have corrputed XOR)
     if(fixData) calculateXOR();
 
@@ -1145,5 +1133,5 @@ int openMemoryCard(const char* fileName, int fixData)
     loadIcons();
 
     //Everything went well, no error messages
-    return true;
+    return cardType;
 }

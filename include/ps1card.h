@@ -56,7 +56,7 @@ typedef struct ps1McData
 int openMemoryCard(const char* fileName, int fixData);
 
 //Open memory card from the given byte stream
-void openMemoryCardStream(const uint8_t* memCardData, int fixData);
+int openMemoryCardStream(const uint8_t* memCardData, int dataSize, int fixData);
 
 //Save (export) Memory Card to a given byte stream
 uint8_t* saveMemoryCardStream(int fixData);

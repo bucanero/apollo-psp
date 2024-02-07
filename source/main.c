@@ -308,7 +308,7 @@ static int LoadSounds(SceSize args, void* data)
 
 void update_usb_path(char* path)
 {
-	sprintf(path, USB_PATH PSP_SAVES_PATH_USB, USER_STORAGE_DEV);
+	sprintf(path, USB_PATH, USER_STORAGE_DEV);
 	if (dir_exists(path) == SUCCESS)
 		return;
 
