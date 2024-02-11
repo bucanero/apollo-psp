@@ -6,6 +6,7 @@
 #include <pspnet_apctl.h>
 #include <psputility.h>
 #include <pspwlan.h>
+#include <psprtc.h>
 
 #include "saves.h"
 #include "menu.h"
@@ -40,7 +41,7 @@ static void downloadSave(const save_entry_t* entry, const char* file, int dst)
 {
 	char path[256];
 
-	_set_dest_path(path, dst, PSP_SAVES_PATH_USB);
+	_set_dest_path(path, dst, (entry->flags & SAVE_FLAG_PS1) ? PS3_SAVES_PATH_USB : PSP_SAVES_PATH_USB);
 	if (dst == STORAGE_MS0_PSP)
 		snprintf(path, sizeof(path), PSP_SAVES_PATH_HDD, menu_options[3].options[STORAGE_MS0]);
 
@@ -614,16 +615,16 @@ static void exportVmcSave(const save_entry_t* save, int type, int dst_id)
 {
 	int ret = 0;
 	char outPath[256];
-	struct tm t;
+	ScePspDateTime t;
 
 	_set_dest_path(outPath, dst_id, (type == PS1SAVE_PSV) ? PS3_SAVES_PATH_USB : PS1_SAVES_PATH_USB);
 	mkdirs(outPath);
 	if (type != PS1SAVE_PSV)
 	{
 		// build file path
-		gmtime_r(&(time_t){time(NULL)}, &t);
+		sceRtcGetCurrentClockLocalTime(&t);
 		sprintf(strrchr(outPath, '/'), "/%s_%d-%02d-%02d_%02d%02d%02d.%s", save->title_id,
-			t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec,
+			t.year, t.month, t.day, t.hour, t.minute, t.second,
 			(type == PS1SAVE_MCS) ? "mcs" : "psx");
 	}
 
@@ -908,14 +909,6 @@ static void export_vmp2mcr(const save_entry_t* save)
 		show_message("Error exporting memory card:\n%s", save->path);
 }
 
-static void resignVMP(const save_entry_t* save)
-{
-	if (vmp_resign(save->path))
-		show_message("Memory card successfully resigned:\n%s", save->path);
-	else
-		show_message("Error resigning memory card:\n%s", save->path);
-}
-
 static int _copy_save_file(const char* src_path, const char* dst_path, const char* filename)
 {
 	char src[256], dst[256];
@@ -1058,7 +1051,10 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			break;
 
 		case CMD_RESIGN_VMP:
-			resignVMP(selected_entry);
+			if (vmp_resign(selected_entry->path))
+				show_message("Memory card successfully resigned:\n%s", selected_entry->path);
+			else
+				show_message("Error resigning memory card:\n%s", selected_entry->path);
 			code->activated = 0;
 			break;
 
@@ -1103,7 +1099,10 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 
 		case CMD_IMP_VMCSAVE:
 			if (openSingleSave(code->file, (int*) host_buf))
+			{
+				saveMemoryCard(selected_entry->dir_name, 0, 0);
 				show_message("Save successfully imported:\n%s", code->file);
+			}
 			else
 				show_message("Error! Couldn't import save:\n%s", code->file);
 			code->activated = 0;

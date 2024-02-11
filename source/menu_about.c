@@ -86,7 +86,7 @@ static void _draw_AboutMenu(u8 alpha)
 	SetFontAlign(FONT_ALIGN_LEFT);
 }
 
-void Draw_AboutMenu_Ani()
+void Draw_AboutMenu_Ani(void)
 {
 	for (int ani = 0; ani < MENU_ANI_MAX; ani++)
 	{

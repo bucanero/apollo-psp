@@ -1,5 +1,5 @@
 // https://github.com/idispatch/raster-fonts
-unsigned char console_font_6x10[] = {
+static const unsigned char console_font_6x10[] = {
 
     /*
      * code=0, hex=0x00, ascii="^@"

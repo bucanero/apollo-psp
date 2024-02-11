@@ -18,7 +18,7 @@ int calculate_hmac_hash(const u8 *data, u64 size, const u8 *key, u32 key_length,
 int calculate_file_hmac_hash(const char *file_path, const u8 *key, u32 key_length, u8 output[20]);
 
 u64 align_to_pow2(u64 offset, u64 alignment);
-void notification(const char *p_Format, ...);
+uint64_t pspXploitKernelRead64(uint32_t addr);
 
 // todo: why asprintf is not defined?
 int asprintf(char **ret, const char *format, ...);

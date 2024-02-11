@@ -173,6 +173,7 @@ static const u8 const_Rb[16] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 
 //helper funcs
 static u8* kirk_4_7_get_key(int key_type);
+uint64_t pspXploitKernelRead64(uint32_t addr);
 
 /* ------------------------- INTERNAL STUFF ------------------------- */
 typedef struct header_keys
@@ -310,12 +311,12 @@ static void AES_CMAC(aes_context *ctx, u8 *input, int length, u8 *mac)
   memcpy(mac, X, sizeof(X));
 }
 
-void init_mesh(void)
+static void init_mesh(void)
 {
   u8 fuseid[8];
   int i, k;
   u8 subkey_1[0x10], subkey_2[0x10];
-  aes_context aes_ctx;
+  aes_context aes_ctx, aes_ctx2;
   memset(g_mesh,0,0x40);
 
   fuseid[7] = g_fuse90 &0xFF;
@@ -328,7 +329,7 @@ void init_mesh(void)
   fuseid[0] = (g_fuse94>>24) &0xFF;
   /* set encryption key */
   aes_setkey_enc(&aes_ctx, MASTER_KEY, 128);
-  aes_setkey_dec(&aes_ctx, MASTER_KEY, 128);
+  aes_setkey_dec(&aes_ctx2, MASTER_KEY, 128);
 
   /* set the subkeys */
   for (i = 0; i < 0x10; i++)
@@ -342,7 +343,7 @@ void init_mesh(void)
   {
       /* encrypt + decrypt */
       aes_crypt_ecb(&aes_ctx, AES_ENCRYPT, subkey_1, subkey_1);
-      aes_crypt_ecb(&aes_ctx, AES_DECRYPT, subkey_2, subkey_2);
+      aes_crypt_ecb(&aes_ctx2, AES_DECRYPT, subkey_2, subkey_2);
   }
 
   /* set new key */
@@ -363,7 +364,7 @@ void init_mesh(void)
   }    
 }
 
-void generate_key_from_mesh(u8 * key, int param)
+static void generate_key_from_mesh(u8 * key, int param)
 {
   u8 genkey[0x10];
   aes_context aes_ctx;
@@ -484,7 +485,7 @@ int kirk_CMD5(u8* outbuff, u8* inbuff, int size)
   if(header->data_size == 0) return KIRK_DATA_SIZE_ZERO;
 
   generate_key_from_mesh(key,1);
-  //hex_dump("key5", key,0x10);
+
   //Set the key
   aes_setkey_enc(&aesKey, key, 128);
   AES_cbc_encrypt(&aesKey, inbuff+sizeof(KIRK_AES128CBC_HEADER), outbuff+sizeof(KIRK_AES128CBC_HEADER), header->data_size);
@@ -649,7 +650,10 @@ int kirk_init(void)
   if (is_kirk_initialized)
     return 0;
 
-  return kirk_init2((u8*)"Lazy Dev should have initialized!", 33, 0xBABEF00D, 0xDEADBEEF);
+  // Get device Fuse ID
+  u64 fuseId = pspXploitKernelRead64(0xBC100090);
+
+  return kirk_init2((u8*)"Lazy Dev should have initialized!", 33, (fuseId & 0xFFFFFFFF), (fuseId >> 32));
 }
 
 static u8* kirk_4_7_get_key(int key_type)

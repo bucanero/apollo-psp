@@ -397,12 +397,13 @@ static int hleSdGetLastIndex(SD_Ctx1 ctx, uint8_t *hash, uint8_t *key) {
 
 	// If mode is 2, 4 or 6, encrypt again with KIRK CMD 5 and then KIRK CMD 4.
 	if ((ctx->mode == 0x2) || (ctx->mode == 0x4) || (ctx->mode == 0x6)) {
+		// Copy the result buffer into the data buffer.
 		arraycopy(resultBuf, 0, scrambleResultBuf, 0x14, 0x10);
+
+		// Encrypt with KIRK CMD 5 (seed is always 0x100).
 		ScrambleSD(scrambleResultBuf, 0x10, 0x100, KIRK_MODE_ENCRYPT_CBC, KIRK_CMD_ENCRYPT_IV_FUSE);
-		arraycopy(scrambleResultBuf, 0, scrambleResultBuf, 0x14, 0x10);
-		for(i=0; i < 0x14; i++) {
-			scrambleResultBuf[i] = 0;
-		}
+
+		// Encrypt again with KIRK CMD 4.
 		ScrambleSD(scrambleResultBuf, 0x10, seed, KIRK_MODE_ENCRYPT_CBC, KIRK_CMD_ENCRYPT_IV_0);
 		arraycopy(scrambleResultBuf, 0, resultBuf, 0, 0x10);
 	}

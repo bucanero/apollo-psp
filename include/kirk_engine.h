@@ -26,9 +26,7 @@
 
 #ifndef KIRK_ENGINE
 #define KIRK_ENGINE
-typedef unsigned char u8;
-typedef unsigned short int u16;
-typedef unsigned int u32;
+#include <psptypes.h>
 
 //Kirk return values
 #define KIRK_OPERATION_SUCCESS 0
@@ -90,7 +88,6 @@ typedef struct
 	u8  unk5[16];               //80
 } KIRK_CMD1_ECDSA_HEADER; //0x90
 
-
 typedef struct
 {
 	u8 r[0x14];
@@ -118,7 +115,6 @@ typedef struct
 	u8 multiplier[0x14];
 	ECDSA_POINT public_key;
 } KIRK_CMD13_BUFFER;
-
 
 typedef struct
 {

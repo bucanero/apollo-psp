@@ -1155,6 +1155,7 @@ list_t * ReadVmcList(const char* userPath)
 	item = _createSaveEntry(SAVE_FLAG_PS1, CHAR_ICON_COPY " Import Saves to Virtual Card");
 	asprintf(&item->path, "%s:/", USER_STORAGE_DEV);
 	asprintf(&item->title_id, " %s", item->path);
+	item->dir_name = strdup(userPath);
 	item->type = FILE_TYPE_MENU;
 	list_append(list, item);
 

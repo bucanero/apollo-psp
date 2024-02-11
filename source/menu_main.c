@@ -80,7 +80,7 @@ static int ReloadUserSaves(save_list_t* save_list)
 	return list_count(save_list->list);
 }
 
-static code_entry_t* LoadRawPatch()
+static code_entry_t* LoadRawPatch(void)
 {
 	char patchPath[256];
 	code_entry_t* centry = calloc(1, sizeof(code_entry_t));
@@ -92,7 +92,7 @@ static code_entry_t* LoadRawPatch()
 	return centry;
 }
 
-static code_entry_t* LoadSaveDetails()
+static code_entry_t* LoadSaveDetails(void)
 {
 	code_entry_t* centry = calloc(1, sizeof(code_entry_t));
 	centry->name = strdup(selected_entry->title_id);
@@ -439,9 +439,10 @@ static void doAboutMenu(void)
 		SetMenu(MENU_MAIN_SCREEN);
 		return;
 	}
-	else if (pspPadGetButtonPressed(PSP_CTRL_SELECT))
+	else if (!ll && pspPadGetButtonPressed(PSP_CTRL_SELECT))
 	{
 		ll = (0x02 | apollo_config.music);
+		apollo_config.music = 1;
 	}
 
 	Draw_AboutMenu(ll);
