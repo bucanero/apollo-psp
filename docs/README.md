@@ -17,15 +17,20 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Easy to use:** no advanced setup needed.
 * **Standalone:** no computer required, everything happens on the PSP.
 * **Automatic settings:** auto-detection of User settings.
-* **Multi-user:** supports multiple user accounts.
 
 ## Save Management
 
 * **Save files listing:** quick access to all the save files on Memory Stick and the internal PSP memory (+ file details)
-* **Save PARAM.SFO updating:** rehash and update `PARAM.SFO` information when changing data files.
+* **Save PARAM.SFO updating:** rehash, fix ownership, and update `PARAM.SFO` information when changing data files.
 * **Save files patching:** complete support for Save Wizard and [Bruteforce Save Data](https://bruteforcesavedata.forumms.net/) cheat patches to enhance your save-games.
 * **Save import/export:** allows the user to decrypt and export save files, and import decrypted saves from other consoles.
 * **Save downloading:** easy access to an Online Database of save-game files to download straight to your PSP.
+
+## PS1 Virtual Memory Card Management
+
+* **VMC saves listing:** quick access to all save files on Virtual Memory Cards images.
+  - Supported VMC formats: `.VMP`, `.MCR`, `.VM1`, `.BIN`, `.VMC`, `.GME`, `.VGS`, `.SRM`, `.MCD`
+* **VMC saves import/export:** allows the user export saves on VMC images to `.MCS`/`.PSV`/`.PSX` formats, and import saves to VMCs from other tools and consoles (`.MCS`, `.PSV`, `.PSX`, `.PS1`, `.MCB`, `.PDA` supported).
 
 # Download
 
@@ -52,6 +57,16 @@ On first run, the application will detect and setup the required user settings.
 |-----|--------|
 | **External saves** | your saves must be stored on `<ms0/ef0>:/APOLLO/SAVEDATA/`. |
 | **Memory Stick saves** | save-games will be scanned from `ms0:/PSP/SAVEDATA/`. |
+
+### PS1
+
+| PS1 | Folder |
+|-----|--------|
+| **External saves** | your saves must be stored on `<ms0/ef0>:/PS1/SAVEDATA/`. |
+| **Exported PSV saves** | .PSV saves are saved on `<ms0/ef0>:/PS3/EXPORT/PSV/`. |
+| **Virtual Memory Cards** | VMC images will be scanned from `<ms0/ef0>:/PS1/VMC/`. |
+
+## PSP save-game Keys
 
 **Note:** To decrypt PSP save files, game-specific save keys are required. You can dump the required keys using PSP plugins, such as:
 - [SGKeyDumper](https://github.com/bucanero/psptools/releases/download/20220719/pspsgkey13.zip)
@@ -104,6 +119,8 @@ The Online Database project aims to [add more save-games](https://github.com/buc
 * [Dnawrkshp](https://github.com/Dnawrkshp/): [Artemis PS3](https://github.com/Dnawrkshp/ArtemisPS3)
 * [Berion](https://www.psx-place.com/members/berion.1431/): GUI design
 * [flatz](https://github.com/flatz): [SFO tools](https://github.com/bucanero/pfd_sfo_tools/)
+* Draan/[Proxima](https://github.com/ProximaV): [KIRK engine](https://github.com/ProximaV/kirk-engine-full)
+* [ShendoXT](https://github.com/ShendoXT): [MemcardRex](https://github.com/ShendoXT/memcardrex)
 * [aldostools](https://aldostools.org/): [Bruteforce Save Data](https://bruteforcesavedata.forumms.net/)
 * [PiNk/abyss](http://amigascne.org/abyss/pink/index.html): [Background music track](https://github.com/bucanero/apollo-ps2/blob/main/data/inside.ahx)
 
@@ -128,7 +145,7 @@ You can also set the `PSPIP` environment variable to your PSP's IP address, and 
 
 # License
 
-[Apollo Save Tool](https://github.com/bucanero/apollo-psp/) (PSP) - Copyright (C) 2020-2023  [Damian Parrino](https://twitter.com/dparrino)
+[Apollo Save Tool](https://github.com/bucanero/apollo-psp/) (PSP) - Copyright (C) 2020-2024 [Damian Parrino](https://twitter.com/dparrino)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the [GNU General Public License][app_license] as published by
