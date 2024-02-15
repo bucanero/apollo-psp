@@ -653,6 +653,17 @@ int kirk_init(void)
   // Get device Fuse ID
   u64 fuseId = pspXploitKernelRead64(0xBC100090);
 
+  // if Kernel read exploit fails, try FUSEID.BIN (e.g. Adrenaline)
+  if (fuseId == 0xFFFFFFFFFFFFFFFF)
+  {
+    FILE* fp = fopen("./DATA/FUSEID.BIN", "rb");
+    if (fp)
+    {
+      fread(&fuseId, 1, sizeof(uint64_t), fp);
+      fclose(fp);
+    }
+  }
+
   return kirk_init2((u8*)"Lazy Dev should have initialized!", 33, (fuseId & 0xFFFFFFFF), (fuseId >> 32));
 }
 

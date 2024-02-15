@@ -65,7 +65,7 @@ static void downloadSave(const save_entry_t* entry, const char* file, int dst)
 	unlink_secure(APOLLO_LOCAL_CACHE "tmpsave.zip");
 }
 
-static uint32_t get_filename_id(const char* dir)
+static uint32_t get_filename_id(const char* dir, const char* title_id)
 {
 	char path[128];
 	uint32_t tid = 0;
@@ -73,7 +73,7 @@ static uint32_t get_filename_id(const char* dir)
 	do
 	{
 		tid++;
-		snprintf(path, sizeof(path), "%s%08d.zip", dir, tid);
+		snprintf(path, sizeof(path), "%s%s-%08d.zip", dir, title_id, tid);
 	}
 	while (file_exists(path) == SUCCESS);
 
@@ -97,8 +97,8 @@ static void zipSave(const save_entry_t* entry, int dst)
 
 	init_loading_screen("Exporting save game...");
 
-	fid = get_filename_id(exp_path);
-	snprintf(export_file, sizeof(export_file), "%s%08d.zip", exp_path, fid);
+	fid = get_filename_id(exp_path, entry->title_id);
+	snprintf(export_file, sizeof(export_file), "%s%s-%08d.zip", exp_path, entry->title_id, fid);
 
 	tmp = strdup(entry->path);
 	*strrchr(tmp, '/') = 0;
@@ -113,7 +113,7 @@ static void zipSave(const save_entry_t* entry, int dst)
 		FILE* f = fopen(export_file, "a");
 		if (f)
 		{
-			fprintf(f, "%08d.zip=[%s] %s\n", fid, entry->title_id, entry->name);
+			fprintf(f, "%s-%08d.zip=%s\n", entry->title_id, fid, entry->name);
 			fclose(f);
 		}
 	}
@@ -125,7 +125,7 @@ static void zipSave(const save_entry_t* entry, int dst)
 		return;
 	}
 
-	show_message("Zip file successfully saved to:\n%s%08d.zip", exp_path, fid);
+	show_message("Zip file successfully saved to:\n%s%s-%08d.zip", exp_path, entry->title_id, fid);
 }
 
 static void copySave(const save_entry_t* save, int dev)
@@ -255,7 +255,7 @@ static void copyAllSavesHDD(const save_entry_t* save, int all)
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
-		if (!all && !(item->flags & SAVE_FLAG_SELECTED))
+		if (item->type != FILE_TYPE_PSP || !(all || item->flags & SAVE_FLAG_SELECTED))
 			continue;
 
 		if ((item->flags & SAVE_FLAG_PS1) || item->type == FILE_TYPE_PSP)
@@ -412,7 +412,7 @@ static int webReqHandler(dWebRequest_t* req, dWebResponse_t* res, void* list)
 		int i = 0;
 		for (node = list_head(list); (item = list_get(node)); node = list_next(node), i++)
 		{
-			if (item->type == FILE_TYPE_MENU || !(item->flags & (SAVE_FLAG_PS1|SAVE_FLAG_PSP)))
+			if (item->type != FILE_TYPE_PSP || !(item->flags & (SAVE_FLAG_PS1|SAVE_FLAG_PSP)))
 				continue;
 
 			fprintf(f, "<tr><td><a href=\"/zip/%08d/%s_%s.zip\">%s</a></td>", i, item->title_id, item->dir_name, item->name);
@@ -568,7 +568,7 @@ static void copyAllSavesUSB(const save_entry_t* save, int dev, int all)
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
-		if (!all && !(item->flags & SAVE_FLAG_SELECTED))
+		if (item->type != FILE_TYPE_PSP || !(all || item->flags & SAVE_FLAG_SELECTED))
 			continue;
 
 		snprintf(copy_path, sizeof(copy_path), "%s%s/", dst_path, item->dir_name);
@@ -829,14 +829,13 @@ static void resignSave(save_entry_t* entry)
         .directory = NULL,
     };
 
-    LOG("Resigning save '%s'...", entry->name);
-
-//    if ((entry->flags & SAVE_FLAG_PS1) && !apply_sfo_patches(entry, &patch))
-//        show_message("Error! Account changes couldn't be applied");
-
     LOG("Applying cheats to '%s'...", entry->name);
     if (!apply_cheat_patches(entry))
         show_message("Error! Cheat codes couldn't be applied");
+
+    LOG("Resigning save '%s'...", entry->name);
+    if (!psp_ResignSavedata(entry->path))
+        show_message("Error! Save couldn't be resigned");
 
     show_message("Save %s successfully modified!", entry->title_id);
 }
@@ -844,14 +843,11 @@ static void resignSave(save_entry_t* entry)
 static void resignAllSaves(const save_entry_t* save, int all)
 {
 	char sfoPath[256];
-	int err_count = 0;
+	int done = 0, err_count = 0;
 	list_node_t *node;
 	save_entry_t *item;
 	uint64_t progress = 0;
 	list_t *list = ((void**)save->dir_name)[0];
-	sfo_patch_t patch = {
-		.psid = (uint8_t*) apollo_config.psid,
-	};
 
 	init_progress_bar("Resigning all saves...");
 
@@ -859,23 +855,16 @@ static void resignAllSaves(const save_entry_t* save, int all)
 	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
 	{
 		update_progress_bar(progress++, list_count(list), item->name);
-		if (!(item->flags & SAVE_FLAG_PS1) || !(all || item->flags & SAVE_FLAG_SELECTED))
+		if (item->type != FILE_TYPE_PSP || !(all || item->flags & SAVE_FLAG_SELECTED))
 			continue;
 
-		snprintf(sfoPath, sizeof(sfoPath), "%s" "sce_sys/param.sfo", item->path);
-		if (file_exists(sfoPath) != SUCCESS)
-			continue;
-
-		LOG("Patching SFO '%s'...", sfoPath);
-		err_count += (patch_sfo(sfoPath, &patch) != SUCCESS);
+		LOG("Patching SFO '%s'...", item->dir_name);
+		(psp_ResignSavedata(item->path) ? done++ : err_count++);
 	}
 
 	end_progress_bar();
 
-	if (err_count)
-		show_message("Error: %d Saves couldn't be resigned", err_count);
-	else
-		show_message("All saves successfully resigned!");
+	show_message("%d/%d Saves resigned\n%s", done, done+err_count, save->path);
 }
 
 static void import_mcr2vmp(const save_entry_t* save, const char* src)

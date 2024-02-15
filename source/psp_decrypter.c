@@ -758,6 +758,40 @@ int psp_DecryptSavedata(const char* fpath, const char* fname, uint8_t* key)
 	return 1;
 }
 
+int psp_ResignSavedata(const char* fpath)
+{
+	uint8_t *sfo, *sd_param;
+	char path[256];
+	size_t sfosize;
+
+	kirk_init();
+
+	snprintf(path, sizeof(path), "%sPARAM.SFO", fpath);
+	LOG("Resigning file %s", path);
+	if (read_buffer(path, &sfo, &sfosize) < 0)
+		return 0;
+
+	if (read32(sfo) != 0x46535000 || read32(sfo+4) != 0x00000101 ||
+		(sd_param = find_sfo_parameter(sfo, "SAVEDATA_PARAMS")) == NULL)
+	{
+		LOG("PARAM.SFO Error");
+		free(sfo);
+		return 0;
+	}
+
+	UpdateSavedataHashes(sd_param, sfo, sfosize);
+
+	if (write_buffer(path, sfo, sfosize) < 0)
+	{
+		LOG("Error saving %s", path);
+		free(sfo);
+		return 0;
+	}
+
+	free(sfo);
+	return 1;
+}
+
 /*
 	"[Proof of Concept/alpha] PSP Savedata En/Decrypter on PC (GPLv3+)\n"
 	"kirk-engine (C) draan / proxima\n"

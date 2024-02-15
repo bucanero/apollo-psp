@@ -4,6 +4,40 @@ All notable changes to the `apollo-psp` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v1.3.0](https://github.com/bucanero/apollo-psp/releases/tag/v1.3.0) - 2024-02-17
+
+### Added
+
+* Proper save resigning using KIRK engine CMD5
+  - Uses unique per-console Fuse ID
+  - Fixes save ownership in games like Gran Turismo
+* Manage PS1 Virtual Memory Card images (VMC)
+  - Supports `.VMP` and external formats (`.MCR`, `.VM1`, `.BIN`, `.VMC`, `.GME`, `.VGS`, `.SRM`, `.MCD`)
+  - List, import, and export PS1 saves inside VMC images
+  - Import - Supported formats: `.MCS`, `.PSV`, `.PSX`, `.PS1`, `.MCB`, `.PDA`
+  - Export - Supported formats: `.MCS`, `.PSV`, `.PSX`
+* New PSP cheat codes
+  - Monster Hunter Freedom Unite (ULUS10391/ULES01213)
+  - Monster Hunter Portable 2nd G (ULJM05500)
+* Custom save decryption
+  - Patapon 3 (UCUS98751/UCES01421)
+  - Monster Hunter Freedom Unite (ULUS10391/ULES01213)
+  - Monster Hunter Portable 2nd G (ULJM05500)
+  - Monster Hunter Portable 3rd (ULJM05800)
+* Custom checksum support
+  - Monster Hunter Freedom Unite (ULUS10391/ULES01213)
+  - Monster Hunter Portable 2nd G (ULJM05500)
+  - Monster Hunter Portable 3rd (ULJM05800)
+
+### Misc
+
+* Updated Apollo Patch Engine to v0.7.0
+  - Add `jhash`, `jenkins_oaat`, `lookup3_little2` hash functions
+  - Add `camellia_ecb` encryption
+  - Add Monster Hunter 2G/3rd PSP decryption
+  - Add RGG Studio decryption (PS4)
+  - Add Dead Rising checksum
+
 ## [v1.2.0](https://github.com/bucanero/apollo-psp/releases/tag/v1.2.0) - 2023-10-30
 
 ### Added

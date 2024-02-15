@@ -203,7 +203,7 @@ static void _addBackupCommands(save_entry_t* item)
 {
 	code_entry_t* cmd;
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Apply Changes", CMD_RESIGN_SAVE);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " Apply Changes & Resign", CMD_RESIGN_SAVE);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
@@ -886,19 +886,25 @@ static void read_psp_savegames(const char* userPath, list_t *list, int flags)
 		if ((strcmp((char*) sfo_get_param_value(sfo, "SAVEDATA_FILE_LIST"), "CONFIG.BIN") == 0) &&
 			(file_exists(sfoPath) == SUCCESS))
 		{
-			snprintf(sfoPath, sizeof(sfoPath), "%s (VMC 0)", sfo_get_param_value(sfo, "TITLE"));
+			item = _createSaveEntry(SAVE_FLAG_PS1 | flags, sfo_get_param_value(sfo, "TITLE"));
+			item->type = FILE_TYPE_PSP;
+			item->dir_name = strdup((char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY"));
+			asprintf(&item->title_id, "%.9s", item->dir_name);
+			asprintf(&item->path, "%s%s/", userPath, dir->d_name);
+			list_append(list, item);
+
+			snprintf(sfoPath, sizeof(sfoPath), "%s (MemCard)", sfo_get_param_value(sfo, "TITLE"));
 			item = _createSaveEntry(SAVE_FLAG_PS1 | SAVE_FLAG_VMC | flags, sfoPath);
 			item->type = FILE_TYPE_VMC;
 			item->dir_name = strdup((char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY"));
-			asprintf(&item->title_id, "%.9s", item->dir_name);
+			item->title_id = strdup("VMC 0");
 			asprintf(&item->path, "%s%s/SCEVMC0.VMP", userPath, dir->d_name);
 			list_append(list, item);
 
-			snprintf(sfoPath, sizeof(sfoPath), "%s (VMC 1)", sfo_get_param_value(sfo, "TITLE"));
 			item = _createSaveEntry(SAVE_FLAG_PS1 | SAVE_FLAG_VMC | flags, sfoPath);
 			item->type = FILE_TYPE_VMC;
 			item->dir_name = strdup((char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY"));
-			asprintf(&item->title_id, "%.9s", item->dir_name);
+			item->title_id = strdup("VMC 1");
 			asprintf(&item->path, "%s%s/SCEVMC1.VMP", userPath, dir->d_name);
 		}
 		else
@@ -955,6 +961,11 @@ list_t * ReadUsbList(const char* userPath)
 	cmd = _createCmdCode(PATCH_COMMAND, name, CMD_COPY_ALL_SAVES_HDD);
 	list_append(item->codes, cmd);
 
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Resign selected Saves", CMD_RESIGN_SAVES);
+	list_append(item->codes, cmd);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Resign All Saves", CMD_RESIGN_ALL_SAVES);
+	list_append(item->codes, cmd);
+
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Start local Web Server", CMD_SAVE_WEBSERVER);
 	list_append(item->codes, cmd);
 
@@ -995,6 +1006,11 @@ list_t * ReadUserList(const char* userPath)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Copy all Saves to Backup Storage", CMD_CODE_NULL);
 	cmd->options_count = 1;
 	cmd->options = _createOptions(2, "Copy Saves to Backup Storage", CMD_COPY_ALL_SAVES_USB);
+	list_append(item->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Resign selected Saves", CMD_RESIGN_SAVES);
+	list_append(item->codes, cmd);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Resign All Saves", CMD_RESIGN_ALL_SAVES);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Start local Web Server", CMD_SAVE_WEBSERVER);
@@ -1199,12 +1215,22 @@ int get_save_details(const save_entry_t* save, char **details)
 		return 1;
 	}
 
+	if (save->type == FILE_TYPE_VMC)
+	{
+		asprintf(details, "%s\n----- Virtual Memory Card -----\n"
+			"Game: %s\n"
+			"Type: %s\n"
+			"Folder: %s\n",
+			save->path,
+			save->name,
+			save->title_id,
+			save->dir_name);
+		return 1;
+	}
+
 	if (save->flags & SAVE_FLAG_PSP || save->flags & SAVE_FLAG_PS1)
 	{
 		snprintf(sfoPath, sizeof(sfoPath), "%sPARAM.SFO", save->path);
-		if (save->flags & SAVE_FLAG_VMC)
-			strcpy(strrchr(sfoPath, '/'), "/PARAM.SFO");
-
 		LOG("Save Details :: Reading %s...", sfoPath);
 
 		sfo_context_t* sfo = sfo_alloc();
@@ -1231,11 +1257,7 @@ int get_save_details(const save_entry_t* save, char **details)
 		return 1;
 	}
 
-	if (!(save->flags & SAVE_FLAG_PSP))
-	{
-		asprintf(details, "%s\n\nTitle: %s\n", save->path, save->name);
-		return 1;
-	}
+	asprintf(details, "%s\n\nTitle: %s\n", save->path, save->name);
 
 	return 1;
 }

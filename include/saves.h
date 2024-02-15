@@ -91,9 +91,6 @@ enum cmd_code_enum
     CMD_NET_WEBSERVER,
 
 // SFO patches
-    SFO_UNLOCK_COPY,
-    SFO_CHANGE_ACCOUNT_ID,
-    SFO_REMOVE_PSID,
     SFO_CHANGE_TITLE_ID,
 };
 
@@ -236,6 +233,7 @@ int get_save_details(const save_entry_t *save, char** details);
 int read_psp_game_key(const char* fkey, uint8_t* key);
 int psp_DecryptSavedata(const char* fpath, const char* fname, uint8_t* key);
 int psp_EncryptSavedata(const char* fpath, const char* fname, uint8_t* key);
+int psp_ResignSavedata(const char* fpath);
 
 int vmp_resign(const char *src_vmp);
 int psv_resign(const char *src_psv);
