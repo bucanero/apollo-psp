@@ -13,7 +13,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        apk add zip
+        apk add zip curl
 
     - name: Checkout apollo-lib
       uses: actions/checkout@v4
