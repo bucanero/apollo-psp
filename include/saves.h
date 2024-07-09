@@ -61,6 +61,7 @@ enum cmd_code_enum
     CMD_EXP_FINGERPRINT,
     CMD_HEX_EDIT_FILE,
     CMD_IMPORT_DATA_FILE,
+    CMD_DELETE_VMCSAVE,
 
 // Bulk commands
     CMD_RESIGN_SAVES,
@@ -104,6 +105,7 @@ enum cmd_code_enum
 #define SAVE_FLAG_ISO           64
 #define SAVE_FLAG_CSO           128
 #define SAVE_FLAG_ONLINE        256
+#define SAVE_FLAG_UPDATED       512
 
 enum save_type_enum
 {
@@ -212,7 +214,6 @@ int extract_7zip(const char* zip_file, const char* dest_path);
 int extract_rar(const char* rar_file, const char* dest_path);
 int extract_zip(const char* zip_file, const char* dest_path);
 int zip_directory(const char* basedir, const char* inputdir, const char* output_zipfile);
-int zip_append_directory(const char* basedir, const char* inputdir, const char* output_filename);
 
 int show_dialog(int dialog_type, const char * format, ...);
 int osk_dialog_get_text(const char* title, char* text, uint32_t size);

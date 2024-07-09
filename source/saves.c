@@ -458,6 +458,9 @@ int ReadVmcCodes(save_entry_t * save)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
 	list_append(save->codes, cmd);
 
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_WARN " Delete Save Game", CMD_DELETE_VMCSAVE);
+	list_append(save->codes, cmd);
+
 	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Save Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(save->codes, cmd);
 
@@ -511,12 +514,12 @@ int ReadOnlineSaves(save_entry_t * game)
 
 		LOG("File '%s' is %ld seconds old", path, (ltime - ftime));
 		// re-download if file is +1 day old
-		if ((int)(ltime - ftime - ONLINE_CACHE_TIMEOUT) > 0 && !http_download(game->path, "saves.txt", path, 0))
+		if ((int)(ltime - ftime - ONLINE_CACHE_TIMEOUT) > 0 && !http_download(game->path, "saves.txt", path, 1))
 			return 0;
 	}
 	else
 	{
-		if (!http_download(game->path, "saves.txt", path, 0))
+		if (!http_download(game->path, "saves.txt", path, 1))
 			return 0;
 	}
 
