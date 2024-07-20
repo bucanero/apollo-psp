@@ -4,6 +4,27 @@ All notable changes to the `apollo-psp` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v1.3.2](https://github.com/bucanero/apollo-psp/releases/tag/v1.3.2) - 2024-07-20
+
+### Added
+
+* Delete PS1 saves from VMC images
+* Sort saves by Type (PSP/PS1)
+* Custom checksum support
+  - InviZimals (UCES01241)
+
+### Misc
+
+* Updated Apollo Patch Engine to v1.1.0
+  - Improve code parsing
+  - Fix SW Code Type D issue with `CRLF` line breaks
+  - Improve SW Code Type 3 (Subtype 3/7/B/F)
+  - Improve SW Code Type 4 (Subtype 4/5/6/C/D/E)
+  - Add AES CBC encryption command (`aes_cbc(key, iv)`)
+  - Change `compress` and `decompress` command syntax
+    + `decompress(offset, wbits)`
+    + `compress(offset)`
+
 ## [v1.3.0](https://github.com/bucanero/apollo-psp/releases/tag/v1.3.0) - 2024-02-17
 
 ### Added

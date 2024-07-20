@@ -2,6 +2,7 @@
 
 [![Downloads][img_downloads]][app_downloads] [![Release][img_latest]][app_latest] [![License][img_license]][app_license]
 [![Build app package](https://github.com/bucanero/apollo-psp/actions/workflows/build.yml/badge.svg)](https://github.com/bucanero/apollo-psp/actions/workflows/build.yml)
+![PSP](https://img.shields.io/badge/-PSP-003791?style=flat&logo=PlayStation)
 [![Twitter](https://img.shields.io/twitter/follow/dparrino?label=Follow)](https://twitter.com/dparrino)
 
 **Apollo Save Tool** is an application to manage save-game files on the PlayStation Portable.
@@ -30,7 +31,9 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 
 * **VMC saves listing:** quick access to all save files on Virtual Memory Cards images.
   - Supported VMC formats: `.VMP`, `.MCR`, `.VM1`, `.BIN`, `.VMC`, `.GME`, `.VGS`, `.SRM`, `.MCD`
-* **VMC saves import/export:** allows the user export saves on VMC images to `.MCS`/`.PSV`/`.PSX` formats, and import saves to VMCs from other tools and consoles (`.MCS`, `.PSV`, `.PSX`, `.PS1`, `.MCB`, `.PDA` supported).
+* **Import saves to VMC:** enables importing saves (`.MCS`, `.PSV`, `.PSX`, `.PS1`, `.MCB`, `.PDA` formats) to VMCs from other tools and consoles.
+* **Export VMC saves:** allows the user to export saves on VMC images to `.MCS`/`.PSV`/`.PSX` formats.
+* **Delete VMC saves:** remove any PS1 save file stored on VMC images.
 
 # Download
 
@@ -46,7 +49,10 @@ My GitHub projects are open to a [sponsor program](https://patreon.com/dparrino)
 
 # Setup instructions
 
-No special setup is needed. Just download the latest `apollo-psp.zip` package and install it on your PlayStation Portable.
+No special setup is needed. Just follow these simple steps:
+1. Download the latest [`apollo-psp.zip`](https://github.com/bucanero/apollo-psp/releases/latest/download/apollo-psp.zip) package 
+2. Install it on your PlayStation Portable memory stick (`ms0:/PSP/GAME/APOLLO`)
+
 On first run, the application will detect and setup the required user settings.
 
 ## Data folders
@@ -63,7 +69,7 @@ On first run, the application will detect and setup the required user settings.
 | PS1 | Folder |
 |-----|--------|
 | **External saves** | your saves must be stored on `<ms0/ef0>:/PS1/SAVEDATA/`. |
-| **Exported PSV saves** | .PSV saves are saved on `<ms0/ef0>:/PS3/EXPORT/PSV/`. |
+| **Exported PSV saves** | .PSV saves are saved to `<ms0/ef0>:/PS3/EXPORT/PSV/`. |
 | **Virtual Memory Cards** | VMC images will be scanned from `<ms0/ef0>:/PS1/VMC/`. |
 
 ## PSP save-game Keys

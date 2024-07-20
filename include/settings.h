@@ -1,4 +1,4 @@
-#define APOLLO_VERSION          "1.3.0"     //Apollo Vita version (about menu)
+#define APOLLO_VERSION          "1.3.2"     //Apollo Vita version (about menu)
 
 #define MENU_TITLE_OFF			30			//Offset of menu title text from menu mini icon
 #define MENU_ICON_OFF 			35          //X Offset to start printing menu mini icon

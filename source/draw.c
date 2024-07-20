@@ -543,7 +543,7 @@ void drawSplashLogo(int mode)
 	}
 }
 
-void drawEndLogo()
+void drawEndLogo(void)
 {
 	SDL_Rect rect = {
 		.x = 0,
@@ -590,7 +590,7 @@ static void _draw_MainMenu(uint8_t alpha)
 	drawJars(alpha);
 }
 
-void Draw_MainMenu_Ani()
+void Draw_MainMenu_Ani(void)
 {
 	int max = MENU_ANI_MAX, ani = 0;
 	for (ani = 0; ani < max; ani++)
@@ -637,7 +637,7 @@ void Draw_MainMenu_Ani()
 	}
 }
 
-void Draw_MainMenu()
+void Draw_MainMenu(void)
 {
 	_draw_MainMenu(0xFF);
 }

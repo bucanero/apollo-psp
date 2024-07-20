@@ -19,7 +19,7 @@
 
 char *strcasestr(const char *, const char *);
 static char* ext_src[] = {"ms0", "ef0", NULL};
-static char* sort_opt[] = {"Disabled", "by Name", "by Title ID", NULL};
+static char* sort_opt[] = {"Disabled", "by Name", "by Title ID", "by Type", NULL};
 
 static void log_callback(int sel);
 static void storage_callback(int sel);

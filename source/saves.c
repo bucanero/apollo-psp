@@ -845,6 +845,31 @@ int sortSaveList_Compare(const void* a, const void* b)
 	return 0;
 }
 
+static int parseTypeFlags(int flags)
+{
+	if (flags & SAVE_FLAG_VMC)
+		return FILE_TYPE_VMC;
+	else if (flags & SAVE_FLAG_PS1)
+		return FILE_TYPE_PS1;
+	else if (flags & SAVE_FLAG_PSP)
+		return FILE_TYPE_PSP;
+
+	return 0;
+}
+
+int sortSaveList_Compare_Type(const void* a, const void* b)
+{
+	int ta = parseTypeFlags(((save_entry_t*) a)->flags);
+	int tb = parseTypeFlags(((save_entry_t*) b)->flags);
+
+	if (ta == tb)
+		return sortSaveList_Compare(a, b);
+	else if (ta < tb)
+		return -1;
+	else
+		return 1;
+}
+
 int sortSaveList_Compare_TitleID(const void* a, const void* b)
 {
 	char* ta = ((save_entry_t*) a)->title_id;
@@ -856,7 +881,9 @@ int sortSaveList_Compare_TitleID(const void* a, const void* b)
 	if (!tb)
 		return (1);
 
-	return strcasecmp(ta, tb);
+	int ret = strcasecmp(ta, tb);
+
+	return (ret ? ret : sortSaveList_Compare(a, b));
 }
 
 static void read_psp_savegames(const char* userPath, list_t *list, int flags)

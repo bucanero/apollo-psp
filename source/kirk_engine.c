@@ -614,6 +614,7 @@ static int kirk_init2(u8 * rnd_seed, u32 seed_size, u32 fuseid_90, u32 fuseid_94
     u8 * seedbuf;
     KIRK_SHA1_HEADER *seedheader;
     seedbuf=(u8*)malloc(seed_size+4);
+    memcpy(seedbuf+4, rnd_seed, seed_size);
     seedheader= (KIRK_SHA1_HEADER *) seedbuf;
     seedheader->data_size = seed_size;
     kirk_CMD11(PRNG_DATA, seedbuf, seed_size+4);    
