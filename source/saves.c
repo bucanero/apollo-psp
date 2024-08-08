@@ -311,6 +311,9 @@ static void add_psp_commands(save_entry_t* item)
 {
 	code_entry_t* cmd;
 
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_WARN " Delete Save Game", CMD_DELETE_SAVE);
+	list_append(item->codes, cmd);
+
 	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Game Key Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(item->codes, cmd);
 
@@ -458,7 +461,7 @@ int ReadVmcCodes(save_entry_t * save)
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Save Details", CMD_VIEW_DETAILS);
 	list_append(save->codes, cmd);
 
-	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_WARN " Delete Save Game", CMD_DELETE_VMCSAVE);
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_WARN " Delete Save Game", CMD_DELETE_SAVE);
 	list_append(save->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Save Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
@@ -1255,6 +1258,17 @@ int get_save_details(const save_entry_t* save, char **details)
 			save->name,
 			save->title_id,
 			save->dir_name);
+		return 1;
+	}
+
+	if (save->flags & SAVE_FLAG_ONLINE)
+	{
+		asprintf(details, "%s\n----- Online Database -----\n"
+			"Game: %s\n"
+			"Title ID: %s\n",
+			save->path,
+			save->name,
+			save->title_id);
 		return 1;
 	}
 

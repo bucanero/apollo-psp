@@ -7,6 +7,7 @@
 #include <psputility.h>
 #include <pspwlan.h>
 #include <psprtc.h>
+#include <pspiofilemgr.h>
 
 #include "saves.h"
 #include "menu.h"
@@ -634,15 +635,31 @@ static void exportVmcSave(const save_entry_t* save, int type, int dst_id)
 		show_message("Error exporting save:\n%s", save->path);
 }
 
-static void deleteVmcSave(const save_entry_t* save)
+static int deleteSave(const save_entry_t* save)
 {
-	if (!show_dialog(DIALOG_TYPE_YESNO, "Do you want to delete %s?", save->dir_name))
-		return;
+	int ret = 0;
 
-	if ((save->flags & SAVE_FLAG_PS1) && formatSave(save->blocks))
+	if (!show_dialog(DIALOG_TYPE_YESNO, "Do you want to delete %s?", save->dir_name))
+		return 0;
+
+	if (save->type == FILE_TYPE_PSP)
+	{
+		char tmp[256];
+		strncpy(tmp, save->path, sizeof(tmp));
+		strrchr(tmp, '/')[0] = 0;
+
+		clean_directory(save->path);
+		ret = (sceIoRmdir(tmp) == SUCCESS);
+	}
+	else if (save->flags & SAVE_FLAG_PS1)
+		ret = formatSave(save->blocks);
+
+	if (ret)
 		show_message("Save successfully deleted:\n%s", save->dir_name);
 	else
 		show_message("Error! Couldn't delete save:\n%s", save->dir_name);
+
+	return ret;
 }
 
 /*
@@ -1108,10 +1125,11 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 			code->activated = 0;
 			break;
 
-		case CMD_DELETE_VMCSAVE:
-			deleteVmcSave(selected_entry);
-			selected_entry->flags |= SAVE_FLAG_UPDATED;
-			code->activated = 0;
+		case CMD_DELETE_SAVE:
+			if (deleteSave(selected_entry))
+				selected_entry->flags |= SAVE_FLAG_UPDATED;
+			else
+				code->activated = 0;
 			break;
 
 		case CMD_SAVE_WEBSERVER:
