@@ -39,36 +39,37 @@ static const int PeriodTable[] = {
 
 static const int Offsets[] = {0x00, 0x04, 0x04 + 0x08, 0x04 + 0x08 + 0x10, 0x04 + 0x08 + 0x10 + 0x20, 0x04 + 0x08 + 0x10 + 0x20 + 0x40};
 
-int *MixingBuffer;
-int VolumeTable[65][256];
-char VoiceBuffer[0x281]; // for oversampling optimization!
-char *WaveformTab[4];
-struct AHXVoice Voices[4];
-struct AHXSong Song;
-struct AHXWaves *Waves;
-struct AHXPosition *Positions;
-struct AHXStep **Tracks;
-struct AHXInstrument *Instruments;
+static int *MixingBuffer;
+static int VolumeTable[65][256];
+static char VoiceBuffer[0x281]; // for oversampling optimization!
+static char *WaveformTab[4];
+static struct AHXVoice Voices[4];
+static struct AHXSong Song;
+static struct AHXWaves *Waves;
+static struct AHXPosition *Positions;
+static struct AHXStep **Tracks;
+static struct AHXInstrument *Instruments;
 
-short insrument_count = 0;
-short position_count  = 0;
-short step_count      = 0;
+static short insrument_count = 0;
+static short position_count  = 0;
+static short step_count      = 0;
 
-int pos[4] = {0, 0, 0, 0}; // global to retain 'static' properties
+static int pos[4] = {0, 0, 0, 0}; // global to retain 'static' properties
 
 // Player vars
-int StepWaitFrames, GetNewPosition, SongEndReached, TimingValue;
-int PatternBreak;
-int MainVolume;
-int Playing, Tempo;
-int PosNr, PosJump;
-int NoteNr, PosJumpNote;
-int WNRandom;
-int PlayingTime;
+static int StepWaitFrames, GetNewPosition, SongEndReached, TimingValue;
+static int PatternBreak;
+static int MainVolume;
+static int Playing, Tempo;
+static int PosNr, PosJump;
+static int NoteNr, PosJumpNote;
+static int WNRandom;
+static int PlayingTime;
 
 // Output vars
-int Oversampling = 0;
-int Boost        = 0;
+static int Oversampling = 0;
+static int Boost        = 0;
+
 #define Bits      16
 #define Frequency 48000
 #define MixLen    2
@@ -281,7 +282,7 @@ static int AHXOutput_SetOption(int Option, int Value)
     }
 }
 
-void AHXPlayer_Init()
+void AHXPlayer_Init(void)
 {
     Waves          = (struct AHXWaves *)malloc(sizeof(struct AHXWaves));
     WaveformTab[0] = Waves->Triangle04;
@@ -309,7 +310,7 @@ void AHXPlayer_Init()
     AHXOutput_SetOption(AHXOF_BOOST, Boost + 1);
 }
 
-void AHXPlayer_FreeSong()
+void AHXPlayer_FreeSong(void)
 {
     int i;
     // free old mem in reverse order
@@ -459,7 +460,7 @@ int AHXPlayer_LoadSongBuffer(void *Buffer, int Len)
     return Song.SubsongNr;
 }
 
-int AHXPlayer_LoadSong(char *Filename)
+int AHXPlayer_LoadSong(const char *Filename)
 {
     int SongLength;
     FILE *f;
@@ -502,7 +503,7 @@ int AHXPlayer_InitSubsong(int Nr)
     return 1;
 }
 
-void AHXPlayer_NextPosition()
+void AHXPlayer_NextPosition(void)
 {
     PosNr++;
     if (PosNr == Song.PositionNr)
@@ -511,7 +512,7 @@ void AHXPlayer_NextPosition()
     GetNewPosition = 1;
 }
 
-void AHXPlayer_PrevPosition()
+void AHXPlayer_PrevPosition(void)
 {
     PosNr--;
     if (PosNr < 0)
@@ -1085,7 +1086,7 @@ void AHXPlayer_VoiceOnOff(int Voice, int OnOff)
 // AHXOutput ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void AHXPlayer_PlayIRQ()
+void AHXPlayer_PlayIRQ(void)
 {
     int i, a;
     if (StepWaitFrames <= 0) {
@@ -1145,6 +1146,11 @@ void AHXPlayer_SetBoost(int boostval)
 void AHXPlayer_SetOversampling(int enable)
 {
     Oversampling = enable;
+}
+
+int AHXPlayer_SongCompleted(void)
+{
+    return SongEndReached;
 }
 
 static void AHXOutput_MixChunk(int NrSamples, int **mb)

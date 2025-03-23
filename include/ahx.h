@@ -109,17 +109,18 @@ struct AHXWaves
     char HighPasses[0x31588];
 };
 
-void AHXPlayer_Init();
+void AHXPlayer_Init(void);
 int AHXPlayer_LoadSongBuffer(void *Buffer, int Len);
-int AHXPlayer_LoadSong(char *Filename);
+int AHXPlayer_LoadSong(const char *Filename);
 int AHXPlayer_InitSubsong(int Nr);
-void AHXPlayer_FreeSong();
-void AHXPlayer_NextPosition();
-void AHXPlayer_PrevPosition();
+int AHXPlayer_SongCompleted(void);
+void AHXPlayer_FreeSong(void);
+void AHXPlayer_NextPosition(void);
+void AHXPlayer_PrevPosition(void);
 void AHXPlayer_VoiceOnOff(int Voice, int OnOff);
 void AHXPlayer_SetAudio(int v);
 void AHXPlayer_PListCommandParse(int v, int FX, int FXParam);
-void AHXPlayer_PlayIRQ();
+void AHXPlayer_PlayIRQ(void);
 void AHXPlayer_ProcessStep(int v);
 void AHXPlayer_ProcessFrame(int v);
 void AHXPlayer_SetBoost(int boostval);
