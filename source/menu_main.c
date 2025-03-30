@@ -396,7 +396,7 @@ static void doSaveMenu(save_list_t * save_list)
 		}
 
 		if (apollo_config.doSort && 
-			((save_list->icon_id == cat_bup_png_index) || (save_list->icon_id == cat_db_png_index)))
+			((save_list->id == MENU_USER_BACKUP) || (save_list->id == MENU_ONLINE_DB)))
 			list_bubbleSort(selected_entry->codes, &sortCodeList_Compare);
 
 		SetMenu(MENU_PATCHES);
@@ -413,7 +413,7 @@ static void doSaveMenu(save_list_t * save_list)
 		}
 	}
 	else if (pspPadGetButtonPressed(PSP_CTRL_SELECT) && 
-		(save_list->icon_id == cat_hdd_png_index || save_list->icon_id == cat_usb_png_index || save_list->icon_id == cat_warning_png_index))
+		(save_list->id == MENU_HDD_SAVES || save_list->id == MENU_USB_SAVES))
 	{
 		selected_entry = list_get_item(save_list->list, menu_sel);
 		if (selected_entry->type != FILE_TYPE_MENU)

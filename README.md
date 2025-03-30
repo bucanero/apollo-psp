@@ -151,7 +151,7 @@ You can also set the `PSPIP` environment variable to your PSP's IP address, and 
 
 # License
 
-[Apollo Save Tool](https://github.com/bucanero/apollo-psp/) (PSP) - Copyright (C) 2020-2024 [Damian Parrino](https://twitter.com/dparrino)
+[Apollo Save Tool](https://github.com/bucanero/apollo-psp/) (PSP) - Copyright (C) 2020-2025 [Damian Parrino](https://twitter.com/dparrino)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the [GNU General Public License][app_license] as published by
