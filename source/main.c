@@ -50,17 +50,21 @@ extern const uint8_t _binary_data_inside_ahx_size;
 void update_usb_path(char *p);
 void update_hdd_path(char *p);
 void update_db_path(char *p);
+void update_ftp_path(char *p);
 void update_vmc_path(char *p);
 
 app_config_t apollo_config = {
     .app_name = "APOLLO",
     .app_ver = APOLLO_VERSION,
     .save_db = ONLINE_URL,
+    .ftp_url = "",
     .music = 1,
     .doSort = 1,
     .doAni = 1,
     .update = 0,
     .storage = 0,
+    .dbglog = 0,
+    .account_id = 0,
     .psid = {0, 0},
 };
 
@@ -139,6 +143,19 @@ save_list_t online_saves = {
     .ReadList = &ReadOnlineList,
     .ReadCodes = &ReadOnlineSaves,
     .UpdatePath = &update_db_path,
+};
+
+/*
+* Online code list
+*/
+save_list_t ftp_saves = {
+    .id = MENU_ONLINE_DB,
+    .title = "FTP Server",
+    .list = NULL,
+    .path = "",
+    .ReadList = &ReadOnlineList,
+    .ReadCodes = &ReadOnlineSaves,
+    .UpdatePath = &update_ftp_path,
 };
 
 /*
@@ -323,6 +340,11 @@ void update_hdd_path(char* path)
 void update_db_path(char* path)
 {
 	strcpy(path, apollo_config.save_db);
+}
+
+void update_ftp_path(char* path)
+{
+	sprintf(path, "%s%016" PRIX64 "/", apollo_config.ftp_url, apollo_config.account_id);
 }
 
 void update_vmc_path(char* path)

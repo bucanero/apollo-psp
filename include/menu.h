@@ -13,7 +13,7 @@ extern SDL_Renderer* renderer;
 enum menu_screen_ids
 {
 	MENU_MAIN_SCREEN,		/* 0 - Main Menu */
-	MENU_VMC_SAVES,			/* 1 - PS1 VMP Menu */
+	MENU_FTP_SAVES,			/* 1 - FTP Menu */
 	MENU_USB_SAVES,			/* 2 - USB Menu (User List) */
 	MENU_HDD_SAVES,			/* 3 - HDD Menu (User List) */
 	MENU_ONLINE_DB,			/* 4 - Online Menu (Online List) */
@@ -25,6 +25,7 @@ enum menu_screen_ids
 	MENU_CODE_OPTIONS,		/* 10 - Code Menu (View Cheat Options) */
 	MENU_SAVE_DETAILS,
 	MENU_HEX_EDITOR,
+	MENU_VMC_SAVES,			/* 13 - PS1 VMP Menu */
 	TOTAL_MENU_IDS
 };
 

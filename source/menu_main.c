@@ -14,6 +14,7 @@
 extern save_list_t hdd_saves;
 extern save_list_t usb_saves;
 extern save_list_t vmc_saves;
+extern save_list_t ftp_saves;
 extern save_list_t online_saves;
 extern save_list_t user_backup;
 
@@ -122,6 +123,7 @@ static void SetMenu(int id)
 		case MENU_USB_SAVES: //USB Saves Menu
 		case MENU_HDD_SAVES: //HHD Saves Menu
 		case MENU_ONLINE_DB: //Cheats Online Menu
+		case MENU_FTP_SAVES: //FTP Online Menu
 		case MENU_USER_BACKUP: //Backup Menu
 			if (menu_textures[icon_png_file_index].texture)
 			{
@@ -224,6 +226,20 @@ static void SetMenu(int id)
 			if (apollo_config.doAni)
 				Draw_UserCheatsMenu_Ani(&online_saves);
 			break;
+
+			case MENU_FTP_SAVES: //FTP Online Menu
+			if (ftp_saves.list && menu_id == MENU_MAIN_SCREEN)
+			{
+				UnloadGameList(ftp_saves.list);
+				ftp_saves.list = NULL;
+			}
+
+			if (!ftp_saves.list && !ReloadUserSaves(&ftp_saves))
+				return;
+
+			if (apollo_config.doAni)
+				Draw_UserCheatsMenu_Ani(&ftp_saves);
+			break;			
 
 		case MENU_CREDITS: //About Menu
 			if (apollo_config.doAni)
@@ -748,17 +764,9 @@ static void doPatchMenu(void)
 				list_node_t* node;
 
 				for (node = list_head(selected_entry->codes); (code = list_get(node)); node = list_next(node))
-					if (wildcard_match_icase(code->name, "*(REQUIRED)*") && code->options_count == 0)
+					if (code->flags & APOLLO_CODE_FLAG_REQUIRED && !(code->flags & APOLLO_CODE_FLAG_DISABLED) && code->options_count == 0)
 						code->activated = 1;
 			}
-			/*
-			if (!selected_centry->options)
-			{
-				int size;
-				selected_entry->codes[menu_sel].options = ReadOptions(selected_entry->codes[menu_sel], &size);
-				selected_entry->codes[menu_sel].options_count = size;
-			}
-			*/
 			
 			if (selected_centry->options)
 			{

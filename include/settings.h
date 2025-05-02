@@ -1,4 +1,5 @@
-#define APOLLO_VERSION          "1.3.2"     //Apollo Vita version (about menu)
+#define APOLLO_VERSION          "2.0.0"     //Apollo PSP version (about menu)
+#define APOLLO_PLATFORM         "PSP"       //Apollo platform
 
 #define MENU_TITLE_OFF			30			//Offset of menu title text from menu mini icon
 #define MENU_ICON_OFF 			35          //X Offset to start printing menu mini icon
@@ -35,8 +36,11 @@ typedef struct __attribute__((packed))
     uint8_t doAni;
     uint8_t storage;
     uint8_t update;
+    uint8_t dbglog;
+    uint64_t account_id;
     uint64_t psid[2];
     char save_db[256];
+    char ftp_url[512];
 } app_config_t;
 
 extern menu_option_t menu_options[];

@@ -15,6 +15,7 @@
 #include "utils.h"
 #include "sfo.h"
 #include "ps1card.h"
+#include "svpng.h"
 
 static char host_buf[256];
 
@@ -648,7 +649,7 @@ static int deleteSave(const save_entry_t* save)
 		strncpy(tmp, save->path, sizeof(tmp));
 		strrchr(tmp, '/')[0] = 0;
 
-		clean_directory(save->path);
+		clean_directory(save->path, "");
 		ret = (sceIoRmdir(tmp) == SUCCESS);
 	}
 	else if (save->flags & SAVE_FLAG_PS1)

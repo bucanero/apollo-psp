@@ -27,6 +27,7 @@ static void music_callback(int sel);
 static void sort_callback(int sel);
 static void ani_callback(int sel);
 static void db_url_callback(int sel);
+static void ftp_url_callback(int sel);
 static void clearcache_callback(int sel);
 static void upd_appdata_callback(int sel);
 
@@ -61,6 +62,12 @@ menu_option_t menu_options[] = {
 		.value = &apollo_config.update, 
 		.callback = update_callback 
 	},
+	{ .name = "\nSet User FTP Server URL",
+		.options = NULL,
+		.type = APP_OPTION_CALL,
+		.value = NULL,
+		.callback = ftp_url_callback
+	},
 	{ .name = "Update Application Data", 
 		.options = NULL, 
 		.type = APP_OPTION_CALL, 
@@ -81,8 +88,8 @@ menu_option_t menu_options[] = {
 	},
 	{ .name = "Enable Debug Log",
 		.options = NULL,
-		.type = APP_OPTION_CALL,
-		.value = NULL,
+		.type = APP_OPTION_BOOL,
+		.value = &apollo_config.dbglog,
 		.callback = log_callback 
 	},
 	{ .name = NULL }
@@ -107,7 +114,7 @@ static void ani_callback(int sel)
 static void clearcache_callback(int sel)
 {
 	LOG("Cleaning folder '%s'...", APOLLO_LOCAL_CACHE);
-	clean_directory(APOLLO_LOCAL_CACHE);
+	clean_directory(APOLLO_LOCAL_CACHE, "");
 
 	show_message("Local cache folder cleaned:\n" APOLLO_LOCAL_CACHE);
 }
@@ -218,6 +225,15 @@ static void log_callback(int sel)
 {
 	char path[256];
 
+	apollo_config.dbglog = !sel;
+
+	if (!apollo_config.dbglog)
+	{
+		dbglogger_stop();
+		show_message("Debug Logging Disabled");
+		return;
+	}
+
 	snprintf(path, sizeof(path), APOLLO_PATH "apollo.log", USER_STORAGE_DEV);
 	dbglogger_init_mode(FILE_LOGGER, path, 1);
 	show_message("Debug Logging Enabled!\n\n%s", path);
@@ -225,11 +241,57 @@ static void log_callback(int sel)
 
 static void db_url_callback(int sel)
 {
-	if (osk_dialog_get_text("Enter the URL of the online database", apollo_config.save_db, sizeof(apollo_config.save_db)))
-		show_message("Online database URL changed to:\n%s", apollo_config.save_db);
+	if (!osk_dialog_get_text("Enter the URL of the online database", apollo_config.save_db, sizeof(apollo_config.save_db)))
+		return;
 	
 	if (apollo_config.save_db[strlen(apollo_config.save_db)-1] != '/')
 		strcat(apollo_config.save_db, "/");
+
+	show_message("Online database URL changed to:\n%s", apollo_config.save_db);
+}
+
+static void ftp_url_callback(int sel)
+{
+	int ret;
+	char *data;
+	char tmp[512];
+
+	strncpy(tmp, apollo_config.ftp_url[0] ? apollo_config.ftp_url : "ftp://user:pass@192.168.0.10:21/folder/", sizeof(tmp));
+	if (!osk_dialog_get_text("Enter the URL of the FTP server", tmp, sizeof(tmp)))
+		return;
+
+	strncpy(apollo_config.ftp_url, tmp, sizeof(apollo_config.ftp_url));
+
+	if (apollo_config.ftp_url[strlen(apollo_config.ftp_url)-1] != '/')
+		strcat(apollo_config.ftp_url, "/");
+
+	// test the connection
+	init_loading_screen("Testing connection...");
+	ret = http_download(apollo_config.ftp_url, "apollo.txt", APOLLO_LOCAL_CACHE "users.ftp", 0);
+	data = ret ? readTextFile(APOLLO_LOCAL_CACHE "users.ftp", NULL) : NULL;
+	if (!data)
+		data = strdup("; Apollo Save Tool (" APOLLO_PLATFORM ") v" APOLLO_VERSION "\r\n");
+
+	snprintf(tmp, sizeof(tmp), "%016" PRIX64, apollo_config.account_id);
+	if (strstr(data, tmp) == NULL)
+	{
+		LOG("Updating users index...");
+		FILE* fp = fopen(APOLLO_LOCAL_CACHE "users.ftp", "w");
+		if (fp)
+		{
+			fprintf(fp, "%s%s\r\n", data, tmp);
+			fclose(fp);
+		}
+
+		ret = ftp_upload(APOLLO_LOCAL_CACHE "users.ftp", apollo_config.ftp_url, "apollo.txt", 0);
+	}
+	free(data);
+	stop_loading_screen();
+
+	if (ret)
+		show_message("FTP server URL changed to:\n%s", apollo_config.ftp_url);
+	else
+		show_message("Error! Couldn't connect to FTP server\n%s\n\nCheck debug logs for more information", apollo_config.ftp_url);
 }
 
 static int is_psp_go(void)
@@ -316,7 +378,7 @@ int save_app_settings(app_config_t* config)
 	Byte dest[SIZE_PARAMSFO];
 	uLong destLen = SIZE_PARAMSFO;
 
-	LOG("Apollo Save Tool v%s - Patch Engine v%s", APOLLO_VERSION, APOLLO_LIB_VERSION);
+	LOG("Apollo Save Tool %s v%s - Patch Engine v%s", APOLLO_PLATFORM, APOLLO_VERSION, APOLLO_LIB_VERSION);
 	snprintf(filePath, sizeof(filePath), "%s%s%s%s", MS0_PATH, USER_PATH_HDD, "NP0APOLLO-Settings/", "ICON0.PNG");
 	if (mkdirs(filePath) != SUCCESS)
 	{
