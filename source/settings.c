@@ -62,7 +62,7 @@ menu_option_t menu_options[] = {
 		.value = &apollo_config.update, 
 		.callback = update_callback 
 	},
-	{ .name = "\nSet User FTP Server URL",
+	{ .name = "Set User FTP Server URL",
 		.options = NULL,
 		.type = APP_OPTION_CALL,
 		.value = NULL,

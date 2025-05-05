@@ -227,7 +227,8 @@ static void SetMenu(int id)
 				Draw_UserCheatsMenu_Ani(&online_saves);
 			break;
 
-			case MENU_FTP_SAVES: //FTP Online Menu
+		case MENU_FTP_SAVES: //FTP Online Menu
+			network_up();
 			if (ftp_saves.list && menu_id == MENU_MAIN_SCREEN)
 			{
 				UnloadGameList(ftp_saves.list);
@@ -447,14 +448,14 @@ static void doMainMenu(void)
 {
 	// Check the pads.
 	if(pspPadGetButtonHold(PSP_CTRL_LEFT))
-		move_selection_back(MENU_CREDITS-1, 1);
+		move_selection_back(MENU_CREDITS, 1);
 
 	else if(pspPadGetButtonHold(PSP_CTRL_RIGHT))
-		move_selection_fwd(MENU_CREDITS-1, 1);
+		move_selection_fwd(MENU_CREDITS, 1);
 
 	else if (pspPadGetButtonPressed(PSP_CTRL_CROSS))
 	{
-		SetMenu(menu_sel+2);
+		SetMenu(menu_sel+1);
 		drawScene();
 		return;
 	}

@@ -249,7 +249,8 @@ static int LoadTextures_Menu(void)
 	load_menu_texture(jar_bup_hover, png);
 	load_menu_texture(jar_db, png);
 	load_menu_texture(jar_db_hover, png);
-	load_menu_texture(jar_empty, png);
+	load_menu_texture(jar_ftp, png);
+	load_menu_texture(jar_ftp_hover, png);
 	load_menu_texture(jar_hdd, png);
 	load_menu_texture(jar_hdd_hover, png);
 	load_menu_texture(jar_opt, png);
