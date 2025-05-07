@@ -177,8 +177,8 @@ enum texture_index
 #define column_6_png_y						828 * SCREEN_H_ADJ
 #define column_7_png_x						1665 * SCREEN_W_ADJ
 #define column_7_png_y						955 * SCREEN_H_ADJ
-#define jar_empty_png_x						159 * SCREEN_W_ADJ
-#define jar_empty_png_y						777 * SCREEN_H_ADJ
+#define jar_ftp_png_x						159 * SCREEN_W_ADJ
+#define jar_ftp_png_y						777 * SCREEN_H_ADJ
 #define jar_usb_png_x						441 * SCREEN_W_ADJ
 #define jar_usb_png_y						699 * SCREEN_H_ADJ
 #define jar_hdd_png_x						669 * SCREEN_W_ADJ

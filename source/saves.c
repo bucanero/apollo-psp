@@ -234,6 +234,12 @@ static void _addBackupCommands(save_entry_t* item)
 	}
 	list_append(item->codes, cmd);
 
+	if (apollo_config.ftp_url[0] && (item->flags & SAVE_FLAG_HDD))
+	{
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Upload save backup to FTP", CMD_UPLOAD_SAVE);
+		list_append(item->codes, cmd);
+	}
+
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_ZIP " Export save game to Zip", CMD_CODE_NULL);
 	_createOptions(cmd, "Export Zip to Backup Storage", CMD_EXPORT_ZIP_USB);
 	list_append(item->codes, cmd);
@@ -349,6 +355,7 @@ static option_entry_t* get_file_entries(const char* path, const char* mask)
  */
 int ReadCodes(save_entry_t * save)
 {
+	list_node_t* node;
 	code_entry_t * code;
 	char filePath[256];
 	char * buffer = NULL;
@@ -367,10 +374,24 @@ int ReadCodes(save_entry_t * save)
 	code = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " View Raw Patch File", CMD_VIEW_RAW_PATCH);
 	list_append(save->codes, code);
 
+	node = list_tail(save->codes);
 	LOG("Loading BSD codes '%s'...", filePath);
 	load_patch_code_list(buffer, save->codes, &get_file_entries, save->path);
 	free (buffer);
 
+	for (node = list_next(node); (code = list_get(node)); node = list_next(node))
+		if (strchr(code->file, '\\') != NULL && code->file[1] != '~')
+		{
+			buffer = strdup(code->file);
+			strchr(buffer, '\\')[0] = 0;
+			if(!wildcard_match_icase(save->dir_name, buffer))
+			{
+				LOG("(%s) Disabled code '%s'", buffer, code->name);
+				code->flags |= (APOLLO_CODE_FLAG_ALERT | APOLLO_CODE_FLAG_DISABLED);
+			}
+			free(buffer);
+		}
+	
 skip_end:
 	LOG("Loaded %ld codes", list_count(save->codes));
 
@@ -472,6 +493,12 @@ int ReadVmcCodes(save_entry_t * save)
 
 	cmd = _createCmdCode(PATCH_NULL, "----- " UTF8_CHAR_STAR " Save Backup " UTF8_CHAR_STAR " -----", CMD_CODE_NULL);
 	list_append(save->codes, cmd);
+
+	if (apollo_config.ftp_url[0])
+	{
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_NET " Upload save backup to FTP", CMD_UPLOAD_SAVE);
+		list_append(save->codes, cmd);
+	}
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " Export save game to MCS format", CMD_CODE_NULL);
 	_createOptions(cmd, "Copy Save to Mass Storage", CMD_EXP_VMCSAVE);
@@ -863,11 +890,11 @@ int sortSaveList_Compare(const void* a, const void* b)
 static int parseTypeFlags(int flags)
 {
 	if (flags & SAVE_FLAG_VMC)
-		return FILE_TYPE_VMC;
+		return 3;
 	else if (flags & SAVE_FLAG_PS1)
-		return FILE_TYPE_PS1;
+		return 2;
 	else if (flags & SAVE_FLAG_PSP)
-		return FILE_TYPE_PSP;
+		return 1;
 
 	return 0;
 }
@@ -1231,6 +1258,9 @@ list_t * ReadVmcList(const char* userPath)
 		item->title_id = strdup(mcdata[i].saveProdCode);
 		asprintf(&item->path, "%s\n%s/", userPath, mcdata[i].saveName);
 		free(tmp);
+
+		if(strlen(item->title_id) == 10 && item->title_id[4] == '-')
+			memmove(&item->title_id[4], &item->title_id[5], 6);
 
 		LOG("[%s] F(%X) name '%s'", item->title_id, item->flags, item->name);
 		list_append(list, item);

@@ -149,7 +149,7 @@ save_list_t online_saves = {
 * Online code list
 */
 save_list_t ftp_saves = {
-    .id = MENU_ONLINE_DB,
+    .id = MENU_FTP_SAVES,
     .title = "FTP Server",
     .list = NULL,
     .path = "",
@@ -345,6 +345,12 @@ void update_db_path(char* path)
 
 void update_ftp_path(char* path)
 {
+	if (!apollo_config.ftp_url[0])
+	{
+		path[0] = 0;
+		return;
+	}
+
 	sprintf(path, "%s%016" PRIX64 "/", apollo_config.ftp_url, apollo_config.account_id);
 }
 

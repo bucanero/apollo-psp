@@ -228,6 +228,12 @@ static void SetMenu(int id)
 			break;
 
 		case MENU_FTP_SAVES: //FTP Online Menu
+			if (!apollo_config.ftp_url[0])
+			{
+				show_message("No FTP Server URL set");
+				return;
+			}
+
 			network_up();
 			if (ftp_saves.list && menu_id == MENU_MAIN_SCREEN)
 			{

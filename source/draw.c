@@ -483,7 +483,7 @@ static void drawJars(uint8_t alpha)
 	SetCurrentFont(font_adonais_regular);
 
 	//FTP server
-	drawJar(jar_ftp_png_index, jar_empty_png_x, jar_db_png_y, (alpha == 0xFF ? "FTP" : ""), alpha);
+	drawJar(jar_ftp_png_index, jar_ftp_png_x, jar_ftp_png_y, (alpha == 0xFF ? "FTP" : ""), alpha);
 
 	//USB save
 	drawJar(jar_usb_png_index, jar_usb_png_x, jar_usb_png_y, (alpha == 0xFF ? "Ext Saves" : ""), alpha);

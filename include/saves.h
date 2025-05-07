@@ -112,9 +112,9 @@ enum cmd_code_enum
 enum save_type_enum
 {
     FILE_TYPE_NULL,
-    FILE_TYPE_MENU,
-    FILE_TYPE_PSP,
     FILE_TYPE_PS1,
+    FILE_TYPE_PSP,
+    FILE_TYPE_MENU,
 
     // PS1 File Types
     FILE_TYPE_ZIP,
