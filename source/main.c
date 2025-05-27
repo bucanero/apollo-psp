@@ -462,6 +462,15 @@ int main(int argc, char *argv[])
 		install_sgkey_plugin(1);
 	}
 
+	if (apollo_config.dbglog)
+	{
+		char log_path[128];
+
+		snprintf(log_path, sizeof(log_path), APOLLO_PATH "apollo.log", USER_STORAGE_DEV);
+		mkdirs(log_path);
+		dbglogger_init_mode(FILE_LOGGER, log_path, 0);
+	}
+
 	// Unpack application data on first run
 	if (file_exists(APOLLO_LOCAL_CACHE "appdata.zip") == SUCCESS)
 	{

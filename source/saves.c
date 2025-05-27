@@ -1170,7 +1170,7 @@ static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 		}
 	}
 
-	if (data) free(data);
+	free(data);
 }
 
 list_t * ReadOnlineList(const char* urlPath)

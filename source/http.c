@@ -216,6 +216,9 @@ int ftp_upload(const char* local_file, const char* url, const char* filename, in
 	char remote_url[1024];
 	unsigned long fsize;
 
+	if (network_up() != HTTP_SUCCESS)
+		return HTTP_FAILED;
+
 	/* get a curl handle */
 	curl = curl_easy_init();
 	if(!curl)
