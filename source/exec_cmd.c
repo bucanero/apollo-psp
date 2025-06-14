@@ -967,7 +967,11 @@ static char* get_title_icon_psx(const save_entry_t* entry)
 	}
 
 	if (!ret)
+	{
 		ret = strdup(entry->name);
+		if ((icon = strchr(ret, '\n')))
+			*icon = 0;
+	}
 
 	LOG("Get ps%c icon %s (%s)", type[entry->type], entry->title_id, ret);
 	snprintf(path, sizeof(path), APOLLO_LOCAL_CACHE "%.9s.PNG", entry->title_id);
@@ -1014,7 +1018,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 	char remote[256];
 	char local[256];
 	int ret = 0;
-	struct tm t;
+	ScePspDateTime t;
 	char type[3] = {'-', '1', 'P'};
 
 	if (!network_up())
@@ -1035,10 +1039,10 @@ static void uploadSaveFTP(const save_entry_t* save)
 	http_download(remote, "saves.txt", APOLLO_LOCAL_CACHE "saves.ftp", 0);
 	http_download(remote, "checksum.sfv", APOLLO_LOCAL_CACHE "sfv.ftp", 0);
 
-	gmtime_r(&(time_t){time(NULL)}, &t);
+	sceRtcGetCurrentClockLocalTime(&t);
 	snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%s_%d-%02d-%02d-%02d%02d%02d.zip",
 			(save->type == FILE_TYPE_PS1) ? save->title_id : save->dir_name,
-			t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+			t.year, t.month, t.day, t.hour, t.minute, t.second);
 
 	if (save->type != FILE_TYPE_PS1)
 	{
@@ -1076,7 +1080,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 	if (fp)
 	{
 		fprintf(fp, "%s=[%s] %d-%02d-%02d %02d:%02d:%02d %s (CRC: %08X)\r\n", tmp, save->dir_name, 
-				t.tm_year+1900, t.tm_mon+1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, save->name, crc);
+				t.year, t.month, t.day, t.hour, t.minute, t.second, save->name, crc);
 		fclose(fp);
 	}
 

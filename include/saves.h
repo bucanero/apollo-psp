@@ -105,7 +105,7 @@ enum cmd_code_enum
 #define SAVE_FLAG_VMC           16
 #define SAVE_FLAG_PSP           32
 #define SAVE_FLAG_ISO           64
-#define SAVE_FLAG_CSO           128
+#define SAVE_FLAG_FTP           128
 #define SAVE_FLAG_ONLINE        256
 #define SAVE_FLAG_UPDATED       512
 

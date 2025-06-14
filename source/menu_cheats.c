@@ -535,6 +535,7 @@ static int get_icon_id(int type)
             return cat_usb_png_index;
         case MENU_HDD_SAVES:
             return cat_hdd_png_index;
+        case MENU_FTP_SAVES:
         case MENU_ONLINE_DB:
             return cat_db_png_index;
         case MENU_USER_BACKUP:

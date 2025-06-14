@@ -538,7 +538,7 @@ int ReadOnlineSaves(save_entry_t * game)
 	char path[256];
 	snprintf(path, sizeof(path), APOLLO_LOCAL_CACHE "%s.txt", game->title_id);
 
-	if (sceIoGetstat(path, &stat) == SUCCESS && strcmp(apollo_config.save_db, ONLINE_URL) == 0)
+	if (sceIoGetstat(path, &stat) == SUCCESS && strncmp(game->path, ONLINE_URL, strlen(ONLINE_URL)) == 0)
 	{
 		time_t ftime, ltime;
 
@@ -569,7 +569,7 @@ int ReadOnlineSaves(save_entry_t * game)
 
 	while (ptr < end && *ptr)
 	{
-		const char* content = ptr;
+		char *tmp, *content = ptr;
 
 		while (ptr < end && *ptr != '\n' && *ptr != '\r')
 		{
@@ -577,16 +577,17 @@ int ReadOnlineSaves(save_entry_t * game)
 		}
 		*ptr++ = 0;
 
-		if (content[12] == '=')
+		if ((tmp = strchr(content, '=')) != NULL)
 		{
-			snprintf(path, sizeof(path), CHAR_ICON_ZIP " %s", content + 13);
+			*tmp++ = 0;
+			snprintf(path, sizeof(path), CHAR_ICON_ZIP " %s", tmp);
 			item = _createCmdCode(PATCH_COMMAND, path, CMD_CODE_NULL);
-			asprintf(&item->file, "%.12s", content);
+			item->file = strdup(content);
 
 			_createOptions(item, "Download to Backup Storage", CMD_DOWNLOAD_USB);
 			optval = malloc(sizeof(option_value_t));
 			asprintf(&optval->name, "Download to Memory Stick (ms0:/PSP)");
-			asprintf(&optval->value, "%c%c", CMD_DOWNLOAD_USB, STORAGE_MS0_PSP);
+			asprintf(&optval->value, "%c%c", (game->flags & SAVE_FLAG_FTP) ? CMD_DOWNLOAD_HDD : CMD_DOWNLOAD_USB, STORAGE_MS0_PSP);
 			list_append(item->options[0].opts, optval);
 			list_append(game->codes, item);
 
@@ -1112,7 +1113,7 @@ static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 
 	snprintf(path, sizeof(path), APOLLO_LOCAL_CACHE "%04X_games.txt", flag);
 
-	if (sceIoGetstat(path, &stat) == SUCCESS && strcmp(apollo_config.save_db, ONLINE_URL) == 0)
+	if (sceIoGetstat(path, &stat) == SUCCESS && strncmp(urlPath, ONLINE_URL, strlen(ONLINE_URL)) == 0)
 	{
 		time_t ftime, ltime;
 
@@ -1177,14 +1178,15 @@ list_t * ReadOnlineList(const char* urlPath)
 {
 	char url[256];
 	list_t *list = list_alloc();
+	uint16_t ftp = (apollo_config.ftp_url[0] && strncmp(urlPath, apollo_config.ftp_url, strlen(apollo_config.ftp_url)) == 0) ? SAVE_FLAG_FTP : 0;
 
 	// PS1 save-games (Zip PSV)
 	snprintf(url, sizeof(url), "%s" "PS1/", urlPath);
-	_ReadOnlineListEx(url, SAVE_FLAG_PS1, list);
+	_ReadOnlineListEx(url, SAVE_FLAG_PS1 | ftp, list);
 
 	// PSP save-games (Zip folder)
 	snprintf(url, sizeof(url), "%sPSP/", urlPath);
-	_ReadOnlineListEx(url, SAVE_FLAG_PSP, list);
+	_ReadOnlineListEx(url, SAVE_FLAG_PSP | ftp, list);
 
 	if (!list_count(list))
 	{

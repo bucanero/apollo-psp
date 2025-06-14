@@ -219,7 +219,12 @@ static void SetMenu(int id)
 			break;
 
 		case MENU_ONLINE_DB: //Cheats Online Menu
-			network_up();
+			if (!network_up())
+			{
+				show_message("Network is not available!\n\nPlease connect to a network first.");
+				return;
+			}
+
 			if (!online_saves.list && !ReloadUserSaves(&online_saves))
 				return;
 
@@ -234,7 +239,12 @@ static void SetMenu(int id)
 				return;
 			}
 
-			network_up();
+			if (!network_up())
+			{
+				show_message("Network is not available!\n\nPlease connect to a network first.");
+				return;
+			}
+
 			if (ftp_saves.list && menu_id == MENU_MAIN_SCREEN)
 			{
 				UnloadGameList(ftp_saves.list);
@@ -842,8 +852,12 @@ void drawScene(void)
 			doSaveMenu(&hdd_saves);
 			break;
 
-		case MENU_ONLINE_DB: //Online Cheats Menu
+		case MENU_ONLINE_DB: //Online Saves Menu
 			doSaveMenu(&online_saves);
+			break;
+
+		case MENU_FTP_SAVES: //FTP Saves Menu
+			doSaveMenu(&ftp_saves);
 			break;
 
 		case MENU_CREDITS: //About Menu
