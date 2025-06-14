@@ -100,6 +100,7 @@ target_link_libraries(${PROJECT_NAME}
   pspopenpsid
   zip
   un7zip
+  lzma
   xmp
   bz2
   z
