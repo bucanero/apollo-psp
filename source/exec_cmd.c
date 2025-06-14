@@ -1017,6 +1017,12 @@ static void uploadSaveFTP(const save_entry_t* save)
 	struct tm t;
 	char type[3] = {'-', '1', 'P'};
 
+	if (!network_up())
+	{
+		show_message("Network is not available!\n\nPlease connect to a network first.");
+		return;
+	}
+
 	if (!show_dialog(DIALOG_TYPE_YESNO, "Do you want to upload %s?", save->dir_name))
 		return;
 

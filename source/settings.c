@@ -256,6 +256,12 @@ static void ftp_url_callback(int sel)
 	char *data;
 	char tmp[512];
 
+	if (!network_up())
+	{
+		show_message("Network is not available!\n\nPlease connect to a network first.");
+		return;
+	}
+
 	strncpy(tmp, apollo_config.ftp_url[0] ? apollo_config.ftp_url : "ftp://user:pass@192.168.0.10:21/folder/", sizeof(tmp));
 	if (!osk_dialog_get_text("Enter the URL of the FTP server", tmp, sizeof(tmp)))
 		return;
