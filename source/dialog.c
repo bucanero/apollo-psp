@@ -304,7 +304,7 @@ int psp_DisplayNetDialog(void)
 
     if ((ret = sceUtilityNetconfInitStart(&data)) < 0) {
         LOG("sceUtilityNetconfInitStart() failed: 0x%08x", ret);
-        return ret;
+        return 0;
     }
 
     do

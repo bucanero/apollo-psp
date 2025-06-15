@@ -14,6 +14,7 @@
 extern save_list_t hdd_saves;
 extern save_list_t usb_saves;
 extern save_list_t vmc_saves;
+extern save_list_t ftp_saves;
 extern save_list_t online_saves;
 extern save_list_t user_backup;
 
@@ -122,6 +123,7 @@ static void SetMenu(int id)
 		case MENU_USB_SAVES: //USB Saves Menu
 		case MENU_HDD_SAVES: //HHD Saves Menu
 		case MENU_ONLINE_DB: //Cheats Online Menu
+		case MENU_FTP_SAVES: //FTP Online Menu
 		case MENU_USER_BACKUP: //Backup Menu
 			if (menu_textures[icon_png_file_index].texture)
 			{
@@ -217,13 +219,44 @@ static void SetMenu(int id)
 			break;
 
 		case MENU_ONLINE_DB: //Cheats Online Menu
-			network_up();
+			if (!network_up())
+			{
+				show_message("Network is not available!\n\nPlease connect to a network first.");
+				return;
+			}
+
 			if (!online_saves.list && !ReloadUserSaves(&online_saves))
 				return;
 
 			if (apollo_config.doAni)
 				Draw_UserCheatsMenu_Ani(&online_saves);
 			break;
+
+		case MENU_FTP_SAVES: //FTP Online Menu
+			if (!apollo_config.ftp_url[0])
+			{
+				show_message("No FTP Server URL set");
+				return;
+			}
+
+			if (!network_up())
+			{
+				show_message("Network is not available!\n\nPlease connect to a network first.");
+				return;
+			}
+
+			if (ftp_saves.list && menu_id == MENU_MAIN_SCREEN)
+			{
+				UnloadGameList(ftp_saves.list);
+				ftp_saves.list = NULL;
+			}
+
+			if (!ftp_saves.list && !ReloadUserSaves(&ftp_saves))
+				return;
+
+			if (apollo_config.doAni)
+				Draw_UserCheatsMenu_Ani(&ftp_saves);
+			break;			
 
 		case MENU_CREDITS: //About Menu
 			if (apollo_config.doAni)
@@ -431,14 +464,14 @@ static void doMainMenu(void)
 {
 	// Check the pads.
 	if(pspPadGetButtonHold(PSP_CTRL_LEFT))
-		move_selection_back(MENU_CREDITS-1, 1);
+		move_selection_back(MENU_CREDITS, 1);
 
 	else if(pspPadGetButtonHold(PSP_CTRL_RIGHT))
-		move_selection_fwd(MENU_CREDITS-1, 1);
+		move_selection_fwd(MENU_CREDITS, 1);
 
 	else if (pspPadGetButtonPressed(PSP_CTRL_CROSS))
 	{
-		SetMenu(menu_sel+2);
+		SetMenu(menu_sel+1);
 		drawScene();
 		return;
 	}
@@ -748,17 +781,9 @@ static void doPatchMenu(void)
 				list_node_t* node;
 
 				for (node = list_head(selected_entry->codes); (code = list_get(node)); node = list_next(node))
-					if (wildcard_match_icase(code->name, "*(REQUIRED)*") && code->options_count == 0)
+					if (code->flags & APOLLO_CODE_FLAG_REQUIRED && !(code->flags & APOLLO_CODE_FLAG_DISABLED) && code->options_count == 0)
 						code->activated = 1;
 			}
-			/*
-			if (!selected_centry->options)
-			{
-				int size;
-				selected_entry->codes[menu_sel].options = ReadOptions(selected_entry->codes[menu_sel], &size);
-				selected_entry->codes[menu_sel].options_count = size;
-			}
-			*/
 			
 			if (selected_centry->options)
 			{
@@ -827,8 +852,12 @@ void drawScene(void)
 			doSaveMenu(&hdd_saves);
 			break;
 
-		case MENU_ONLINE_DB: //Online Cheats Menu
+		case MENU_ONLINE_DB: //Online Saves Menu
 			doSaveMenu(&online_saves);
+			break;
+
+		case MENU_FTP_SAVES: //FTP Saves Menu
+			doSaveMenu(&ftp_saves);
 			break;
 
 		case MENU_CREDITS: //About Menu

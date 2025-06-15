@@ -13,7 +13,7 @@ extern SDL_Renderer* renderer;
 enum menu_screen_ids
 {
 	MENU_MAIN_SCREEN,		/* 0 - Main Menu */
-	MENU_VMC_SAVES,			/* 1 - PS1 VMP Menu */
+	MENU_FTP_SAVES,			/* 1 - FTP Menu */
 	MENU_USB_SAVES,			/* 2 - USB Menu (User List) */
 	MENU_HDD_SAVES,			/* 3 - HDD Menu (User List) */
 	MENU_ONLINE_DB,			/* 4 - Online Menu (Online List) */
@@ -25,6 +25,7 @@ enum menu_screen_ids
 	MENU_CODE_OPTIONS,		/* 10 - Code Menu (View Cheat Options) */
 	MENU_SAVE_DETAILS,
 	MENU_HEX_EDITOR,
+	MENU_VMC_SAVES,			/* 13 - PS1 VMP Menu */
 	TOTAL_MENU_IDS
 };
 
@@ -40,14 +41,14 @@ enum texture_index
 	column_5_png_index,
 	column_6_png_index,
 	column_7_png_index,
-	jar_empty_png_index,
+	jar_ftp_png_index,
 	jar_usb_png_index,
 	jar_hdd_png_index,
 	jar_db_png_index,
 	jar_bup_png_index,
 	jar_opt_png_index,
 	jar_about_png_index,
-//	jar_trophy_hover_png_index,
+	jar_ftp_hover_png_index,
 	jar_usb_hover_png_index,
 	jar_hdd_hover_png_index,
 	jar_db_hover_png_index,
@@ -176,8 +177,8 @@ enum texture_index
 #define column_6_png_y						828 * SCREEN_H_ADJ
 #define column_7_png_x						1665 * SCREEN_W_ADJ
 #define column_7_png_y						955 * SCREEN_H_ADJ
-#define jar_empty_png_x						159 * SCREEN_W_ADJ
-#define jar_empty_png_y						777 * SCREEN_H_ADJ
+#define jar_ftp_png_x						159 * SCREEN_W_ADJ
+#define jar_ftp_png_y						777 * SCREEN_H_ADJ
 #define jar_usb_png_x						441 * SCREEN_W_ADJ
 #define jar_usb_png_y						699 * SCREEN_H_ADJ
 #define jar_hdd_png_x						669 * SCREEN_W_ADJ

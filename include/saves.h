@@ -63,6 +63,7 @@ enum cmd_code_enum
     CMD_HEX_EDIT_FILE,
     CMD_IMPORT_DATA_FILE,
     CMD_DELETE_SAVE,
+    CMD_UPLOAD_SAVE,
 
 // Bulk commands
     CMD_RESIGN_SAVES,
@@ -104,16 +105,16 @@ enum cmd_code_enum
 #define SAVE_FLAG_VMC           16
 #define SAVE_FLAG_PSP           32
 #define SAVE_FLAG_ISO           64
-#define SAVE_FLAG_CSO           128
+#define SAVE_FLAG_FTP           128
 #define SAVE_FLAG_ONLINE        256
 #define SAVE_FLAG_UPDATED       512
 
 enum save_type_enum
 {
     FILE_TYPE_NULL,
-    FILE_TYPE_MENU,
-    FILE_TYPE_PSP,
     FILE_TYPE_PS1,
+    FILE_TYPE_PSP,
+    FILE_TYPE_MENU,
 
     // PS1 File Types
     FILE_TYPE_ZIP,
@@ -211,11 +212,14 @@ int network_up(void);
 int http_init(void);
 void http_end(void);
 int http_download(const char* url, const char* filename, const char* local_dst, int show_progress);
+int ftp_upload(const char* local_file, const char* url, const char* filename, int show_progress);
 
 int extract_7zip(const char* zip_file, const char* dest_path);
 int extract_rar(const char* rar_file, const char* dest_path);
 int extract_zip(const char* zip_file, const char* dest_path);
 int zip_directory(const char* basedir, const char* inputdir, const char* output_zipfile);
+int zip_file(const char* input, const char* output_zipfile);
+int extract_sfo(const char* zip_file, const char* dest_path);
 
 int show_dialog(int dialog_type, const char * format, ...);
 int osk_dialog_get_text(const char* title, char* text, uint32_t size);
