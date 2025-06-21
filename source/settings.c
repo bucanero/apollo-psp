@@ -416,7 +416,6 @@ int load_app_settings(app_config_t* config)
 	size_t file_size;
 
 	sceOpenPSIDGetOpenPSID((PspOpenPSID*) config->psid);
-	config->storage = is_psp_go();
 
 	snprintf(filePath, sizeof(filePath), "%s%s%s%s", MS0_PATH, USER_PATH_HDD, "NP0APOLLO-Settings/", "SETTINGS.BIN");
 
@@ -432,6 +431,8 @@ int load_app_settings(app_config_t* config)
 	else
 	{
 		LOG("Settings not found, using defaults");
+		config->storage = is_psp_go();
+		config->account_id = get_account_id();
 		save_app_settings(config);
 		return 0;
 	}

@@ -60,15 +60,8 @@ typedef struct ireg {
 	short fat[7];
 } ireg_t;
 
-static ent *hdrlist = NULL;
 static uint8_t *dreg;
 
-
-static void addheader(ent *p)
-{
-	p->header.nextheader=hdrlist;
-	hdrlist=p;
-}
 
 static void freeheader(ent *e)
 {
@@ -164,10 +157,11 @@ static void parse(int i, short *f, ent *hdr)
 	}
 }
 
-static void walk_fatents(ireg_t *a)
+static ent* walk_fatents(ireg_t *a)
 {
 	int i,j;
 	uint8_t *buf;
+	ent *hdrlist = NULL;
 
 	for(i=0; i<256; i++)
 		if(a[i].nblk) {
@@ -187,6 +181,7 @@ static void walk_fatents(ireg_t *a)
 			buf=malloc(a[i].nblk*512);
 			for(j=0; j<a[i].nblk; j++)
 				memcpy(buf+512*j,dreg+512*a[i].fat[j],512);
+
 			free(buf);
 			if(!checkcheck(buf,a[i].nblk*512))
 				e->header.fail=1;
@@ -194,11 +189,15 @@ static void walk_fatents(ireg_t *a)
 			/* walk the walk */
 			for(j=0;j<=a[i].nent;j++)
 				parse(32*(j&15)+512*a[i].fat[j>>4],a[i].fat,e);
-			addheader(e);
+
+			e->header.nextheader=hdrlist;
+			hdrlist=e;
 		}
+
+	return hdrlist;
 }
 
-static uint64_t dump_header(ent *h)
+static uint64_t dump_account_id(const ent *h)
 {
 	uint64_t act = 0;
 
@@ -218,7 +217,7 @@ static uint64_t parse_registry(void)
 {
 	FILE *f;
 	ireg_t ireg[256];
-	ent *i, *tmp = NULL;
+	ent *hdrlist, *i, *tmp = NULL;
 	uint64_t act = 0;
 	uint32_t k1;
 
@@ -247,11 +246,11 @@ static uint64_t parse_registry(void)
 	fread(ireg, sizeof(ireg_t), 256, f);
 	fclose(f);
 
-	walk_fatents(ireg);
+	hdrlist = walk_fatents(ireg);
 
 	for(i=hdrlist; i; i=i->header.nextheader)
 		if(!i->header.parent)
-			act = dump_header(i);
+			act = dump_account_id(i);
 
 	LOG("Registry Account ID: %016" PRIX64, act);
 
@@ -291,14 +290,15 @@ end:
 	return account_id;
 }
 
-uint64_t parse_reg_main(void)
+uint64_t get_account_id(void)
 {
 	FILE *fp;
-	uint64_t account_id = parse_registry();
+	uint64_t account_id = read_actdat();
 
 	if (!account_id)
-		account_id = read_actdat();
+		account_id = parse_registry();
 
+	// Fallback to reading from account.txt
 	fp = fopen("./account.txt", "r");
 	if (fp) {
 		fscanf(fp, "%" PRIx64, &account_id);
