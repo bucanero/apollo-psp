@@ -256,5 +256,6 @@ void drawEndLogo(void);
 int load_app_settings(app_config_t* config);
 int save_app_settings(app_config_t* config);
 int install_sgkey_plugin(int mode);
+uint64_t get_account_id(void);
 
 #endif
