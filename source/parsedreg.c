@@ -282,7 +282,7 @@ static uint64_t read_actdat(void)
 	fread(buf, 1, sizeof(buf), f);
 	fclose(f);
 
-	account_id = ES64(buf[1]);
+	account_id = buf[1];
 	LOG("act.dat Account ID: %016" PRIX64, account_id);
 
 end:
