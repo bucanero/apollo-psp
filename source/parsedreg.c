@@ -182,9 +182,9 @@ static ent* walk_fatents(ireg_t *a)
 			for(j=0; j<a[i].nblk; j++)
 				memcpy(buf+512*j,dreg+512*a[i].fat[j],512);
 
-			free(buf);
 			if(!checkcheck(buf,a[i].nblk*512))
 				e->header.fail=1;
+			free(buf);
 
 			/* walk the walk */
 			for(j=0;j<=a[i].nent;j++)
