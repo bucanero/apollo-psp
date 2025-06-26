@@ -413,7 +413,6 @@ int load_app_settings(app_config_t* config)
 {
 	char filePath[256];
 	app_config_t file_data;
-	size_t file_size;
 
 	sceOpenPSIDGetOpenPSID((PspOpenPSID*) config->psid);
 
@@ -423,7 +422,7 @@ int load_app_settings(app_config_t* config)
 	if (read_file(filePath, (uint8_t*) &file_data, sizeof(app_config_t)) == SUCCESS)
 	{
 		memcpy(file_data.psid, config->psid, sizeof(PspOpenPSID));
-		memcpy(config, &file_data, file_size);
+		memcpy(config, &file_data, sizeof(app_config_t));
 
 		LOG("Settings loaded: PSID (%016" PRIX64 " %016" PRIX64 ")", config->psid[0], config->psid[1]);
 		return 1;
