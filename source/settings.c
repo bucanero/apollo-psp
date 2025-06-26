@@ -6,7 +6,7 @@
 #include <pspiofilemgr.h>
 #include <pspopenpsid.h>
 
-#include "types.h"
+#include "utils.h"
 #include "menu.h"
 #include "saves.h"
 #include "common.h"
@@ -412,7 +412,7 @@ int save_app_settings(app_config_t* config)
 int load_app_settings(app_config_t* config)
 {
 	char filePath[256];
-	app_config_t* file_data;
+	app_config_t file_data;
 	size_t file_size;
 
 	sceOpenPSIDGetOpenPSID((PspOpenPSID*) config->psid);
@@ -420,24 +420,20 @@ int load_app_settings(app_config_t* config)
 	snprintf(filePath, sizeof(filePath), "%s%s%s%s", MS0_PATH, USER_PATH_HDD, "NP0APOLLO-Settings/", "SETTINGS.BIN");
 
 	LOG("Loading Settings...");
-	if (read_buffer(filePath, (uint8_t**) &file_data, &file_size) == SUCCESS && file_size == sizeof(app_config_t))
+	if (read_file(filePath, (uint8_t*) &file_data, sizeof(app_config_t)) == SUCCESS)
 	{
-		memcpy(file_data->psid, config->psid, sizeof(PspOpenPSID));
-		memcpy(config, file_data, file_size);
+		memcpy(file_data.psid, config->psid, sizeof(PspOpenPSID));
+		memcpy(config, &file_data, file_size);
 
 		LOG("Settings loaded: PSID (%016" PRIX64 " %016" PRIX64 ")", config->psid[0], config->psid[1]);
-		free(file_data);
-	}
-	else
-	{
-		LOG("Settings not found, using defaults");
-		config->storage = is_psp_go();
-		config->account_id = get_account_id();
-		save_app_settings(config);
-		return 0;
+		return 1;
 	}
 
-	return 1;
+	LOG("Settings not found, using defaults");
+	config->storage = is_psp_go();
+	config->account_id = get_account_id();
+	save_app_settings(config);
+	return 0;
 }
 
 int install_sgkey_plugin(int install)
