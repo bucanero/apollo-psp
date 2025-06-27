@@ -4,6 +4,34 @@ All notable changes to the `apollo-psp` project will be documented in this file.
 
 ## [Unreleased]()
 
+## [v2.0.0](https://github.com/bucanero/apollo-psp/releases/tag/v2.0.0) - 2025-07-12
+
+### Added
+
+* FTP Server support (Saves Cloud Backup)
+  - Zip, Upload, and backup saves to a user-defined FTP server
+  - List, Download, and restore saves from a user-defined FTP server
+  - Backup PSP and PS1 saves
+* Delete PSP save-games
+* Auto-detect system Account-ID value
+* Settings Menu:
+  - Added `FTP Server URL` option
+  - Persistent `Debug log` option
+
+### Fixed
+
+* Fix `.PSV` header when exporting PS1 saves
+* Fix network dialog bug when NetconfInitStart fails
+
+### Misc
+
+* Updated [Apollo Patch Engine](https://github.com/bucanero/apollo-lib) to v1.3.0
+  - Fix SW code skip search bug
+  - Add `djb2` hash function
+  - Add tag support for user-selected options on `.savepatch` files
+    - E.g., `{ZZ}val=name;03E7=999 gold;...;270F=9999 gold{/ZZ}`
+    - Support for SaveWizard and BSD codes with multiple options
+
 ## [v1.3.2](https://github.com/bucanero/apollo-psp/releases/tag/v1.3.2) - 2024-07-20
 
 ### Added

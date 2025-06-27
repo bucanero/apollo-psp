@@ -38,9 +38,6 @@ int network_up(void)
 	return HTTP_SUCCESS;
 }
 
-//	scePowerLock(0);
-//	scePowerUnlock(0);
-
 int http_init(void)
 {
 	int ret = 0;
@@ -214,7 +211,8 @@ int ftp_upload(const char* local_file, const char* url, const char* filename, in
 	CURL *curl;
 	CURLcode res;
 	char remote_url[1024];
-	unsigned long fsize;
+	long fsize;
+	curl_off_t remoteFileSize = -1;
 
 	if (network_up() != HTTP_SUCCESS)
 		return HTTP_FAILED;
@@ -241,17 +239,50 @@ int ftp_upload(const char* local_file, const char* url, const char* filename, in
 	fseek(fd, 0, SEEK_SET);
 
 	snprintf(remote_url, sizeof(remote_url), "%s%s", url, filename);
-
-	LOG("Local file size: %lu bytes.", fsize);
+	LOG("Local file size: %ld bytes.", fsize);
 	LOG("Uploading (%s) -> (%s)", local_file, remote_url);
 
 	set_curl_opts(curl);
+	curl_easy_setopt(curl, CURLOPT_URL, remote_url);
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+	curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
+	curl_easy_setopt(curl, CURLOPT_HEADER, 1L);
+	// create missing dirs if needed
+	curl_easy_setopt(curl, CURLOPT_FTP_CREATE_MISSING_DIRS, CURLFTP_CREATE_DIR);
+
+	res = curl_easy_perform(curl);
+	if(res != CURLE_OK)
+	{
+		LOG("Remote check failed: %s", curl_easy_strerror(res));
+		fclose(fd);
+		curl_easy_cleanup(curl);
+		return HTTP_FAILED;
+	}
+	else curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &remoteFileSize);
+
+	if (remoteFileSize > fsize)
+	{
+		LOG("Error! '%s' remote size: %lld", filename, remoteFileSize);
+		fclose(fd);
+		curl_easy_cleanup(curl);
+		return HTTP_FAILED;
+	}
+
+	if (remoteFileSize > 0)
+	{
+		LOG("Resuming '%s' at %lld bytes", filename, remoteFileSize);
+		fsize -= remoteFileSize;
+		fseek(fd, (long)remoteFileSize, SEEK_SET);
+		curl_easy_setopt(curl, CURLOPT_APPEND, 1L);
+	}
+
 	/* enable uploading */
 	curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
 	/* specify target */
 	curl_easy_setopt(curl, CURLOPT_URL, remote_url);
-	// create missing dirs if needed
-	curl_easy_setopt(curl, CURLOPT_FTP_CREATE_MISSING_DIRS, CURLFTP_CREATE_DIR);
+	// set file data transfer
+	curl_easy_setopt(curl, CURLOPT_NOBODY, 0);
+	curl_easy_setopt(curl, CURLOPT_HEADER, 0);
 	/* please ignore the IP in the PASV response */
 	curl_easy_setopt(curl, CURLOPT_FTP_SKIP_PASV_IP, 1L);
 	/* we want to use our own read function */
