@@ -616,7 +616,7 @@ list_t * ReadBackupList(const char* userPath)
 	code_entry_t * cmd;
 	list_t *list = list_alloc();
 
-	item = _createSaveEntry(SAVE_FLAG_ZIP, CHAR_ICON_ZIP " Extract Archives (Zip, 7z)");
+	item = _createSaveEntry(SAVE_FLAG_ZIP, CHAR_ICON_ZIP " Extract Archives (Zip/RAR/7z)");
 	asprintf(&item->path, USB_PATH, USER_STORAGE_DEV);
 	item->title_id = strdup(item->path);
 	item->type = FILE_TYPE_ZIP;
