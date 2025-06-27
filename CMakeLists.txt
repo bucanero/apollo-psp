@@ -83,6 +83,7 @@ add_executable(${PROJECT_NAME}
   source/ps1card.c
   source/ahx.c
   source/ciso.c
+  source/parsedreg.c
 )
 
 target_link_libraries(${PROJECT_NAME}

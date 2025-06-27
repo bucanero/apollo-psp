@@ -154,10 +154,10 @@ uint32_t file_crc32(const char* input)
     size_t read;
 
     FILE* in = fopen(input, "rb");
-
-    buffer = malloc(TMP_BUFF_SIZE);
     if (!in)
         return FAILED;
+
+    buffer = malloc(TMP_BUFF_SIZE);
 
     do
     {

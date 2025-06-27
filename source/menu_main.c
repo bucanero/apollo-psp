@@ -495,6 +495,11 @@ static void doAboutMenu(void)
 		SetMenu(MENU_MAIN_SCREEN);
 		return;
 	}
+	else if (pspPadGetButtonPressed(PSP_CTRL_START))
+	{
+		show_message("Apollo Save Tool %s v%s\nPatch Engine v%s\nAccount ID: %016" PRIX64, APOLLO_PLATFORM, APOLLO_VERSION, APOLLO_LIB_VERSION, apollo_config.account_id);
+		return;
+	}
 	else if (!ll && pspPadGetButtonPressed(PSP_CTRL_SELECT))
 	{
 		ll = (0x02 | apollo_config.music);
