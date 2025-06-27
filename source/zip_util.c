@@ -258,7 +258,6 @@ int extract_7zip(const char* fpath, const char* dest_path)
 	return (ret == SUCCESS);
 }
 
-//*
 // ftruncate() required for unRAR
 int ftruncate(int fildes, off_t length)
 {
@@ -330,4 +329,3 @@ int extract_rar(const char* rarFilePath, const char* dstPath)
 	RARCloseArchive(hArcData);
 	return (err == ERAR_SUCCESS);
 }
-//*/
