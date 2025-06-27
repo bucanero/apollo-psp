@@ -38,9 +38,6 @@ int network_up(void)
 	return HTTP_SUCCESS;
 }
 
-//	scePowerLock(0);
-//	scePowerUnlock(0);
-
 int http_init(void)
 {
 	int ret = 0;
@@ -215,6 +212,8 @@ int ftp_upload(const char* local_file, const char* url, const char* filename, in
 	CURLcode res;
 	char remote_url[1024];
 	unsigned long fsize;
+	char cmd_rnto[256];
+	struct curl_slist *headerlist = NULL;
 
 	if (network_up() != HTTP_SUCCESS)
 		return HTTP_FAILED;
@@ -240,7 +239,8 @@ int ftp_upload(const char* local_file, const char* url, const char* filename, in
 	fsize = ftell(fd);
 	fseek(fd, 0, SEEK_SET);
 
-	snprintf(remote_url, sizeof(remote_url), "%s%s", url, filename);
+	snprintf(remote_url, sizeof(remote_url), "%s%s", url, "tmp.bin");
+	snprintf(cmd_rnto, sizeof(cmd_rnto), "RNTO %s", filename);
 
 	LOG("Local file size: %lu bytes.", fsize);
 	LOG("Uploading (%s) -> (%s)", local_file, remote_url);
@@ -260,6 +260,11 @@ int ftp_upload(const char* local_file, const char* url, const char* filename, in
 	curl_easy_setopt(curl, CURLOPT_READDATA, fd);
 	/* Set the size of the file to upload (optional). */
 	curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)fsize);
+	/* build a list of commands to pass to libcurl */
+	headerlist = curl_slist_append(headerlist, "RNFR tmp.bin");
+	headerlist = curl_slist_append(headerlist, cmd_rnto);
+	/* pass in that last of FTP commands to run after the transfer */
+	curl_easy_setopt(curl, CURLOPT_POSTQUOTE, headerlist);
 
 	if (show_progress)
 	{
@@ -281,6 +286,9 @@ int ftp_upload(const char* local_file, const char* url, const char* filename, in
 
 	/* close the local file */
 	fclose(fd);
+
+	/* clean up the FTP commands list */
+	curl_slist_free_all(headerlist);
 
 	/* always cleanup */
 	curl_easy_cleanup(curl);
