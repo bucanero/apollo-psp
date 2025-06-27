@@ -145,7 +145,9 @@ Run `cmake . && make` to create a release build. If you want to include the [lat
 
 To enable debug logging, pass `-DAPOLLO_ENABLE_LOGGING=ON` argument to cmake. The application will write debug messages to
 
-    ms0:/pkgi-psp.log
+```
+ms0:/APOLLO/apollo.log
+```
 
 You can also set the `PSPIP` environment variable to your PSP's IP address, and use `make send` to upload `EBOOT.PBP` directly to the `ms0:/PSP/GAME/APOLLO` folder.
 
