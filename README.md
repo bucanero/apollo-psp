@@ -141,6 +141,9 @@ You need to have installed:
 - [libZip](https://github.com/pspdev/psp-packages/tree/master/libzip) library
 - [dbglogger](https://github.com/bucanero/dbglogger) library
 
+> [!TIP]
+> **Developers:** You can find detailed technical documentation about the project in [this Wiki page](https://deepwiki.com/bucanero/apollo-psp/).
+
 Run `cmake . && make` to create a release build. If you want to include the [latest save patches](https://github.com/bucanero/apollo-patches) in your `.zip` file, run `make createzip`.
 
 To enable debug logging, pass `-DAPOLLO_ENABLE_LOGGING=ON` argument to cmake. The application will write debug messages to
