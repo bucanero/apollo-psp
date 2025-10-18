@@ -10,6 +10,7 @@
 #include <pspctrl.h>
 #include <pspaudio.h>
 #include <pspthreadman.h>
+#include <mini18n.h>
 
 #include "saves.h"
 #include "sfo.h"
@@ -171,6 +172,69 @@ save_list_t user_backup = {
     .UpdatePath = NULL,
 };
 
+
+static const char* get_button_prompts(char* prompt)
+{
+	switch (menu_id)
+	{
+		case MENU_FTP_SAVES:
+		case MENU_USB_SAVES:
+		case MENU_HDD_SAVES:
+		case MENU_ONLINE_DB:
+		case MENU_VMC_SAVES:
+			snprintf(prompt, 0xFF, "\x10 %s    \x13 %s    \x12 %s    \x11 %s", _("Select"), _("Back"), _("Details"), _("Refresh"));
+			break;
+
+		case MENU_USER_BACKUP:
+			snprintf(prompt, 0xFF, "\x10 %s    \x13 %s    \x11 %s", _("Select"), _("Back"), _("Refresh"));
+			break;
+
+		case MENU_SETTINGS:
+		case MENU_CODE_OPTIONS:
+			snprintf(prompt, 0xFF, "\x10 %s    \x13 %s", _("Select"), _("Back"));
+			break;
+
+		case MENU_CREDITS:
+		case MENU_PATCH_VIEW:
+		case MENU_SAVE_DETAILS:
+			snprintf(prompt, 0xFF, "\x13 %s", _("Back"));
+			break;
+
+		case MENU_PATCHES:
+			snprintf(prompt, 0xFF, "\x10 %s    \x12 %s    \x13 %s", _("Select"), _("View Code"), _("Back"));
+			break;
+
+		case MENU_HEX_EDITOR:
+			snprintf(prompt, 0xFF, "\x10 %s  \x11 %s   \x13 %s", _("Value Up"), _("Value Down"), _("Exit"));
+			break;
+
+		case MENU_MAIN_SCREEN:
+		default:
+			prompt[0] = 0;
+			break;
+	}
+
+	return prompt;
+}
+
+static void helpFooter(void)
+{
+	char footer[256];
+	u8 alpha = 0xFF;
+
+	if (pspPadGetConf()->idle > 0x100)
+	{
+		int dec = (pspPadGetConf()->idle - 0x100) * 4;
+		alpha = (dec > alpha) ? 0 : (alpha - dec);
+	}
+	
+	SetFontSize(APP_FONT_SIZE_DESCRIPTION);
+	SetCurrentFont(font_adonais_regular);
+	SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
+	SetFontColor(APP_FONT_COLOR | alpha, 0);
+	DrawString(0, SCREEN_HEIGHT - 22, get_button_prompts(footer));
+	SetFontAlign(FONT_ALIGN_LEFT);
+}
 
 static int initPad(void)
 {
@@ -392,6 +456,7 @@ static void terminate(void)
 {
 	LOG("Exiting...");
 
+	mini18n_close();
 	sceAudioChRelease(audio);
 }
 
@@ -520,22 +585,8 @@ int main(int argc, char *argv[])
 		drawScene();
 
 		//Draw help
-		if (menu_pad_help[menu_id])
-		{
-			u8 alpha = 0xFF;
-			if (pspPadGetConf()->idle > 0x100)
-			{
-				int dec = (pspPadGetConf()->idle - 0x100) * 4;
-				alpha = (dec > alpha) ? 0 : (alpha - dec);
-			}
-			
-			SetFontSize(APP_FONT_SIZE_DESCRIPTION);
-			SetCurrentFont(font_adonais_regular);
-			SetFontAlign(FONT_ALIGN_SCREEN_CENTER);
-			SetFontColor(APP_FONT_COLOR | alpha, 0);
-			DrawString(0, SCREEN_HEIGHT - 22, (char *)menu_pad_help[menu_id]);
-			SetFontAlign(FONT_ALIGN_LEFT);
-		}
+		if (menu_id)
+			helpFooter();
 
 #ifdef APOLLO_ENABLE_LOGGING
 		// Calculate FPS and ms/frame
