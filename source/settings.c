@@ -18,8 +18,8 @@
 #define SGKEY_DUMP_PLUGIN_PATH       "ms0:/seplugins/SGKeyDumper.prx"
 
 char *strcasestr(const char *, const char *);
-static char* ext_src[] = {"ms0", "ef0", NULL};
-static char* sort_opt[] = {"Disabled", "by Name", "by Title ID", "by Type", NULL};
+static const char* ext_src[] = {"ms0", "ef0", NULL};
+static const char* sort_opt[] = {"Disabled", "by Name", "by Title ID", "by Type", NULL};
 
 static void log_callback(int sel);
 static void storage_callback(int sel);
@@ -45,13 +45,13 @@ menu_option_t menu_options[] = {
 		.callback = ani_callback 
 	},
 	{ .name = "Sort Saves", 
-		.options = (char**) sort_opt,
+		.options = sort_opt,
 		.type = APP_OPTION_LIST,
 		.value = &apollo_config.doSort, 
 		.callback = sort_callback 
 	},
 	{ .name = "External Saves Source",
-		.options = (char**) ext_src,
+		.options = ext_src,
 		.type = APP_OPTION_LIST,
 		.value = &apollo_config.storage,
 		.callback = storage_callback
