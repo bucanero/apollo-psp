@@ -79,27 +79,12 @@ uint32_t* texture_mem;                      // Pointers to texture memory
 uint32_t* free_mem;                         // Pointer after last texture
 
 
-const char * menu_pad_help[TOTAL_MENU_IDS] = { NULL,												//Main
-								"\x10 Select    \x13 Back    \x12 Details    \x11 Refresh",			//Trophy list
-								"\x10 Select    \x13 Back    \x12 Details    \x11 Refresh",			//USB list
-								"\x10 Select    \x13 Back    \x12 Details    \x11 Refresh",			//HDD list
-								"\x10 Select    \x13 Back    \x12 Details    \x11 Refresh",			//Online list
-								"\x10 Select    \x13 Back    \x11 Refresh",							//User backup
-								"\x10 Select    \x13 Back",											//Options
-								"\x13 Back",														//About
-								"\x10 Select    \x12 View Code    \x13 Back",						//Select Cheats
-								"\x13 Back",														//View Cheat
-								"\x10 Select    \x13 Back",											//Cheat Option
-								"\x13 Back",														//View Details
-								"\x10 Value Up  \x11 Value Down   \x13 Exit",						//Hex Editor
-								};
-
 /*
 * HDD save list
 */
 save_list_t hdd_saves = {
     .id = MENU_HDD_SAVES,
-    .title = "Internal Saves",
+    .title = NULL,
     .list = NULL,
     .path = "",
     .ReadList = &ReadUserList,
@@ -112,7 +97,7 @@ save_list_t hdd_saves = {
 */
 save_list_t usb_saves = {
     .id = MENU_USB_SAVES,
-    .title = "External Saves",
+    .title = NULL,
     .list = NULL,
     .path = "",
     .ReadList = &ReadUsbList,
@@ -125,7 +110,7 @@ save_list_t usb_saves = {
 */
 save_list_t vmc_saves = {
     .id = MENU_VMC_SAVES,
-    .title = "Virtual Memory Card",
+    .title = NULL,
     .list = NULL,
     .path = "",
     .ReadList = &ReadVmcList,
@@ -138,7 +123,7 @@ save_list_t vmc_saves = {
 */
 save_list_t online_saves = {
     .id = MENU_ONLINE_DB,
-    .title = "Online Database",
+    .title = NULL,
     .list = NULL,
     .path = "",
     .ReadList = &ReadOnlineList,
@@ -151,7 +136,7 @@ save_list_t online_saves = {
 */
 save_list_t ftp_saves = {
     .id = MENU_FTP_SAVES,
-    .title = "FTP Server",
+    .title = NULL,
     .list = NULL,
     .path = "",
     .ReadList = &ReadOnlineList,
@@ -164,7 +149,7 @@ save_list_t ftp_saves = {
 */
 save_list_t user_backup = {
     .id = MENU_USER_BACKUP,
-    .title = "User Tools",
+    .title = NULL,
     .list = NULL,
     .path = "",
     .ReadList = &ReadBackupList,
@@ -426,6 +411,22 @@ void update_vmc_path(char* path)
 	path[0] = 0;
 }
 
+static void initLocalization(void)
+{
+	char path[256];
+
+	snprintf(path, sizeof(path), APOLLO_DATA_PATH "lang_%s.po", get_user_language());
+	if (mini18n_set_locale(path) != SUCCESS)
+		LOG("Localization file not found: %s", path);
+
+	hdd_saves.title = _("Internal Saves");
+	usb_saves.title = _("External Saves");
+	ftp_saves.title = _("FTP Server");
+	user_backup.title = _("User Tools");
+	online_saves.title = _("Online Database");
+	vmc_saves.title = _("Virtual Memory Card");
+}
+
 static void registerSpecialChars(void)
 {
 	// Register save tags
@@ -519,6 +520,7 @@ int main(int argc, char *argv[])
 		return (-1);
 	}
 
+	initLocalization();
 	// Load application settings
 	if (!load_app_settings(&apollo_config) &&
 		show_dialog(DIALOG_TYPE_YESNO, "Install the Save-game Key dumper plugin?"))
