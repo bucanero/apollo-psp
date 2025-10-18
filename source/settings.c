@@ -5,6 +5,7 @@
 #include <zlib.h>
 #include <pspiofilemgr.h>
 #include <pspopenpsid.h>
+#include <mini18n.h>
 
 #include "utils.h"
 #include "menu.h"
@@ -13,13 +14,14 @@
 #include "icon0.h"
 #include "plugin.h"
 
+#define _i18n(str)                   (str)
 #define PSP_UTILITY_COMMON_RESULT_OK (0)
 #define GAME_PLUGIN_PATH             "ms0:/seplugins/game.txt"
 #define SGKEY_DUMP_PLUGIN_PATH       "ms0:/seplugins/SGKeyDumper.prx"
 
 char *strcasestr(const char *, const char *);
 static const char* ext_src[] = {"ms0", "ef0", NULL};
-static const char* sort_opt[] = {"Disabled", "by Name", "by Title ID", "by Type", NULL};
+static const char* sort_opt[] = {_i18n("Disabled"), _i18n("by Name"), _i18n("by Title ID"), _i18n("by Type"), NULL};
 
 static void log_callback(int sel);
 static void storage_callback(int sel);
@@ -32,61 +34,61 @@ static void clearcache_callback(int sel);
 static void upd_appdata_callback(int sel);
 
 menu_option_t menu_options[] = {
-	{ .name = "\nBackground Music", 
+	{ .name = _i18n("Background Music"), 
 		.options = NULL, 
 		.type = APP_OPTION_BOOL, 
 		.value = &apollo_config.music, 
 		.callback = music_callback 
 	},
-	{ .name = "Menu Animations", 
+	{ .name = _i18n("Menu Animations"), 
 		.options = NULL, 
 		.type = APP_OPTION_BOOL, 
 		.value = &apollo_config.doAni, 
 		.callback = ani_callback 
 	},
-	{ .name = "Sort Saves", 
+	{ .name = _i18n("Sort Saves"), 
 		.options = sort_opt,
 		.type = APP_OPTION_LIST,
 		.value = &apollo_config.doSort, 
 		.callback = sort_callback 
 	},
-	{ .name = "External Saves Source",
+	{ .name = _i18n("External Saves Source"),
 		.options = ext_src,
 		.type = APP_OPTION_LIST,
 		.value = &apollo_config.storage,
 		.callback = storage_callback
 	},
-	{ .name = "Version Update Check", 
+	{ .name = _i18n("Version Update Check"), 
 		.options = NULL, 
 		.type = APP_OPTION_BOOL, 
 		.value = &apollo_config.update, 
 		.callback = update_callback 
 	},
-	{ .name = "Set User FTP Server URL",
+	{ .name = _i18n("Set User FTP Server URL"),
 		.options = NULL,
 		.type = APP_OPTION_CALL,
 		.value = NULL,
 		.callback = ftp_url_callback
 	},
-	{ .name = "Update Application Data", 
+	{ .name = _i18n("Update Application Data"), 
 		.options = NULL, 
 		.type = APP_OPTION_CALL, 
 		.value = NULL, 
 		.callback = upd_appdata_callback 
 	},
-	{ .name = "Clear Local Cache", 
+	{ .name = _i18n("Clear Local Cache"), 
 		.options = NULL, 
 		.type = APP_OPTION_CALL, 
 		.value = NULL, 
 		.callback = clearcache_callback 
 	},
-	{ .name = "Change Online Database URL",
+	{ .name = _i18n("Change Online Database URL"),
 		.options = NULL,
 		.type = APP_OPTION_CALL,
 		.value = NULL,
 		.callback = db_url_callback 
 	},
-	{ .name = "Enable Debug Log",
+	{ .name = _i18n("Enable Debug Log"),
 		.options = NULL,
 		.type = APP_OPTION_BOOL,
 		.value = &apollo_config.dbglog,
@@ -116,7 +118,7 @@ static void clearcache_callback(int sel)
 	LOG("Cleaning folder '%s'...", APOLLO_LOCAL_CACHE);
 	clean_directory(APOLLO_LOCAL_CACHE, "");
 
-	show_message("Local cache folder cleaned:\n" APOLLO_LOCAL_CACHE);
+	show_message("%s\n%s", _("Local cache folder cleaned:"), APOLLO_LOCAL_CACHE);
 }
 
 static void upd_appdata_callback(int sel)
@@ -125,14 +127,14 @@ static void upd_appdata_callback(int sel)
 
 	if (!http_download(ONLINE_PATCH_URL, "apollo-psp-update.zip", APOLLO_LOCAL_CACHE "appdata.zip", 1))
 	{
-		show_message("Error! Can't download data update pack!");
+		show_message(_("Error! Can't download data update pack!"));
 		return;
 	}
 
 	if ((i = extract_zip(APOLLO_LOCAL_CACHE "appdata.zip", APOLLO_DATA_PATH)) > 0)
-		show_message("Successfully updated %d data files!", i);
+		show_message(_("Successfully updated %d data files!"), i);
 	else
-		show_message("Error! Can't extract data update pack!");
+		show_message(_("Error! Can't extract data update pack!"));
 
 	unlink_secure(APOLLO_LOCAL_CACHE "appdata.zip");
 }
@@ -203,12 +205,12 @@ void update_callback(int sel)
 	*end = 0;
 	LOG("download URL is %s", start);
 
-	if (show_dialog(DIALOG_TYPE_YESNO, "New version available! Download update?"))
+	if (show_dialog(DIALOG_TYPE_YESNO, _("New version available! Download update?")))
 	{
 		if (http_download(start, NULL, "ms0:/APOLLO/apollo-psp.zip", 1))
-			show_message("Update downloaded to ms0:/APOLLO/apollo-psp.zip");
+			show_message("%s\n%s", _("Update downloaded to:"), "ms0:/APOLLO/apollo-psp.zip");
 		else
-			show_message("Download error!");
+			show_message(_("Download error!"));
 	}
 
 end_update:
@@ -230,24 +232,24 @@ static void log_callback(int sel)
 	if (!apollo_config.dbglog)
 	{
 		dbglogger_stop();
-		show_message("Debug Logging Disabled");
+		show_message(_("Debug Logging Disabled"));
 		return;
 	}
 
 	snprintf(path, sizeof(path), APOLLO_PATH "apollo.log", USER_STORAGE_DEV);
 	dbglogger_init_mode(FILE_LOGGER, path, 1);
-	show_message("Debug Logging Enabled!\n\n%s", path);
+	show_message("%s\n\n%s", _("Debug Logging Enabled!"), path);
 }
 
 static void db_url_callback(int sel)
 {
-	if (!osk_dialog_get_text("Enter the URL of the online database", apollo_config.save_db, sizeof(apollo_config.save_db)))
+	if (!osk_dialog_get_text(_("Enter the Online Database URL"), apollo_config.save_db, sizeof(apollo_config.save_db)))
 		return;
 	
 	if (apollo_config.save_db[strlen(apollo_config.save_db)-1] != '/')
 		strcat(apollo_config.save_db, "/");
 
-	show_message("Online database URL changed to:\n%s", apollo_config.save_db);
+	show_message("%s\n%s", _("Online database URL changed to:"), apollo_config.save_db);
 }
 
 static void ftp_url_callback(int sel)
@@ -258,12 +260,12 @@ static void ftp_url_callback(int sel)
 
 	if (!network_up())
 	{
-		show_message("Network is not available!\n\nPlease connect to a network first.");
+		show_message("%s\n\n%s", _("Network is not available!"), _("Please connect to a network first."));
 		return;
 	}
 
 	strncpy(tmp, apollo_config.ftp_url[0] ? apollo_config.ftp_url : "ftp://user:pass@192.168.0.10:21/folder/", sizeof(tmp));
-	if (!osk_dialog_get_text("Enter the URL of the FTP server", tmp, sizeof(tmp)))
+	if (!osk_dialog_get_text(_("Enter the FTP server URL"), tmp, sizeof(tmp)))
 		return;
 
 	strncpy(apollo_config.ftp_url, tmp, sizeof(apollo_config.ftp_url));
@@ -295,9 +297,9 @@ static void ftp_url_callback(int sel)
 	stop_loading_screen();
 
 	if (ret)
-		show_message("FTP server URL changed to:\n%s", apollo_config.ftp_url);
+		show_message("%s\n%s", _("FTP server URL changed to:"), apollo_config.ftp_url);
 	else
-		show_message("Error! Couldn't connect to FTP server\n%s\n\nCheck debug logs for more information", apollo_config.ftp_url);
+		show_message("%s\n%s\n\n%s", _("Error! Couldn't connect to FTP server"), apollo_config.ftp_url, _("Check debug logs for more information"));
 }
 
 static int is_psp_go(void)
