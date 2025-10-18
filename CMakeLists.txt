@@ -99,6 +99,7 @@ target_link_libraries(${PROJECT_NAME}
   pspnet_apctl
   pspwlan
   pspopenpsid
+  mini18n
   zip
   un7zip
   lzma
