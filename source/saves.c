@@ -225,11 +225,11 @@ static void _addBackupCommands(save_entry_t* item)
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Copy save game"), CMD_CODE_NULL);
-	_createOptions(cmd, "Copy Save to Backup Storage", CMD_COPY_SAVE_USB);
+	_createOptions(cmd, _("Copy Save to Backup Storage"), CMD_COPY_SAVE_USB);
 	if (!(item->flags & SAVE_FLAG_HDD))
 	{
 		optval = malloc(sizeof(option_value_t));
-		asprintf(&optval->name, "Copy Save to Memory Stick (%s:/PSP)", USER_STORAGE_DEV);
+		asprintf(&optval->name, "%s (%s:/PSP)", _("Copy Save to Memory Stick"), USER_STORAGE_DEV);
 		asprintf(&optval->value, "%c", CMD_COPY_SAVE_HDD);
 		list_append(cmd->options[0].opts, optval);
 	}
@@ -242,7 +242,7 @@ static void _addBackupCommands(save_entry_t* item)
 	}
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_ZIP " ", _("Export save game to Zip"), CMD_CODE_NULL);
-	_createOptions(cmd, "Export Zip to Backup Storage", CMD_EXPORT_ZIP_USB);
+	_createOptions(cmd, _("Export Zip to Backup Storage"), CMD_EXPORT_ZIP_USB);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Export decrypted save files"), CMD_CODE_NULL);
@@ -505,17 +505,17 @@ int ReadVmcCodes(save_entry_t * save)
 	}
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Export save game to MCS format"), CMD_CODE_NULL);
-	_createOptions(cmd, "Copy Save to Mass Storage", CMD_EXP_VMCSAVE);
+	_createOptions(cmd, _("Copy Save to Mass Storage"), CMD_EXP_VMCSAVE);
 	cmd->options[0].id = PS1SAVE_MCS;
 	list_append(save->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Export save game to PSV format"), CMD_CODE_NULL);
-	_createOptions(cmd, "Copy Save to Mass Storage", CMD_EXP_VMCSAVE);
+	_createOptions(cmd, _("Copy Save to Mass Storage"), CMD_EXP_VMCSAVE);
 	cmd->options[0].id = PS1SAVE_PSV;
 	list_append(save->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Export save game to PSX format"), CMD_CODE_NULL);
-	_createOptions(cmd, "Copy Save to Mass Storage", CMD_EXP_VMCSAVE);
+	_createOptions(cmd, _("Copy Save to Mass Storage"), CMD_EXP_VMCSAVE);
 	cmd->options[0].id = PS1SAVE_AR;
 	list_append(save->codes, cmd);
 
@@ -578,9 +578,9 @@ int ReadOnlineSaves(save_entry_t * game)
 		item = _createCmdCode(PATCH_COMMAND, CHAR_ICON_ZIP " ", ptr, CMD_CODE_NULL);
 		item->file = strdup(line);
 
-		_createOptions(item, "Download to Backup Storage", CMD_DOWNLOAD_USB);
+		_createOptions(item, _("Download to Backup Storage"), CMD_DOWNLOAD_USB);
 		optval = malloc(sizeof(option_value_t));
-		asprintf(&optval->name, "Download to Memory Stick (ms0:/PSP)");
+		asprintf(&optval->name, "%s (ms0:/PSP)", _("Download to Memory Stick"));
 		asprintf(&optval->value, "%c%c", (game->flags & SAVE_FLAG_FTP) ? CMD_DOWNLOAD_HDD : CMD_DOWNLOAD_USB, STORAGE_MS0_PSP);
 		list_append(item->options[0].opts, optval);
 		list_append(game->codes, item);
@@ -1056,11 +1056,11 @@ list_t * ReadUserList(const char* userPath)
 	((void**)item->dir_name)[0] = list;
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Copy selected Saves to Backup Storage"), CMD_CODE_NULL);
-	_createOptions(cmd, "Copy Saves to Backup Storage", CMD_COPY_SAVES_USB);
+	_createOptions(cmd, _("Copy Saves to Backup Storage"), CMD_COPY_SAVES_USB);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Copy all Saves to Backup Storage"), CMD_CODE_NULL);
-	_createOptions(cmd, "Copy Saves to Backup Storage", CMD_COPY_ALL_SAVES_USB);
+	_createOptions(cmd, _("Copy Saves to Backup Storage"), CMD_COPY_ALL_SAVES_USB);
 	list_append(item->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Resign selected Saves"), CMD_RESIGN_SAVES);
@@ -1195,10 +1195,10 @@ list_t * ReadVmcList(const char* userPath)
 	item->title_id = strdup(strrchr(filePath, '/')+1);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Export selected Saves to Backup Storage"), CMD_CODE_NULL);
-	_createOptions(cmd, "Copy Saves to Backup Storage", CMD_EXP_SAVES_VMC);
+	_createOptions(cmd, _("Copy Saves to Backup Storage"), CMD_EXP_SAVES_VMC);
 	list_append(item->codes, cmd);
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_COPY " ", _("Export all Saves to Backup Storage"), CMD_CODE_NULL);
-	_createOptions(cmd, "Copy Saves to Backup Storage", CMD_EXP_ALL_SAVES_VMC);
+	_createOptions(cmd, _("Copy Saves to Backup Storage"), CMD_EXP_ALL_SAVES_VMC);
 	list_append(item->codes, cmd);
 	add_vmp_commands(item);
 	list_append(list, item);
