@@ -154,15 +154,11 @@ void update_callback(int sel)
 		return;
 	}
 
-	char *buffer;
-	long size = 0;
-
-	buffer = readTextFile(APOLLO_LOCAL_CACHE "ver.check", &size);
-
+	char *buffer = readTextFile(APOLLO_LOCAL_CACHE "ver.check");
 	if (!buffer)
 		return;
 
-	LOG("received %ld bytes", size);
+	LOG("received %ld bytes", strlen(buffer));
 
 	static const char find[] = "\"name\":\"Apollo Save Tool v";
 	const char* start = strstr(buffer, find);
@@ -276,7 +272,7 @@ static void ftp_url_callback(int sel)
 	// test the connection
 	init_loading_screen("Testing connection...");
 	ret = http_download(apollo_config.ftp_url, "apollo.txt", APOLLO_LOCAL_CACHE "users.ftp", 0);
-	data = ret ? readTextFile(APOLLO_LOCAL_CACHE "users.ftp", NULL) : NULL;
+	data = ret ? readTextFile(APOLLO_LOCAL_CACHE "users.ftp") : NULL;
 	if (!data)
 		data = strdup("; Apollo Save Tool (" APOLLO_PLATFORM ") v" APOLLO_VERSION "\r\n");
 
