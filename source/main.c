@@ -207,7 +207,7 @@ static void helpFooter(void)
 	char footer[256];
 	u8 alpha = 0xFF;
 
-	if (pspPadGetConf()->idle > 0x100)
+	if (apollo_config.doAni && pspPadGetConf()->idle > 0x100)
 	{
 		int dec = (pspPadGetConf()->idle - 0x100) * 4;
 		alpha = (dec > alpha) ? 0 : (alpha - dec);
