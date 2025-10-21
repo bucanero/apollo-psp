@@ -1,0 +1,739 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Apollo Save Tool\n"
+"POT-Creation-Date: 2025-10-20 15:22-0300\n"
+"PO-Revision-Date: 2025-10-21 19:09-0300\n"
+"Last-Translator: bucanero\n"
+"Language-Team: github.com/bucanero\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.8\n"
+"X-Poedit-Basepath: source\n"
+"X-Poedit-KeywordsList: _;_i18n\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: exec_cmd.c:53 exec_cmd.c:97 exec_cmd.c:148
+msgid "Error! Export folder is not available:"
+msgstr "¡Error! La carpeta de exportación no está disponible:"
+
+#: exec_cmd.c:59 exec_cmd.c:174
+msgid "Error downloading save game from:"
+msgstr "Error descargando partida guardada desde:"
+
+#: exec_cmd.c:64 exec_cmd.c:203
+msgid "Save game successfully downloaded to:"
+msgstr "Partida guardada descargada exitosamente a:"
+
+#: exec_cmd.c:66 exec_cmd.c:185 exec_cmd.c:205
+msgid "Error extracting save game!"
+msgstr "¡Error extrayendo partida guardada!"
+
+#: exec_cmd.c:127
+msgid "Error! Can't export save game to:"
+msgstr "¡Error! No se puede exportar partida guardada a:"
+
+#: exec_cmd.c:131
+msgid "Zip file successfully saved to:"
+msgstr "Archivo Zip guardado exitosamente en:"
+
+#: exec_cmd.c:142 exec_cmd.c:274
+msgid "Copy operation cancelled!"
+msgstr "Operación de copia cancelada!"
+
+#: exec_cmd.c:142 exec_cmd.c:274
+msgid "Same source and destination."
+msgstr "Origen y destino iguales."
+
+#: exec_cmd.c:162
+msgid "Files successfully copied to:"
+msgstr "Archivos copiados exitosamente a:"
+
+#: exec_cmd.c:194
+msgid "Save game already exists:"
+msgstr "La partida guardada ya existe:"
+
+#: exec_cmd.c:194
+msgid "Overwrite?"
+msgstr "¿Sobrescribir?"
+
+#: exec_cmd.c:283
+msgid "Save-game successfully copied to:"
+msgstr "Partida guardada copiada exitosamente a:"
+
+#: exec_cmd.c:286
+msgid "Error! Can't copy Save-game folder:"
+msgstr "¡Error! No se pudo copiar carpeta de partida:"
+
+#: exec_cmd.c:314
+msgid "Saves copied to Memory Stick"
+msgstr "Partidas copiadas a Memory Stick"
+
+#: exec_cmd.c:350
+msgid "All files extracted to:"
+msgstr "Todos los archivos extraídos a:"
+
+#: exec_cmd.c:352
+#, c-format
+msgid "Error: %s couldn't be extracted"
+msgstr "Error: %s no pudo ser extraído"
+
+#: exec_cmd.c:362 exec_cmd.c:392
+msgid "Error! Game Key file is not available:"
+msgstr "¡Error! La Game Key no está disponible:"
+
+#: exec_cmd.c:370
+msgid "Error! Can't open file:"
+msgstr "¡Error! No se pudo abrir archivo:"
+
+#: exec_cmd.c:381 exec_cmd.c:400
+msgid "game key successfully saved to:"
+msgstr "game key guardado exitosamente en:"
+
+#: exec_cmd.c:402
+msgid "Error! Can't save file:"
+msgstr "¡Error! No se pudo guardar archivo:"
+
+#: exec_cmd.c:426
+msgid "game keys dumped to:"
+msgstr "game keys guardados en:"
+
+#: exec_cmd.c:587
+msgid "Web Server on:"
+msgstr "Servidor Web en:"
+
+#: exec_cmd.c:587
+msgid "Press OK to stop the Server."
+msgstr "Presione OK para detener el Servidor."
+
+#: exec_cmd.c:590
+msgid "Error starting Web Server!"
+msgstr "¡Error iniciando Servidor Web!"
+
+#: exec_cmd.c:607
+msgid "Error! Folder is not available:"
+msgstr "¡Error! La carpeta no está disponible:"
+
+#: exec_cmd.c:628
+msgid "Saves copied to:"
+msgstr "Partidas copiadas a:"
+
+#: exec_cmd.c:657
+msgid "Saves exported to:"
+msgstr "Partidas exportadas a:"
+
+#: exec_cmd.c:678
+msgid "Save successfully exported to:"
+msgstr "Partida exportada exitosamente a:"
+
+#: exec_cmd.c:680
+msgid "Error exporting save:"
+msgstr "Error exportando partida:"
+
+#: exec_cmd.c:687
+#, c-format
+msgid "Do you want to delete %s?"
+msgstr "¿Desea eliminar %s?"
+
+#: exec_cmd.c:703
+msgid "Save successfully deleted:"
+msgstr "Partida eliminada exitosamente:"
+
+#: exec_cmd.c:705
+msgid "Error! Couldn't delete save:"
+msgstr "¡Error! No se pudo eliminar partida:"
+
+#: exec_cmd.c:910
+msgid "Error! Cheat codes couldn't be applied"
+msgstr "¡Error! No se pudieron aplicar los códigos de trucos"
+
+#: exec_cmd.c:914
+msgid "Error! Save couldn't be resigned"
+msgstr "¡Error! No se pudo resignar partida"
+
+#: exec_cmd.c:916
+#, c-format
+msgid "Save %s successfully modified!"
+msgstr "¡Partida %s modificada exitosamente!"
+
+#: exec_cmd.c:943
+msgid "Saves resigned"
+msgstr "Partidas reasignadas"
+
+#: exec_cmd.c:1027 menu_main.c:231 menu_main.c:251 settings.c:259
+msgid "Network is not available!"
+msgstr "¡La red no está disponible!"
+
+#: exec_cmd.c:1027 menu_main.c:231 menu_main.c:251 settings.c:259
+msgid "Please connect to a network first."
+msgstr "Por favor conéctese a una red."
+
+#: exec_cmd.c:1031
+#, c-format
+msgid "Do you want to upload %s?"
+msgstr "¿Desea subir %s?"
+
+#: exec_cmd.c:1072
+msgid "Error! Couldn't zip save:"
+msgstr "¡Error! No se pudo comprimir partida:"
+
+#: exec_cmd.c:1128
+msgid "Save successfully uploaded:"
+msgstr "Partida subida exitosamente:"
+
+#: exec_cmd.c:1130
+msgid "Error! Couldn't upload save:"
+msgstr "¡Error! No se pudo subir partida:"
+
+#: exec_cmd.c:1143
+msgid "Memory card successfully imported to:"
+msgstr "Tarjeta de memoria importada exitosamente a:"
+
+#: exec_cmd.c:1145
+msgid "Error importing memory card:"
+msgstr "Error importando tarjeta de memoria:"
+
+#: exec_cmd.c:1159
+msgid "Memory card successfully exported to:"
+msgstr "Tarjeta de memoria exportada exitosamente a:"
+
+#: exec_cmd.c:1161
+msgid "Error exporting memory card:"
+msgstr "Error exportando tarjeta de memoria:"
+
+#: exec_cmd.c:1181 exec_cmd.c:1209
+#, c-format
+msgid "Error! No game decryption key available for %s"
+msgstr "¡Error! No hay game key de encriptación para %s"
+
+#: exec_cmd.c:1194 exec_cmd.c:1199
+#, c-format
+msgid "Error! File %s couldn't be exported"
+msgstr "¡Error! El archivo %s no pudo ser exportado"
+
+#: exec_cmd.c:1196
+msgid "File successfully exported to:"
+msgstr "Archivo exportado exitosamente a:"
+
+#: exec_cmd.c:1216
+msgid "Error! Can't find decrypted save-game file:"
+msgstr "¡Error! No se puede encontrar archivo de partida desencriptado:"
+
+#: exec_cmd.c:1226 exec_cmd.c:1231
+#, c-format
+msgid "Error! File %s couldn't be imported"
+msgstr "¡Error! El archivo %s no pudo ser importado"
+
+#: exec_cmd.c:1228
+msgid "File successfully imported to:"
+msgstr "Archivo importado exitosamente a:"
+
+#: exec_cmd.c:1239
+msgid "Download URL"
+msgstr "URL de Descarga"
+
+#: exec_cmd.c:1246
+msgid "File successfully downloaded to:"
+msgstr "Archivo descargado exitosamente a:"
+
+#: exec_cmd.c:1248
+msgid "Error! File couldn't be downloaded"
+msgstr "¡Error! No se pudo descargar el archivo"
+
+#: exec_cmd.c:1305
+msgid "Plugin successfully set up"
+msgstr "Plugin configurado correctamente"
+
+#: exec_cmd.c:1307
+msgid "Error! Plugin couldn't be set up"
+msgstr "¡Error! El plugin no pudo ser configurado"
+
+#: exec_cmd.c:1325
+msgid "Memory card successfully resigned:"
+msgstr "Tarjeta de memoria resignada exitosamente:"
+
+#: exec_cmd.c:1327
+msgid "Error resigning memory card:"
+msgstr "Error resignando tarjeta de memoria:"
+
+#: exec_cmd.c:1372
+msgid "Save successfully imported:"
+msgstr "Partida importada exitosamente:"
+
+#: exec_cmd.c:1374
+msgid "Error! Couldn't import save:"
+msgstr "¡Error! No se pudo importar partida:"
+
+#: exec_cmd.c:1415
+#, c-format
+msgid "ISO successfully saved to %s"
+msgstr "ISO guardado exitosamente en %s"
+
+#: exec_cmd.c:1417
+msgid "Error! ISO couldn't be created"
+msgstr "Error: ISO no pudo ser creado"
+
+#: exec_cmd.c:1423
+#, c-format
+msgid "CSO successfully saved to %s"
+msgstr "CSO guardado exitosamente en %s"
+
+#: exec_cmd.c:1425
+msgid "Error! CSO couldn't be created"
+msgstr "Error: CSO no pudo ser creado"
+
+#: main.c:170 main.c:174 main.c:179 main.c:189
+msgid "Select"
+msgstr "Seleccionar"
+
+#: main.c:170 main.c:174 main.c:179 main.c:185 main.c:189
+msgid "Back"
+msgstr "Atrás"
+
+#: main.c:170 menu_cheats.c:253
+msgid "Details"
+msgstr "Detalles"
+
+#: main.c:170 main.c:174
+msgid "Refresh"
+msgstr "Actualizar"
+
+#: main.c:189
+msgid "View Code"
+msgstr "Ver Código"
+
+#: main.c:193
+msgid "Value Up"
+msgstr "Valor Arriba"
+
+#: main.c:193
+msgid "Value Down"
+msgstr "Valor Abajo"
+
+#: main.c:193
+msgid "Exit"
+msgstr "Salir"
+
+#: main.c:422
+msgid "Internal Saves"
+msgstr "Partidas Internas"
+
+#: main.c:423
+msgid "External Saves"
+msgstr "Partidas Externas"
+
+#: main.c:424
+msgid "FTP Server"
+msgstr "Servidor FTP"
+
+#: main.c:425
+msgid "User Tools"
+msgstr "Herramientas de Usuario"
+
+#: main.c:426
+msgid "Online Database"
+msgstr "Base de Datos Online"
+
+#: main.c:427 saves.c:302
+msgid "Virtual Memory Card"
+msgstr "Tarjeta de Memoria Virtual"
+
+#: main.c:530
+msgid "Install the Save-game Key dumper plugin?"
+msgstr "Instalar el plugin para capturar Game Keys?"
+
+#: main.c:550
+msgid "Successfully installed local application data"
+msgstr "Datos de aplicación local instalados exitosamente"
+
+#: menu_about.c:97 menu_about.c:129
+msgid "About"
+msgstr "Acerca de"
+
+#: menu_cheats.c:112 menu_cheats.c:142 menu_cheats.c:162
+msgid "Options"
+msgstr "Opciones"
+
+#: menu_cheats.c:207
+msgid "Target File:"
+msgstr "Archivo Objetivo:"
+
+#: menu_cheats.c:509
+msgid "Saves"
+msgstr "Partidas"
+
+#: menu_cheats.c:514
+msgid "Games"
+msgstr "Juegos"
+
+#: menu_cheats.c:518
+msgid "Tools"
+msgstr "Herramientas"
+
+#: menu_cheats.c:522
+msgid "PS1 Saves"
+msgstr "Partidas PS1"
+
+#: menu_hex.c:52 menu_hex.c:72
+msgid "Hex Editor"
+msgstr "Editor Hexadecimal"
+
+#: menu_main.c:86
+msgid "No save-games found"
+msgstr "No se encontraron partidas guardadas"
+
+#: menu_main.c:245
+msgid "No FTP Server URL set"
+msgstr "URL del Servidor FTP no definida"
+
+#: menu_main.c:330
+msgid "Patch view"
+msgstr "Vista de parches"
+
+#: menu_main.c:434
+msgid "No data found in folder:"
+msgstr "No se encontraron datos en la carpeta:"
+
+#: menu_main.c:486
+msgid "Exit to XMB?"
+msgstr "Salir al XMB?"
+
+#: menu_main.c:630
+#, c-format
+msgid "Save changes to %s?"
+msgstr "¿Guardar cambios en %s?"
+
+#: menu_main.c:725
+msgid "Failed to load:"
+msgstr "Falló al cargar:"
+
+#: menu_options.c:56 menu_options.c:76
+msgid "Settings"
+msgstr "Configuración"
+
+#: saves.c:217
+msgid "Apply Changes & Resign"
+msgstr "Aplicar Cambios y Resignar"
+
+#: saves.c:220 saves.c:491
+msgid "View Save Details"
+msgstr "Ver Detalles de Partida"
+
+#: saves.c:224 saves.c:498
+msgid "Save Backup"
+msgstr "Copia de Seguridad de Partida"
+
+#: saves.c:227
+msgid "Copy save game"
+msgstr "Copiar partida guardada"
+
+#: saves.c:228
+msgid "Copy Save to Backup Storage"
+msgstr "Copiar Partida a Backup Storage"
+
+#: saves.c:232
+msgid "Copy Save to Memory Stick"
+msgstr "Copiar Partida a Memory Stick"
+
+#: saves.c:240 saves.c:503
+msgid "Upload save backup to FTP"
+msgstr "Subir copia de seguridad de partida a FTP"
+
+#: saves.c:244
+msgid "Export save game to Zip"
+msgstr "Exportar partida guardada a Zip"
+
+#: saves.c:245
+msgid "Export Zip to Backup Storage"
+msgstr "Exportar Zip a Backup Storage"
+
+#: saves.c:248
+msgid "Export decrypted save files"
+msgstr "Exportar archivos de partida desencriptados"
+
+#: saves.c:253
+msgid "Import decrypted save files"
+msgstr "Importar archivos de partida desencriptados"
+
+#: saves.c:258
+msgid "Hex Edit save game files"
+msgstr "Editar hexadecimalmente archivos de partida"
+
+#: saves.c:307
+msgid "Resign Memory Card"
+msgstr "Resignar Tarjeta de Memoria"
+
+#: saves.c:311
+msgid "Export Memory Card to .MCR"
+msgstr "Exportar Tarjeta de Memoria a .MCR"
+
+#: saves.c:314
+#, c-format
+msgid "Import .MCR files to %s"
+msgstr "Importar archivos .MCR a %s"
+
+#: saves.c:328 saves.c:494
+msgid "Delete Save Game"
+msgstr "Eliminar Partida Guardada"
+
+#: saves.c:332
+msgid "Game Key Backup"
+msgstr "Copia de Seguridad de Game Key"
+
+#: saves.c:335
+msgid "Export binary Game Key"
+msgstr "Exportar Game Key binario"
+
+#: saves.c:338
+msgid "Dump Game Key (text file)"
+msgstr "Guardar Game Key (archivo de texto)"
+
+#: saves.c:375
+msgid "Cheats"
+msgstr "Trucos"
+
+#: saves.c:378
+msgid "View Raw Patch File"
+msgstr "Ver Archivo de Parche en Bruto"
+
+#: saves.c:507
+msgid "Export save game to MCS format"
+msgstr "Exportar partida guardada a formato .MCS"
+
+#: saves.c:508 saves.c:513 saves.c:518
+msgid "Copy Save to Mass Storage"
+msgstr "Copiar Partida a Memoria"
+
+#: saves.c:512
+msgid "Export save game to PSV format"
+msgstr "Exportar partida guardada a formato .PSV"
+
+#: saves.c:517
+msgid "Export save game to PSX format"
+msgstr "Exportar partida guardada a formato .PSX"
+
+#: saves.c:581
+msgid "Download to Backup Storage"
+msgstr "Descargar a Backup Storage"
+
+#: saves.c:583
+msgid "Download to Memory Stick"
+msgstr "Descargar a Memory Stick"
+
+#: saves.c:603
+msgid "Extract Archives (Zip, 7z)"
+msgstr "Extraer Archivos (Zip, 7z)"
+
+#: saves.c:609
+msgid "Manage Save-game Key Dumper plugin"
+msgstr "Configurar plugin de Game Key"
+
+#: saves.c:614
+msgid "Network Tools"
+msgstr "Herramientas de Red"
+
+#: saves.c:619
+msgid "Decompress .CSO to .ISO"
+msgstr "Descomprimir .CSO a .ISO"
+
+#: saves.c:625
+msgid "Compress .ISO to .CSO"
+msgstr "Comprimir .ISO a .CSO"
+
+#: saves.c:652
+msgid "Convert"
+msgstr "Convertir"
+
+#: saves.c:690
+msgid "URL link Downloader (http, https, ftp, ftps)"
+msgstr "Descargador de enlaces URL (http, https, ftp, ftps)"
+
+#: saves.c:692
+msgid "Local Web Server (full system access)"
+msgstr "Servidor Web Local (acceso completo al sistema)"
+
+#: saves.c:699
+msgid "Install Save-game Key Dumper plugin"
+msgstr "Instalar plugin de captura de Game Key"
+
+#: saves.c:702
+msgid "Disable Save-game Key Dumper plugin"
+msgstr "Desactivar plugin de captura de Game Key"
+
+#: saves.c:727
+msgid "Extract"
+msgstr "Extraer"
+
+#: saves.c:1005 saves.c:1050
+msgid "Bulk Save Management"
+msgstr "Gestión Masiva de Partidas"
+
+#: saves.c:1013
+msgid "Copy selected Saves to Memory Stick"
+msgstr "Copiar Partidas Seleccionadas a Memory Stick"
+
+#: saves.c:1017
+msgid "Copy All Saves to Memory Stick"
+msgstr "Copiar Todas las Partidas a Memory Stick"
+
+#: saves.c:1021 saves.c:1066
+msgid "Resign selected Saves"
+msgstr "Refirmar Partidas Seleccionadas"
+
+#: saves.c:1023 saves.c:1068
+msgid "Resign All Saves"
+msgstr "Refirmar Todas las Partidas"
+
+#: saves.c:1026 saves.c:1071
+msgid "Start local Web Server"
+msgstr "Iniciar Servidor Web Local"
+
+#: saves.c:1029 saves.c:1074
+msgid "Export all Save-game Keys"
+msgstr "Exportar Todas las Game Keys"
+
+#: saves.c:1058
+msgid "Copy selected Saves to Backup Storage"
+msgstr "Copiar Partidas Seleccionadas a Backup Storage"
+
+#: saves.c:1059 saves.c:1063 saves.c:1198 saves.c:1201
+msgid "Copy Saves to Backup Storage"
+msgstr "Copiar Partidas a Backup Storage"
+
+#: saves.c:1062
+msgid "Copy all Saves to Backup Storage"
+msgstr "Copiar Todas las Partidas a Backup Storage"
+
+#: saves.c:1185
+msgid "Memory Card Management"
+msgstr "Gestión de Tarjeta de Memoria"
+
+#: saves.c:1197
+msgid "Export selected Saves to Backup Storage"
+msgstr "Exportar Partidas Seleccionadas a Backup Storage"
+
+#: saves.c:1200
+msgid "Export all Saves to Backup Storage"
+msgstr "Exportar Todas las Partidas a Backup Storage"
+
+#: saves.c:1206
+msgid "Import Saves to Virtual Card"
+msgstr "Importar Partidas a Tarjeta Virtual"
+
+#: settings.c:24
+msgid "Disabled"
+msgstr "Deshabilitado"
+
+#: settings.c:24
+msgid "by Name"
+msgstr "por Nombre"
+
+#: settings.c:24
+msgid "by Title ID"
+msgstr "por ID de Título"
+
+#: settings.c:24
+msgid "by Type"
+msgstr "por Tipo"
+
+#: settings.c:37
+msgid "Background Music"
+msgstr "Música de Fondo"
+
+#: settings.c:43
+msgid "Menu Animations"
+msgstr "Animaciones de Menú"
+
+#: settings.c:49
+msgid "Sort Saves"
+msgstr "Ordenar Partidas"
+
+#: settings.c:55
+msgid "External Saves Source"
+msgstr "Origen de Partidas Externas"
+
+#: settings.c:61
+msgid "Version Update Check"
+msgstr "Verificación de Actualización de Versión"
+
+#: settings.c:67
+msgid "Set User FTP Server URL"
+msgstr "Establecer URL del Servidor FTP"
+
+#: settings.c:73
+msgid "Update Application Data"
+msgstr "Actualizar Datos de Aplicación"
+
+#: settings.c:79
+msgid "Clear Local Cache"
+msgstr "Limpiar Caché Local"
+
+#: settings.c:85
+msgid "Change Online Database URL"
+msgstr "Cambiar URL de Base de Datos Online"
+
+#: settings.c:91
+msgid "Enable Debug Log"
+msgstr "Habilitar Registro de Depuración"
+
+#: settings.c:121
+msgid "Local cache folder cleaned:"
+msgstr "Carpeta de caché local limpiada:"
+
+#: settings.c:130
+msgid "Error! Can't download data update pack!"
+msgstr "¡Error! No se puede descargar la actualización!"
+
+#: settings.c:135
+#, c-format
+msgid "Successfully updated %d data files!"
+msgstr "Actualizados exitosamente %d archivos!"
+
+#: settings.c:137
+msgid "Error! Can't extract data update pack!"
+msgstr "¡Error! No se puede extraer la actualización!"
+
+#: settings.c:204
+msgid "New version available! Download update?"
+msgstr "¡Nueva versión disponible! ¿Descargar actualización?"
+
+#: settings.c:207
+msgid "Update downloaded to:"
+msgstr "Actualización descargada a:"
+
+#: settings.c:209
+msgid "Download error!"
+msgstr "¡Error de descarga!"
+
+#: settings.c:231
+msgid "Debug Logging Disabled"
+msgstr "Registro de Depuración Desactivado"
+
+#: settings.c:237
+msgid "Debug Logging Enabled!"
+msgstr "Registro de Depuración Activado!"
+
+#: settings.c:242
+msgid "Enter the Online Database URL"
+msgstr "Ingrese la URL de la Base de Datos Online"
+
+#: settings.c:248
+msgid "Online database URL changed to:"
+msgstr "Nueva URL de Base de Datos Online:"
+
+#: settings.c:264
+msgid "Enter the FTP server URL"
+msgstr "Ingrese la URL del Servidor FTP"
+
+#: settings.c:296
+msgid "FTP server URL changed to:"
+msgstr "Nueva URL del Servidor FTP:"
+
+#: settings.c:298
+msgid "Error! Couldn't connect to FTP server"
+msgstr "¡Error! No se pudo conectar al servidor FTP"
+
+#: settings.c:298
+msgid "Check debug logs for more information"
+msgstr "Revise los registros de depuración para más información"

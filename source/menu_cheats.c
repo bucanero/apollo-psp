@@ -519,7 +519,7 @@ static void get_subtitle(int type, size_t count, char* sub)
             break;
 
         case MENU_VMC_SAVES:
-            sprintf(sub, "%s", _("PS1 Saves"));
+            sprintf(sub, "%ld %s", count -2, _("PS1 Saves"));
             break;
 
         default:
