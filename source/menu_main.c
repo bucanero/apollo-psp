@@ -263,7 +263,7 @@ static void SetMenu(int id)
 
 			if (apollo_config.doAni)
 				Draw_UserCheatsMenu_Ani(&ftp_saves);
-			break;			
+			break;
 
 		case MENU_CREDITS: //About Menu
 			if (apollo_config.doAni)
@@ -435,7 +435,7 @@ static void doSaveMenu(save_list_t * save_list)
 			return;
 		}
 
-		if (apollo_config.doSort && 
+		if (apollo_config.doSort &&
 			((save_list->id == MENU_USER_BACKUP) || (save_list->id == MENU_ONLINE_DB)))
 			list_bubbleSort(selected_entry->codes, &sortCodeList_Compare);
 
@@ -452,7 +452,7 @@ static void doSaveMenu(save_list_t * save_list)
 			return;
 		}
 	}
-	else if (pspPadGetButtonPressed(PSP_CTRL_SELECT) && 
+	else if (pspPadGetButtonPressed(PSP_CTRL_SELECT) &&
 		(save_list->id == MENU_HDD_SAVES || save_list->id == MENU_USB_SAVES))
 	{
 		selected_entry = list_get_item(save_list->list, menu_sel);
@@ -686,7 +686,7 @@ static void doPatchViewMenu(void)
 		return;
 	}
 	
-	Draw_CheatsMenu_View("Patch view");
+	Draw_CheatsMenu_View(_("Patch view"));
 }
 
 static void doCodeOptionsMenu(void)
