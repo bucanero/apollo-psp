@@ -51,7 +51,6 @@ msgid "Files successfully copied to:"
 msgstr "Arquivos copiados com sucesso para:"
 
 #: exec_cmd.c:194
-#| msgid "Save game already exists in:"
 msgid "Save game already exists:"
 msgstr "Jogo salvo já existe:"
 
@@ -60,17 +59,14 @@ msgid "Overwrite?"
 msgstr "Sobrescrever?"
 
 #: exec_cmd.c:283
-#| msgid "Save game successfully downloaded to:"
 msgid "Save-game successfully copied to:"
 msgstr "Jogo salvo copiado com sucesso para:"
 
 #: exec_cmd.c:286
-#| msgid "Error! Can't find decrypted save-game file:"
 msgid "Error! Can't copy Save-game folder:"
 msgstr "Erro! Não é possível copiar a pasta do jogo salvo:"
 
 #: exec_cmd.c:314
-#| msgid "Saves copied to USB"
 msgid "Saves copied to Memory Stick"
 msgstr "Dados salvos copiados para o Memory Stick"
 
@@ -84,22 +80,18 @@ msgid "Error: %s couldn't be extracted"
 msgstr "Erro: %s não pôde ser extraído"
 
 #: exec_cmd.c:362 exec_cmd.c:392
-#| msgid "Error! Trophy folder is not available:"
 msgid "Error! Game Key file is not available:"
 msgstr "Erro! Arquivo da chave do jogo indisponível:"
 
 #: exec_cmd.c:370
-#| msgid "Error! Couldn't zip save:"
 msgid "Error! Can't open file:"
 msgstr "Erro! Não é possível abrir o arquivo:"
 
 #: exec_cmd.c:381 exec_cmd.c:400
-#| msgid "File successfully saved to:"
 msgid "game key successfully saved to:"
 msgstr "chave do jogo salva com sucesso em:"
 
 #: exec_cmd.c:402
-#| msgid "Error! Can't export save game to:"
 msgid "Error! Can't save file:"
 msgstr "Erro! Não é possível salvar o arquivo:"
 
@@ -108,7 +100,6 @@ msgid "game keys dumped to:"
 msgstr "chaves do jogo despejadas em:"
 
 #: exec_cmd.c:587
-#| msgid "Web Server listening on:"
 msgid "Web Server on:"
 msgstr "Servidor Web em:"
 
@@ -125,7 +116,6 @@ msgid "Error! Folder is not available:"
 msgstr "Erro! Pasta não está disponível:"
 
 #: exec_cmd.c:628
-#| msgid "Saves copied to USB"
 msgid "Saves copied to:"
 msgstr "Dados salvos copiados para:"
 
@@ -159,7 +149,6 @@ msgid "Error! Cheat codes couldn't be applied"
 msgstr "Erro! Os códigos de trapaça não puderam ser aplicados"
 
 #: exec_cmd.c:914
-#| msgid "Error! Save %s couldn't be resigned"
 msgid "Error! Save couldn't be resigned"
 msgstr "Erro! O dado salvo não pôde ser re-assinado"
 
@@ -173,7 +162,6 @@ msgid "Saves resigned"
 msgstr "Dados salvos re-assinados"
 
 #: exec_cmd.c:1027 menu_main.c:231 menu_main.c:251 settings.c:259
-#| msgid "Error! Folder is not available:"
 msgid "Network is not available!"
 msgstr "Rede não está disponível!"
 
@@ -221,12 +209,10 @@ msgstr "Erro! Nenhuma chave de descriptografia de jogo disponível para %s"
 
 #: exec_cmd.c:1194 exec_cmd.c:1199
 #, c-format
-#| msgid "Error! File %s couldn't be encrypted"
 msgid "Error! File %s couldn't be exported"
 msgstr "Erro! Não foi possível exportar o arquivo %s"
 
 #: exec_cmd.c:1196
-#| msgid "File successfully imported to:"
 msgid "File successfully exported to:"
 msgstr "Arquivo exportado com sucesso para:"
 
@@ -236,7 +222,6 @@ msgstr "Erro! Não é possível encontrar o arquivo de jogo salvo descriptografa
 
 #: exec_cmd.c:1226 exec_cmd.c:1231
 #, c-format
-#| msgid "Error! File %s couldn't be decrypted"
 msgid "Error! File %s couldn't be imported"
 msgstr "Erro! Não foi possível importar o arquivo %s"
 
@@ -257,12 +242,10 @@ msgid "Error! File couldn't be downloaded"
 msgstr "Erro! O arquivo não pôde ser baixado"
 
 #: exec_cmd.c:1305
-#| msgid "File successfully saved to:"
 msgid "Plugin successfully set up"
 msgstr "Plugin configurado com sucesso"
 
 #: exec_cmd.c:1307
-#| msgid "Error! File %s couldn't be decrypted"
 msgid "Error! Plugin couldn't be set up"
 msgstr "Erro! Não foi possível configurar o plugin"
 
@@ -284,23 +267,19 @@ msgstr "Erro! Não foi possível importar dado salvo:"
 
 #: exec_cmd.c:1415
 #, c-format
-#| msgid "File successfully saved to:"
 msgid "ISO successfully saved to %s"
 msgstr "ISO salvo com sucesso em %s"
 
 #: exec_cmd.c:1417
-#| msgid "Error: %s couldn't be extracted"
 msgid "Error! ISO couldn't be created"
 msgstr "Erro! Não foi possível criar o ISO"
 
 #: exec_cmd.c:1423
 #, c-format
-#| msgid "File successfully saved to:"
 msgid "CSO successfully saved to %s"
 msgstr "CSO salvo com sucesso em %s"
 
 #: exec_cmd.c:1425
-#| msgid "Error: %s couldn't be extracted"
 msgid "Error! CSO couldn't be created"
 msgstr "Erro! Não foi possível criar o CSO"
 
@@ -405,11 +384,10 @@ msgid "No save-games found"
 msgstr "Nenhum jogo salvo encontrado"
 
 #: menu_main.c:245
-#| msgid "Set User FTP Server URL"
 msgid "No FTP Server URL set"
 msgstr "Nenhuma URL de servidor FTP definida"
 
-#: menu_main.c:330
+#: menu_main.c:330 menu_main.c:689
 msgid "Patch view"
 msgstr "Visualização de patch"
 
@@ -443,22 +421,18 @@ msgid "View Save Details"
 msgstr "Visualizar detalhes do jogo salvo"
 
 #: saves.c:224 saves.c:498
-#| msgid "Save Game Backup"
 msgid "Save Backup"
 msgstr "Backup de dado salvo"
 
 #: saves.c:227
-#| msgid "Copy save game to USB"
 msgid "Copy save game"
 msgstr "Copiar jogo salvo"
 
 #: saves.c:228
-#| msgid "Copy Save to USB"
 msgid "Copy Save to Backup Storage"
 msgstr "Copiar dado salvo para armazenamento de backup"
 
 #: saves.c:232
-#| msgid "Copy Save to USB"
 msgid "Copy Save to Memory Stick"
 msgstr "Copiar dado salvo para Memory Stick"
 
@@ -471,12 +445,10 @@ msgid "Export save game to Zip"
 msgstr "Exportar jogo salvo para Zip"
 
 #: saves.c:245
-#| msgid "Export Zip to USB"
 msgid "Export Zip to Backup Storage"
 msgstr "Exportar Zip para armazenamento de backup"
 
 #: saves.c:248
-#| msgid "Import decrypted save files"
 msgid "Export decrypted save files"
 msgstr "Exportar arquivos de salvamento descriptografados"
 
@@ -493,13 +465,11 @@ msgid "Resign Memory Card"
 msgstr "Re-assinar memory card"
 
 #: saves.c:311
-#| msgid "Export Memory Card to .VM1"
 msgid "Export Memory Card to .MCR"
 msgstr "Exportar memory card para .MCR"
 
 #: saves.c:314
 #, c-format
-#| msgid "Import .VM1 file to"
 msgid "Import .MCR files to %s"
 msgstr "Importar arquivos .MCR para %s"
 
@@ -508,7 +478,6 @@ msgid "Delete Save Game"
 msgstr "Excluir jogo salvo"
 
 #: saves.c:332
-#| msgid "Save Game Backup"
 msgid "Game Key Backup"
 msgstr "Backup da chave do jogo"
 
@@ -529,32 +498,26 @@ msgid "View Raw Patch File"
 msgstr "Visualizar arquivo de patch bruto"
 
 #: saves.c:507
-#| msgid "Export save game to .MCS format"
 msgid "Export save game to MCS format"
 msgstr "Exportar jogo salvo para o formato .MCS"
 
 #: saves.c:508 saves.c:513 saves.c:518
-#| msgid "Copy Save to USB"
 msgid "Copy Save to Mass Storage"
 msgstr "Copiar dado salvo para armazenamento em massa"
 
 #: saves.c:512
-#| msgid "Export save game to .PSV format"
 msgid "Export save game to PSV format"
 msgstr "Exportar jogo salvo para o formato .PSV"
 
 #: saves.c:517
-#| msgid "Export save game to .PSX format"
 msgid "Export save game to PSX format"
 msgstr "Exportar jogo salvo para o formato .PSX"
 
 #: saves.c:581
-#| msgid "Download to USB"
 msgid "Download to Backup Storage"
 msgstr "Baixar para armazenamento de backup"
 
 #: saves.c:583
-#| msgid "Download to USB"
 msgid "Download to Memory Stick"
 msgstr "Baixar para Memory Stick"
 
@@ -567,7 +530,6 @@ msgid "Manage Save-game Key Dumper plugin"
 msgstr "Gerenciar plugin despejador de chave de jogo salvo"
 
 #: saves.c:614
-#| msgid "User Tools"
 msgid "Network Tools"
 msgstr "Ferramentas de rede"
 
@@ -608,22 +570,18 @@ msgid "Bulk Save Management"
 msgstr "Gerenciamento de salvamentos em massa"
 
 #: saves.c:1013
-#| msgid "Copy selected Saves to USB"
 msgid "Copy selected Saves to Memory Stick"
 msgstr "Copiar dados salvos selecionados para Memory Stick"
 
 #: saves.c:1017
-#| msgid "Copy all Saves to USB"
 msgid "Copy All Saves to Memory Stick"
 msgstr "Copiar todos os dados salvos para Memory Stick"
 
 #: saves.c:1021 saves.c:1066
-#| msgid "Resign & Unlock selected Saves"
 msgid "Resign selected Saves"
 msgstr "Re-assinar dados salvos selecionados"
 
 #: saves.c:1023 saves.c:1068
-#| msgid "Resign .PSV Save"
 msgid "Resign All Saves"
 msgstr "Re-assinar todos os dados salvos"
 
@@ -632,22 +590,18 @@ msgid "Start local Web Server"
 msgstr "Iniciar servidor web local"
 
 #: saves.c:1029 saves.c:1074
-#| msgid "Export all Saves to USB"
 msgid "Export all Save-game Keys"
 msgstr "Exportar todas as chaves de jogo salvo"
 
 #: saves.c:1058
-#| msgid "Copy selected Saves to USB"
 msgid "Copy selected Saves to Backup Storage"
 msgstr "Copiar dados salvos selecionados para armazenamento de backup"
 
 #: saves.c:1059 saves.c:1063 saves.c:1198 saves.c:1201
-#| msgid "Copy Saves to USB"
 msgid "Copy Saves to Backup Storage"
 msgstr "Copiar dados salvos para armazenamento de backup"
 
 #: saves.c:1062
-#| msgid "Copy all Saves to USB"
 msgid "Copy all Saves to Backup Storage"
 msgstr "Copiar todos os dados salvos para armazenamento de backup"
 
@@ -656,12 +610,10 @@ msgid "Memory Card Management"
 msgstr "Gerenciamento de memory card"
 
 #: saves.c:1197
-#| msgid "Export selected Saves to USB"
 msgid "Export selected Saves to Backup Storage"
 msgstr "Exportar dados salvos selecionados para armazenamento de backup"
 
 #: saves.c:1200
-#| msgid "Export all Saves to USB"
 msgid "Export all Saves to Backup Storage"
 msgstr "Exportar todos os dados salvos para armazenamento de backup"
 
@@ -698,7 +650,6 @@ msgid "Sort Saves"
 msgstr "Ordenar dados salvos"
 
 #: settings.c:55
-#| msgid "USB Saves Source"
 msgid "External Saves Source"
 msgstr "Fonte de dados salvos externos"
 
@@ -736,12 +687,10 @@ msgstr "Erro! Não é possível baixar o pacote de atualização de dados!"
 
 #: settings.c:135
 #, c-format
-#| msgid "Successfully imported to VMC:"
 msgid "Successfully updated %d data files!"
 msgstr "%d arquivos de dados atualizados com sucesso!"
 
 #: settings.c:137
-#| msgid "Error! Can't export save game to:"
 msgid "Error! Can't extract data update pack!"
 msgstr "Erro! Não é possível extrair o pacote de atualização de dados!"
 
