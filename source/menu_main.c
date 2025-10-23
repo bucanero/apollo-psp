@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <string.h>
+#include <mini18n.h>
 
 #include "saves.h"
 #include "menu.h"
@@ -37,7 +38,10 @@ void initMenuOptions(void)
 {
 	menu_options_maxopt = 0;
 	while (menu_options[menu_options_maxopt].name)
+	{
+		menu_options[menu_options_maxopt].name = _(menu_options[menu_options_maxopt].name);
 		menu_options_maxopt++;
+	}
 	
 	menu_options_maxsel = (int *)calloc(menu_options_maxopt, sizeof(int));
 	
@@ -46,7 +50,10 @@ void initMenuOptions(void)
 		if (menu_options[i].type == APP_OPTION_LIST)
 		{
 			while (menu_options[i].options[menu_options_maxsel[i]])
+			{
+				menu_options[i].options[menu_options_maxsel[i]] = _(menu_options[i].options[menu_options_maxsel[i]]);
 				menu_options_maxsel[i]++;
+			}
 		}
 	}
 }
@@ -76,7 +83,7 @@ static int ReloadUserSaves(save_list_t* save_list)
 
 	if (!save_list->list)
 	{
-		show_message("No save-games found");
+		show_message(_("No save-games found"));
 		return 0;
 	}
 
@@ -90,7 +97,7 @@ static code_entry_t* LoadRawPatch(void)
 
 	centry->name = strdup(selected_entry->title_id);
 	snprintf(patchPath, sizeof(patchPath), APOLLO_DATA_PATH "%s.savepatch", selected_entry->title_id);
-	centry->codes = readTextFile(patchPath, NULL);
+	centry->codes = readTextFile(patchPath);
 
 	return centry;
 }
@@ -221,7 +228,7 @@ static void SetMenu(int id)
 		case MENU_ONLINE_DB: //Cheats Online Menu
 			if (!network_up())
 			{
-				show_message("Network is not available!\n\nPlease connect to a network first.");
+				show_message("%s\n\n%s", _("Network is not available!"), _("Please connect to a network first."));
 				return;
 			}
 
@@ -235,13 +242,13 @@ static void SetMenu(int id)
 		case MENU_FTP_SAVES: //FTP Online Menu
 			if (!apollo_config.ftp_url[0])
 			{
-				show_message("No FTP Server URL set");
+				show_message(_("No FTP Server URL set"));
 				return;
 			}
 
 			if (!network_up())
 			{
-				show_message("Network is not available!\n\nPlease connect to a network first.");
+				show_message("%s\n\n%s", _("Network is not available!"), _("Please connect to a network first."));
 				return;
 			}
 
@@ -256,7 +263,7 @@ static void SetMenu(int id)
 
 			if (apollo_config.doAni)
 				Draw_UserCheatsMenu_Ani(&ftp_saves);
-			break;			
+			break;
 
 		case MENU_CREDITS: //About Menu
 			if (apollo_config.doAni)
@@ -320,7 +327,7 @@ static void SetMenu(int id)
 		case MENU_PATCH_VIEW: //Cheat View Menu
 			menu_old_sel[MENU_PATCH_VIEW] = 0;
 			if (apollo_config.doAni)
-				Draw_CheatsMenu_View_Ani("Patch view");
+				Draw_CheatsMenu_View_Ani(_("Patch view"));
 			break;
 
 		case MENU_SAVE_DETAILS: //Save Detail View Menu
@@ -424,11 +431,11 @@ static void doSaveMenu(save_list_t * save_list)
 
 		if (!selected_entry->codes && !save_list->ReadCodes(selected_entry))
 		{
-			show_message("No data found in folder:\n%s", selected_entry->path);
+			show_message("%s\n%s", _("No data found in folder:"), selected_entry->path);
 			return;
 		}
 
-		if (apollo_config.doSort && 
+		if (apollo_config.doSort &&
 			((save_list->id == MENU_USER_BACKUP) || (save_list->id == MENU_ONLINE_DB)))
 			list_bubbleSort(selected_entry->codes, &sortCodeList_Compare);
 
@@ -445,7 +452,7 @@ static void doSaveMenu(save_list_t * save_list)
 			return;
 		}
 	}
-	else if (pspPadGetButtonPressed(PSP_CTRL_SELECT) && 
+	else if (pspPadGetButtonPressed(PSP_CTRL_SELECT) &&
 		(save_list->id == MENU_HDD_SAVES || save_list->id == MENU_USB_SAVES))
 	{
 		selected_entry = list_get_item(save_list->list, menu_sel);
@@ -476,7 +483,7 @@ static void doMainMenu(void)
 		return;
 	}
 
-	else if(pspPadGetButtonPressed(PSP_CTRL_CIRCLE) && show_dialog(DIALOG_TYPE_YESNO, "Exit to XMB?"))
+	else if(pspPadGetButtonPressed(PSP_CTRL_CIRCLE) && show_dialog(DIALOG_TYPE_YESNO, _("Exit to XMB?")))
 		close_app = 1;
 	
 	Draw_MainMenu();
@@ -620,7 +627,7 @@ static void doHexEditor(void)
 
 	else if (pspPadGetButtonPressed(PSP_CTRL_CIRCLE))
 	{
-		if (show_dialog(DIALOG_TYPE_YESNO, "Save changes to %s?", strrchr(hex_data.filepath, '/') + 1) &&
+		if (show_dialog(DIALOG_TYPE_YESNO, _("Save changes to %s?"), strrchr(hex_data.filepath, '/') + 1) &&
 			(write_buffer(hex_data.filepath, hex_data.data, hex_data.size) == SUCCESS))
 		{
 			option_value_t* optval = list_get_item(selected_centry->options[option_index].opts, menu_sel);
@@ -679,7 +686,7 @@ static void doPatchViewMenu(void)
 		return;
 	}
 	
-	Draw_CheatsMenu_View("Patch view");
+	Draw_CheatsMenu_View(_("Patch view"));
 }
 
 static void doCodeOptionsMenu(void)
@@ -715,7 +722,7 @@ static void doCodeOptionsMenu(void)
 				snprintf(hex_data.filepath, sizeof(hex_data.filepath), APOLLO_USER_PATH "%s/%s", USER_STORAGE_DEV, selected_entry->dir_name, optval->name);
 				if (read_buffer(hex_data.filepath, &hex_data.data, &hex_data.size) < 0)
 				{
-					show_message("Unable to load\n%s", hex_data.filepath);
+					show_message("%s\n%s", _("Failed to load:"), hex_data.filepath);
 					SetMenu(last_menu_id[MENU_CODE_OPTIONS]);
 					return;
 				}

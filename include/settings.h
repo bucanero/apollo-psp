@@ -5,7 +5,7 @@
 #define MENU_ICON_OFF 			35          //X Offset to start printing menu mini icon
 #define MENU_ANI_MAX 			0x80        //Max animation number
 #define MENU_SPLIT_OFF			100			//Offset from left of sub/split menu to start drawing
-#define OPTION_ITEM_OFF         365         //Offset from left of settings item/value
+#define OPTION_ITEM_OFF         395         //Offset from left of settings item/value
 
 #define USER_STORAGE_DEV        menu_options[3].options[apollo_config.storage]
 
@@ -20,8 +20,8 @@ enum app_option_type
 
 typedef struct
 {
-	char * name;
-	char * * options;
+	const char * name;
+	const char * * options;
 	int type;
 	uint8_t * value;
 	void(*callback)(int);

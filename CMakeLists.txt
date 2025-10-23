@@ -58,7 +58,6 @@ add_resources(apollo_res ${res_files})
 add_executable(${PROJECT_NAME}
   ${apollo_res}
   source/common.c
-  source/config.c
   source/dialog.c
   source/draw.c
   source/exec_cmd.c
@@ -99,6 +98,7 @@ target_link_libraries(${PROJECT_NAME}
   pspnet_apctl
   pspwlan
   pspopenpsid
+  mini18n
   zip
   un7zip
   lzma
@@ -124,6 +124,7 @@ add_custom_target(createzip
   COMMAND @curl -L "https://bucanero.github.io/apollo-patches/PSP/apollo-psp-update.zip" > APOLLO/CACHE/appdata.zip
   COMMAND @cp EBOOT.PBP APOLLO/
   COMMAND @cp ${CMAKE_SOURCE_DIR}/data/fonts/* APOLLO/DATA/
+  COMMAND @cp ${CMAKE_SOURCE_DIR}/data/langs/* APOLLO/DATA/
   COMMAND @zip -r apollo-psp.zip APOLLO/
 )
 
