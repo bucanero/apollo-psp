@@ -4,6 +4,7 @@
 [![Build app package](https://github.com/bucanero/apollo-psp/actions/workflows/build.yml/badge.svg)](https://github.com/bucanero/apollo-psp/actions/workflows/build.yml)
 ![PSP](https://img.shields.io/badge/-PSP-003791?style=flat&logo=PlayStation)
 [![Twitter](https://img.shields.io/twitter/follow/dparrino?label=Follow)](https://twitter.com/dparrino)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/bucanero/apollo-psp)
 
 **Apollo Save Tool** is an application to manage save-game files on the PlayStation Portable.
 
@@ -18,6 +19,8 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Easy to use:** no advanced setup needed.
 * **Standalone:** no computer required, everything happens on the PSP.
 * **Automatic settings:** auto-detection of User settings.
+* **Multi-format:** supports PSP and PS1 saves.
+* **Localization support:** English, Italian, Japanese, Portuguese, Spanish.
 
 ## Save Management
 
@@ -118,7 +121,7 @@ The Online Database project aims to [add more save-games](https://github.com/buc
 
 # Credits
 
-* [Bucanero](http://www.bucanero.com.ar/): [Project developer](https://github.com/bucanero)
+* [Bucanero](https://github.com/bucanero): [Project developer](https://bucanero.github.io/apollo-psp/)
 
 ## Acknowledgments
 
@@ -130,6 +133,12 @@ The Online Database project aims to [add more save-games](https://github.com/buc
 * [aldostools](https://aldostools.org/): [Bruteforce Save Data](https://bruteforcesavedata.forumms.net/)
 * [PiNk/abyss](http://amigascne.org/abyss/pink/index.html): [Background music track](https://github.com/bucanero/apollo-ps2/blob/main/data/inside.ahx)
 
+## Translators
+
+Apollo supports multiple languages for its user interface. Thanks to the following contributors for their help with translations:
+
+- [Bucanero](https://github.com/bucanero) (Spanish), [TheheroGAC](https://x.com/TheheroGAC) (Italian), [yyoossk](https://x.com/Cloud0835) (Japanese), [Phoenixx1202](https://github.com/Phoenixx1202) (Portuguese)
+
 # Building
 
 You need to have installed:
@@ -139,6 +148,7 @@ You need to have installed:
 - [mbedTLS](https://github.com/pspdev/psp-packages/tree/master/mbedtls) library
 - [cURL](https://github.com/pspdev/psp-packages/tree/master/curl) library
 - [libZip](https://github.com/pspdev/psp-packages/tree/master/libzip) library
+- [mini18n](https://github.com/bucanero/mini18n) library
 - [dbglogger](https://github.com/bucanero/dbglogger) library
 
 > [!TIP]

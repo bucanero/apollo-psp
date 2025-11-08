@@ -165,8 +165,6 @@ enum code_type_enum
     PATCH_BSD = APOLLO_CODE_BSD,
     PATCH_COMMAND,
     PATCH_SFO,
-    PATCH_TROP_UNLOCK,
-    PATCH_TROP_LOCK,
 };
 
 typedef struct save_entry

@@ -1,4 +1,4 @@
-#define APOLLO_VERSION          "2.0.0"     //Apollo PSP version (about menu)
+#define APOLLO_VERSION          "2.0.4"     //Apollo PSP version (about menu)
 #define APOLLO_PLATFORM         "PSP"       //Apollo platform
 
 #define MENU_TITLE_OFF			30			//Offset of menu title text from menu mini icon
