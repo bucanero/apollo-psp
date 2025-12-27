@@ -89,7 +89,6 @@ target_link_libraries(${PROJECT_NAME}
   ${SDL2_LIBRARIES}
   CURL::libcurl
   apollo
-  polarssl
   dbglogger
   freetype
   png

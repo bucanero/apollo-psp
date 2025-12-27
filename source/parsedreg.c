@@ -8,8 +8,8 @@ PSP Registry Parser v2 by Skylark (with minimal help from FreePlay :-P)
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <memory.h>
-#include <polarssl/sha1.h>
+#include <inttypes.h>
+#include <mbedtls/sha1.h>
 #include <pspsdk.h>
 
 #include "types.h"
@@ -87,7 +87,7 @@ static void getcheck(uint8_t *block, int len, uint8_t *check)
 	memset(block+14, 0, 4);
 
 	// Calculate SHA-1 hash of the block
-	sha1(block, len, res);
+	mbedtls_sha1(block, len, res);
 
 	memcpy(block+14, save, 4);
 

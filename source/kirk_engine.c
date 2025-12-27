@@ -29,8 +29,8 @@
 #include <string.h>
 #include <time.h>
 #include "kirk_engine.h"
-#include <polarssl/aes.h>
-#include <polarssl/sha1.h>
+#include <mbedtls/aes.h>
+#include <mbedtls/sha1.h>
 
 /* ------------------------- KEY VAULT ------------------------- */
 static u8 keyvault[0x80][0x10] =
@@ -185,7 +185,7 @@ typedef struct header_keys
 static u32 g_fuse90;  // This is to match FuseID HW at BC100090 and BC100094
 static u32 g_fuse94;
 
-static aes_context aes_kirk1; //global
+static mbedtls_aes_context aes_kirk1; //global
 static u8 PRNG_DATA[0x14];
 static u8 g_mesh[0x40];
 
@@ -193,20 +193,20 @@ static char is_kirk_initialized = 0; //"init" emulation
 
 /* ------------------------- INTERNAL STUFF END ------------------------- */
 
-static void AES_cbc_encrypt(aes_context *ctx, u8 *src, u8 *dst, int size)
+static void AES_cbc_encrypt(mbedtls_aes_context *ctx, u8 *src, u8 *dst, int size)
 {
   u8 iv[16];
   
   memset(iv, 0, 16);
-  aes_crypt_cbc(ctx, AES_ENCRYPT, size, iv, src, dst);
+  mbedtls_aes_crypt_cbc(ctx, MBEDTLS_AES_ENCRYPT, size, iv, src, dst);
 }
 
-static void AES_cbc_decrypt(aes_context *ctx, u8 *src, u8 *dst, int size)
+static void AES_cbc_decrypt(mbedtls_aes_context *ctx, u8 *src, u8 *dst, int size)
 {
   u8 iv[16];
   
   memset(iv, 0, 16);
-  aes_crypt_cbc(ctx, AES_DECRYPT, size, iv, src, dst);
+  mbedtls_aes_crypt_cbc(ctx, MBEDTLS_AES_DECRYPT, size, iv, src, dst);
 }
 
 /* AES-CMAC Generation Function */
@@ -229,14 +229,14 @@ static void xor_128(const u8 *a, const u8 *b, u8 *out)
     out[i] = a[i] ^ b[i];
 }
 
-static void generate_subkey(aes_context *ctx, u8 *K1, u8 *K2)
+static void generate_subkey(mbedtls_aes_context *ctx, u8 *K1, u8 *K2)
 {
   u8 L[16];
   u8 Z[16];
   u8 tmp[16];
     
   memset(Z, 0, sizeof(Z));
-  aes_crypt_ecb(ctx, AES_ENCRYPT, Z, L);
+  mbedtls_aes_crypt_ecb(ctx, MBEDTLS_AES_ENCRYPT, Z, L);
     
   if ( (L[0] & 0x80) == 0 ) /* If MSB(L) = 0, then K1 = L << 1 */
   {
@@ -271,7 +271,7 @@ static void padding(u8 *lastb, u8 *pad, int length)
   }
 }
 
-static void AES_CMAC(aes_context *ctx, u8 *input, int length, u8 *mac)
+static void AES_CMAC(mbedtls_aes_context *ctx, u8 *input, int length, u8 *mac)
 {
   u8 X[16], Y[16], M_last[16], padded[16];
   u8 K1[16], K2[16];
@@ -303,11 +303,11 @@ static void AES_CMAC(aes_context *ctx, u8 *input, int length, u8 *mac)
   for ( i=0; i<n-1; i++ ) 
   {
     xor_128(X,&input[16*i],Y); /* Y := Mi (+) X  */
-    aes_crypt_ecb(ctx, AES_ENCRYPT, Y, X); /* X := AES-128(KEY, Y); */
+    mbedtls_aes_crypt_ecb(ctx, MBEDTLS_AES_ENCRYPT, Y, X); /* X := AES-128(KEY, Y); */
   }
 
   xor_128(X,M_last,Y);
-  aes_crypt_ecb(ctx, AES_ENCRYPT, Y, X);
+  mbedtls_aes_crypt_ecb(ctx, MBEDTLS_AES_ENCRYPT, Y, X);
   memcpy(mac, X, sizeof(X));
 }
 
@@ -316,7 +316,7 @@ static void init_mesh(void)
   u8 fuseid[8];
   int i, k;
   u8 subkey_1[0x10], subkey_2[0x10];
-  aes_context aes_ctx, aes_ctx2;
+  mbedtls_aes_context aes_ctx, aes_ctx2;
   memset(g_mesh,0,0x40);
 
   fuseid[7] = g_fuse90 &0xFF;
@@ -328,8 +328,8 @@ static void init_mesh(void)
   fuseid[1] = (g_fuse94>>16) &0xFF;
   fuseid[0] = (g_fuse94>>24) &0xFF;
   /* set encryption key */
-  aes_setkey_enc(&aes_ctx, MASTER_KEY, 128);
-  aes_setkey_dec(&aes_ctx2, MASTER_KEY, 128);
+  mbedtls_aes_setkey_enc(&aes_ctx, MASTER_KEY, 128);
+  mbedtls_aes_setkey_dec(&aes_ctx2, MASTER_KEY, 128);
 
   /* set the subkeys */
   for (i = 0; i < 0x10; i++)
@@ -342,12 +342,12 @@ static void init_mesh(void)
   for (i = 0; i < 3; i++)
   {
       /* encrypt + decrypt */
-      aes_crypt_ecb(&aes_ctx, AES_ENCRYPT, subkey_1, subkey_1);
-      aes_crypt_ecb(&aes_ctx2, AES_DECRYPT, subkey_2, subkey_2);
+      mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, subkey_1, subkey_1);
+      mbedtls_aes_crypt_ecb(&aes_ctx2, MBEDTLS_AES_DECRYPT, subkey_2, subkey_2);
   }
 
   /* set new key */
-  aes_setkey_enc(&aes_ctx, subkey_1, 128);
+  mbedtls_aes_setkey_enc(&aes_ctx, subkey_1, 128);
 
   /* now lets make the key mesh */
   for (i = 0; i < 3; i++)
@@ -356,7 +356,7 @@ static void init_mesh(void)
       for (k = 0; k < 3; k++)
       {
           /* crypto */
-          aes_crypt_ecb(&aes_ctx, AES_ENCRYPT, subkey_2, subkey_2);
+          mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, subkey_2, subkey_2);
       }
 
       /* copy to out block */
@@ -367,17 +367,17 @@ static void init_mesh(void)
 static void generate_key_from_mesh(u8 * key, int param)
 {
   u8 genkey[0x10];
-  aes_context aes_ctx;
+  mbedtls_aes_context aes_ctx;
   int i;
   memset(genkey,0,0x10);
   int rounds = (param >> 1) +1;
   memcpy(genkey,&g_mesh[(param&1) * 0x10], 0x10);
 
-  aes_setkey_enc(&aes_ctx, &g_mesh[0x20], 128);
+  mbedtls_aes_setkey_enc(&aes_ctx, &g_mesh[0x20], 128);
   for (i = 0; i < rounds; i++)
   {
       /* encrypt the data */
-      aes_crypt_ecb(&aes_ctx, AES_ENCRYPT, genkey, genkey);
+      mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, genkey, genkey);
   }
   memcpy(key,genkey,0x10);
   return; 
@@ -390,8 +390,8 @@ int kirk_CMD0(u8* outbuff, u8* inbuff, int size, int generate_trash)
   KIRK_CMD1_HEADER* header = (KIRK_CMD1_HEADER*)outbuff;
   header_keys *keys = (header_keys *)outbuff; //0-15 AES key, 16-31 CMAC key
   int chk_size;
-  aes_context k1;
-  aes_context cmac_key;
+  mbedtls_aes_context k1;
+  mbedtls_aes_context cmac_key;
   u8 cmac_header_hash[16];
   u8 cmac_data_hash[16];
     
@@ -409,11 +409,11 @@ int kirk_CMD0(u8* outbuff, u8* inbuff, int size, int generate_trash)
   if(chk_size % 16) chk_size += 16 - (chk_size % 16);
   
   //ENCRYPT DATA
-  aes_setkey_enc(&k1, keys->AES, 128);
+  mbedtls_aes_setkey_enc(&k1, keys->AES, 128);
   AES_cbc_encrypt(&k1, inbuff+sizeof(KIRK_CMD1_HEADER)+header->data_offset, (u8*)outbuff+sizeof(KIRK_CMD1_HEADER)+header->data_offset, chk_size);
   
   //CMAC HASHES
-  aes_setkey_enc(&cmac_key, keys->CMAC, 128);
+  mbedtls_aes_setkey_enc(&cmac_key, keys->CMAC, 128);
   AES_CMAC(&cmac_key, outbuff+0x60, 0x30, cmac_header_hash);
   AES_CMAC(&cmac_key, outbuff+0x60, 0x30 + chk_size + header->data_offset, cmac_data_hash);
   
@@ -429,7 +429,7 @@ int kirk_CMD1(u8* outbuff, u8* inbuff, int size)
 {
   KIRK_CMD1_HEADER* header = (KIRK_CMD1_HEADER*)inbuff;
   header_keys keys; //0-15 AES key, 16-31 CMAC key
-  aes_context k1;
+  mbedtls_aes_context k1;
 
   if(size < 0x90) return KIRK_INVALID_SIZE;
   if(is_kirk_initialized == 0) return KIRK_NOT_INITIALIZED;
@@ -447,7 +447,7 @@ int kirk_CMD1(u8* outbuff, u8* inbuff, int size)
     if(ret != KIRK_OPERATION_SUCCESS) return ret;
   }
   
-  aes_setkey_dec(&k1, keys.AES, 128);
+  mbedtls_aes_setkey_dec(&k1, keys.AES, 128);
   AES_cbc_decrypt(&k1, inbuff+sizeof(KIRK_CMD1_HEADER)+header->data_offset, outbuff, header->data_size);  
   
   return KIRK_OPERATION_SUCCESS;
@@ -457,7 +457,7 @@ int kirk_CMD4(u8* outbuff, u8* inbuff, int size)
 {
   KIRK_AES128CBC_HEADER *header = (KIRK_AES128CBC_HEADER*)inbuff;
   u8* key;
-  aes_context aesKey;
+  mbedtls_aes_context aesKey;
   
   if(is_kirk_initialized == 0) return KIRK_NOT_INITIALIZED;
   if(header->mode != KIRK_MODE_ENCRYPT_CBC) return KIRK_INVALID_MODE;
@@ -467,7 +467,7 @@ int kirk_CMD4(u8* outbuff, u8* inbuff, int size)
   if(key == (u8*)KIRK_INVALID_SIZE) return KIRK_INVALID_SIZE;
   
   //Set the key
-  aes_setkey_enc(&aesKey, key, 128);
+  mbedtls_aes_setkey_enc(&aesKey, key, 128);
   AES_cbc_encrypt(&aesKey, inbuff+sizeof(KIRK_AES128CBC_HEADER), outbuff+sizeof(KIRK_AES128CBC_HEADER), size);
   
   return KIRK_OPERATION_SUCCESS;
@@ -477,7 +477,7 @@ int kirk_CMD5(u8* outbuff, u8* inbuff, int size)
 {
   KIRK_AES128CBC_HEADER *header = (KIRK_AES128CBC_HEADER*)inbuff;
   u8 key[0x10];
-  aes_context aesKey;
+  mbedtls_aes_context aesKey;
 
   if(is_kirk_initialized == 0) return KIRK_NOT_INITIALIZED;
   if(header->mode != KIRK_MODE_ENCRYPT_CBC) return KIRK_INVALID_MODE;
@@ -487,7 +487,7 @@ int kirk_CMD5(u8* outbuff, u8* inbuff, int size)
   generate_key_from_mesh(key,1);
 
   //Set the key
-  aes_setkey_enc(&aesKey, key, 128);
+  mbedtls_aes_setkey_enc(&aesKey, key, 128);
   AES_cbc_encrypt(&aesKey, inbuff+sizeof(KIRK_AES128CBC_HEADER), outbuff+sizeof(KIRK_AES128CBC_HEADER), header->data_size);
 
   return KIRK_OPERATION_SUCCESS;
@@ -497,7 +497,7 @@ int kirk_CMD7(u8* outbuff, u8* inbuff, int size)
 {
   KIRK_AES128CBC_HEADER *header = (KIRK_AES128CBC_HEADER*)inbuff;
   u8* key;
-  aes_context aesKey;
+  mbedtls_aes_context aesKey;
   
   if(is_kirk_initialized == 0) return KIRK_NOT_INITIALIZED;
   if(header->mode != KIRK_MODE_DECRYPT_CBC) return KIRK_INVALID_MODE;
@@ -507,7 +507,7 @@ int kirk_CMD7(u8* outbuff, u8* inbuff, int size)
   if(key == (u8*)KIRK_INVALID_SIZE) return KIRK_INVALID_SIZE;
   
   //Set the key
-  aes_setkey_dec(&aesKey, key, 128);
+  mbedtls_aes_setkey_dec(&aesKey, key, 128);
   AES_cbc_decrypt(&aesKey, inbuff+sizeof(KIRK_AES128CBC_HEADER), outbuff, size);
   
   return KIRK_OPERATION_SUCCESS;
@@ -519,7 +519,7 @@ int kirk_CMD10(u8* inbuff, int insize)
   header_keys keys; //0-15 AES key, 16-31 CMAC key
   u8 cmac_header_hash[16];
   u8 cmac_data_hash[16];
-  aes_context cmac_key;
+  mbedtls_aes_context cmac_key;
   int chk_size;
   
   if(is_kirk_initialized == 0) return KIRK_NOT_INITIALIZED;
@@ -529,7 +529,7 @@ int kirk_CMD10(u8* inbuff, int insize)
   if(header->mode == KIRK_MODE_CMD1)
   {
     AES_cbc_decrypt(&aes_kirk1, inbuff, (u8*)&keys, 32); //decrypt AES & CMAC key to temp buffer
-    aes_setkey_enc(&cmac_key, keys.CMAC, 128);
+    mbedtls_aes_setkey_enc(&cmac_key, keys.CMAC, 128);
     AES_CMAC(&cmac_key, inbuff+0x60, 0x30, cmac_header_hash);
   
     //Make sure data is 16 aligned
@@ -552,7 +552,7 @@ int kirk_CMD11(u8* outbuff, u8* inbuff, int size)
   if(is_kirk_initialized == 0) return KIRK_NOT_INITIALIZED;
   if(header->data_size == 0 || size == 0) return KIRK_DATA_SIZE_ZERO;
 
-  sha1(inbuff+sizeof(KIRK_SHA1_HEADER), header->data_size, outbuff);
+  mbedtls_sha1(inbuff+sizeof(KIRK_SHA1_HEADER), header->data_size, outbuff);
   return KIRK_OPERATION_SUCCESS;
 }
 
@@ -639,8 +639,8 @@ static int kirk_init2(u8 * rnd_seed, u32 seed_size, u32 fuseid_90, u32 fuseid_94
   init_mesh();
   
   //Set KIRK1 main key
-  aes_setkey_enc(&aes_kirk1, kirk1_key, 128);
-  aes_setkey_dec(&aes_kirk1, kirk1_key, 128);
+  mbedtls_aes_setkey_enc(&aes_kirk1, kirk1_key, 128);
+  mbedtls_aes_setkey_dec(&aes_kirk1, kirk1_key, 128);
 
   is_kirk_initialized = 1;
   return 0;
