@@ -139,7 +139,7 @@ static save_entry_t* _createSaveEntry(uint16_t flag, const char* icon, const cha
 
 static void _walk_dir_list(const char* startdir, const char* inputdir, const char* mask, list_t* list)
 {
-	char fullname[256];	
+	char fullname[256];
 	struct dirent *dirp;
 	int len = strlen(startdir);
 	DIR *dp = opendir(inputdir);
@@ -384,7 +384,7 @@ int ReadCodes(save_entry_t * save)
 	free (buffer);
 
 	for (node = list_next(node); (code = list_get(node)); node = list_next(node))
-		if (strchr(code->file, '\\') != NULL && code->file[1] != '~')
+		if (strchr(code->file, '\\') != NULL && code->file[0] != '~')
 		{
 			buffer = strdup(code->file);
 			strchr(buffer, '\\')[0] = 0;
@@ -668,7 +668,7 @@ static size_t load_iso_files(save_entry_t * bup, int type)
 
 	LOG("%ld items loaded", list_count(bup->codes));
 
-	return list_count(bup->codes);	
+	return list_count(bup->codes);
 }
 
 int ReadBackupCodes(save_entry_t * bup)
