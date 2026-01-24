@@ -786,7 +786,7 @@ static void* psp_host_callback(int id, int* size)
 	switch (id)
 	{
 	case APOLLO_HOST_TEMP_PATH:
-		if (size) *size = strlen(APOLLO_HOST_TEMP_PATH);
+		if (size) *size = strlen(APOLLO_LOCAL_CACHE);
 		return APOLLO_LOCAL_CACHE;
 
 	case APOLLO_HOST_DATA_PATH:
@@ -875,7 +875,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 			}
 		}
 
-		if (!apply_cheat_patch_code(tmpfile, entry->title_id, code, &psp_host_callback))
+		if (!apply_cheat_patch_code(tmpfile, code, &psp_host_callback))
 		{
 			LOG("Error: failed to apply (%s)", code->name);
 			ret = 0;
