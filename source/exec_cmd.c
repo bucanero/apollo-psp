@@ -786,9 +786,15 @@ static void* psp_host_callback(int id, int* size)
 	switch (id)
 	{
 	case APOLLO_HOST_TEMP_PATH:
+		if (size) *size = strlen(APOLLO_LOCAL_CACHE);
 		return APOLLO_LOCAL_CACHE;
 
+	case APOLLO_HOST_DATA_PATH:
+		if (size) *size = strlen(APOLLO_DATA_PATH);
+		return APOLLO_DATA_PATH;
+
 	case APOLLO_HOST_USERNAME:
+		if (size) *size = 10;
 		return "APOLLO-PSP";
 
 	case APOLLO_HOST_PSID:
@@ -830,7 +836,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 
 	for (node = list_head(entry->codes); (code = list_get(node)); node = list_next(node))
 	{
-		if (!code->activated || (code->type != PATCH_GAMEGENIE && code->type != PATCH_BSD))
+		if (!code->activated || (code->type != PATCH_GAMEGENIE && code->type != PATCH_BSD && code->type != PATCH_PYTHON))
 			continue;
 
 		LOG("Active code: [%s]", code->name);
@@ -846,8 +852,8 @@ static int apply_cheat_patches(const save_entry_t* entry)
 			filename = optval->name;
 		}
 
-		if (strstr(code->file, "~extracted\\"))
-			snprintf(tmpfile, sizeof(tmpfile), "%s[%s]%s", APOLLO_LOCAL_CACHE, entry->title_id, filename);
+		if (strncmp(code->file, "~extracted\\", 11) == 0)
+			snprintf(tmpfile, sizeof(tmpfile), "%s", code->file);
 		else
 		{
 			snprintf(tmpfile, sizeof(tmpfile), "%s%s", entry->path, filename);
@@ -869,7 +875,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 			}
 		}
 
-		if (!apply_cheat_patch_code(tmpfile, entry->title_id, code, &psp_host_callback))
+		if (!apply_cheat_patch_code(tmpfile, code, &psp_host_callback))
 		{
 			LOG("Error: failed to apply (%s)", code->name);
 			ret = 0;
@@ -1080,7 +1086,7 @@ static void uploadSaveFTP(const save_entry_t* save)
 	fp = fopen(APOLLO_LOCAL_CACHE "saves.ftp", "a");
 	if (fp)
 	{
-		fprintf(fp, "%s=[%s] %d-%02d-%02d %02d:%02d:%02d %s (CRC: %08X)\r\n", tmp, save->dir_name, 
+		fprintf(fp, "%s=[%s] %d-%02d-%02d %02d:%02d:%02d %s (CRC: %08X)\r\n", tmp, save->dir_name,
 				t.year, t.month, t.day, t.hour, t.minute, t.second, save->name, crc);
 		fclose(fp);
 	}
