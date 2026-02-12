@@ -779,7 +779,7 @@ static int psp_is_decrypted(list_t* list, const char* fname)
 	return 0;
 }
 
-static void* psp_host_callback(int id, int* size)
+static void* psp_host_callback(int id, uint32_t* size)
 {
 	memset(host_buf, 0, sizeof(host_buf));
 
