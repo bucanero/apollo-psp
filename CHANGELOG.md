@@ -6,7 +6,19 @@ All notable changes to the `apollo-psp` project will be documented in this file.
 
 ---
 
-## [v2.0.4](https://github.com/bucanero/apollo-vita/releases/tag/v2.0.4) - 2025-11-09
+## [v2.3.0](https://github.com/bucanero/apollo-psp/releases/tag/v2.3.0) - 2026-02-20
+
+### Added
+
+* Apollo Patch Engine v2.0.2
+* Add Python scripting support
+  - Run custom Python scripts on the console (for save-game editing)
+  - Add `apollo` module for Python scripts to interact with Apollo's features
+* Add Hex Search option to Hex Editor
+
+---
+
+## [v2.0.4](https://github.com/bucanero/apollo-psp/releases/tag/v2.0.4) - 2025-11-09
 
 ### Added
 
