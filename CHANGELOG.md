@@ -6,7 +6,7 @@ All notable changes to the `apollo-psp` project will be documented in this file.
 
 ---
 
-## [v2.3.0](https://github.com/bucanero/apollo-psp/releases/tag/v2.3.0) - 2026-02-20
+## [v2.3.0](https://github.com/bucanero/apollo-psp/releases/tag/v2.3.0) - 2026-02-22
 
 ### Added
 
