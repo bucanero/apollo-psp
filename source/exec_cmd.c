@@ -245,8 +245,14 @@ static int get_psp_save_key(const save_entry_t* entry, uint8_t* key)
 		{
 			LOG("[DB] %s Key found: %s", path, ptr);
 			ptr = x_to_u8_buffer(ptr);
+			if (!ptr)
+			{
+				LOG("Invalid key format in DB for %s", path);
+				continue;
+			}
 			memcpy(key, ptr, 16);
 			free(ptr);
+			fclose(fp);
 
 			return 1;
 		}
