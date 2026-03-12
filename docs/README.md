@@ -20,7 +20,7 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Standalone:** no computer required, everything happens on the PSP.
 * **Automatic settings:** auto-detection of User settings.
 * **Multi-format:** supports PSP and PS1 saves.
-* **Localization support:** English, Italian, Japanese, Portuguese, Spanish.
+* **Localization support:** Chinese, English, Italian, Japanese, Portuguese, Spanish.
 
 ## Save Management
 
@@ -137,7 +137,7 @@ The Online Database project aims to [add more save-games](https://github.com/buc
 
 Apollo supports multiple languages for its user interface. Thanks to the following contributors for their help with translations:
 
-- [Bucanero](https://github.com/bucanero) (Spanish), [TheheroGAC](https://x.com/TheheroGAC) (Italian), [yyoossk](https://x.com/Cloud0835) (Japanese), [Phoenixx1202](https://github.com/Phoenixx1202) (Portuguese)
+- [Bucanero](https://github.com/bucanero) (Spanish), [TheheroGAC](https://x.com/TheheroGAC) (Italian), [yyoossk](https://x.com/Cloud0835) (Japanese), [Phoenixx1202](https://github.com/Phoenixx1202) (Portuguese), [孙中磊 Sun Zhonglei](https://github.com/1987Lr1987) (Chinese)
 
 # Building
 
