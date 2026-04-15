@@ -318,6 +318,8 @@ static void init_mesh(void)
   u8 subkey_1[0x10], subkey_2[0x10];
   mbedtls_aes_context aes_ctx, aes_ctx2;
   memset(g_mesh,0,0x40);
+  mbedtls_aes_init(&aes_ctx);
+  mbedtls_aes_init(&aes_ctx2);
 
   fuseid[7] = g_fuse90 &0xFF;
   fuseid[6] = (g_fuse90>>8) &0xFF;
@@ -373,6 +375,7 @@ static void generate_key_from_mesh(u8 * key, int param)
   int rounds = (param >> 1) +1;
   memcpy(genkey,&g_mesh[(param&1) * 0x10], 0x10);
 
+  mbedtls_aes_init(&aes_ctx);
   mbedtls_aes_setkey_enc(&aes_ctx, &g_mesh[0x20], 128);
   for (i = 0; i < rounds; i++)
   {
@@ -398,6 +401,8 @@ int kirk_CMD0(u8* outbuff, u8* inbuff, int size, int generate_trash)
   if(is_kirk_initialized == 0) return KIRK_NOT_INITIALIZED;
 
   memcpy(outbuff, inbuff, size);
+  mbedtls_aes_init(&k1);
+  mbedtls_aes_init(&cmac_key);
    
   if(header->mode != KIRK_MODE_CMD1) return KIRK_INVALID_MODE;
   
@@ -447,6 +452,7 @@ int kirk_CMD1(u8* outbuff, u8* inbuff, int size)
     if(ret != KIRK_OPERATION_SUCCESS) return ret;
   }
   
+  mbedtls_aes_init(&k1);
   mbedtls_aes_setkey_dec(&k1, keys.AES, 128);
   AES_cbc_decrypt(&k1, inbuff+sizeof(KIRK_CMD1_HEADER)+header->data_offset, outbuff, header->data_size);  
   
@@ -467,6 +473,7 @@ int kirk_CMD4(u8* outbuff, u8* inbuff, int size)
   if(key == (u8*)KIRK_INVALID_SIZE) return KIRK_INVALID_SIZE;
   
   //Set the key
+  mbedtls_aes_init(&aesKey);
   mbedtls_aes_setkey_enc(&aesKey, key, 128);
   AES_cbc_encrypt(&aesKey, inbuff+sizeof(KIRK_AES128CBC_HEADER), outbuff+sizeof(KIRK_AES128CBC_HEADER), size);
   
@@ -487,6 +494,7 @@ int kirk_CMD5(u8* outbuff, u8* inbuff, int size)
   generate_key_from_mesh(key,1);
 
   //Set the key
+  mbedtls_aes_init(&aesKey);
   mbedtls_aes_setkey_enc(&aesKey, key, 128);
   AES_cbc_encrypt(&aesKey, inbuff+sizeof(KIRK_AES128CBC_HEADER), outbuff+sizeof(KIRK_AES128CBC_HEADER), header->data_size);
 
@@ -507,6 +515,7 @@ int kirk_CMD7(u8* outbuff, u8* inbuff, int size)
   if(key == (u8*)KIRK_INVALID_SIZE) return KIRK_INVALID_SIZE;
   
   //Set the key
+  mbedtls_aes_init(&aesKey);
   mbedtls_aes_setkey_dec(&aesKey, key, 128);
   AES_cbc_decrypt(&aesKey, inbuff+sizeof(KIRK_AES128CBC_HEADER), outbuff, size);
   
@@ -525,6 +534,8 @@ int kirk_CMD10(u8* inbuff, int insize)
   if(is_kirk_initialized == 0) return KIRK_NOT_INITIALIZED;
   if(!(header->mode == KIRK_MODE_CMD1 || header->mode == KIRK_MODE_CMD2 || header->mode == KIRK_MODE_CMD3)) return KIRK_INVALID_MODE;
   if(header->data_size == 0) return KIRK_DATA_SIZE_ZERO;
+
+  mbedtls_aes_init(&cmac_key);
   
   if(header->mode == KIRK_MODE_CMD1)
   {
@@ -650,6 +661,9 @@ int kirk_init(void)
 {
   if (is_kirk_initialized)
     return 0;
+
+  // Initialize the AES context for KIRK1 key encryption/decryption
+  mbedtls_aes_init(&aes_kirk1);
 
   // Get device Fuse ID
   u64 fuseId = pspXploitKernelRead64(0xBC100090);
