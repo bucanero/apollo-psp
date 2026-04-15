@@ -11,8 +11,6 @@ void dump_data(const u8 *data, u64 size);
 int get_file_size(const char *file_path, u64 *size);
 int read_file(const char *file_path, u8 *data, u64 size);
 int write_file(const char *file_path, u8 *data, u64 size);
-int mmap_file(const char *file_path, u8 **data, u64 *size);
-int unmmap_file(u8 *data, u64 size);
 
 u64 align_to_pow2(u64 offset, u64 alignment);
 uint64_t pspXploitKernelRead64(uint32_t addr);

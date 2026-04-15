@@ -117,7 +117,7 @@ static code_entry_t* LoadOnlineSaveDetails(void)
 				break;
 			}
 
-	asprintf(&centry->codes, "Game: %s\nTitle ID: %s\nFile: %s\n%s%s\n----- Details -----\n%s\n", 
+	asprintf(&centry->codes, "Game: %s\nTitle ID: %s\nFile: %s\n%s%s\n----- Details -----\n%s\n",
 		selected_entry->name, selected_entry->title_id, selected_centry->file, selected_entry->path, selected_centry->file, centry->file);
 	free(centry->file);
 	centry->file = NULL;
@@ -308,7 +308,7 @@ static void SetMenu(int id)
 
 		case MENU_PATCHES: //Cheat Selection Menu
 			//if entering from game list, don't keep index, otherwise keep
-			if (menu_id == MENU_USB_SAVES || menu_id == MENU_HDD_SAVES || menu_id == MENU_ONLINE_DB || 
+			if (menu_id == MENU_USB_SAVES || menu_id == MENU_HDD_SAVES || menu_id == MENU_ONLINE_DB ||
 				menu_id == MENU_VMC_SAVES || menu_id == MENU_FTP_SAVES || menu_id == MENU_USER_BACKUP)
 				menu_old_sel[MENU_PATCHES] = 0;
 
@@ -678,6 +678,32 @@ static void doHexEditor(void)
 		else
 			hex_data.data[hex_data.pos] -= (0x10 >> hex_data.low_nibble * 4);
 	}
+	else if (pspPadGetButtonPressed(PSP_CTRL_TRIANGLE))
+	{
+		// open msg dialog, ask for search value, then search for next occurrence of bytes
+		char search_str[21] = "";
+		uint8_t* find;
+		int found = 0;
+
+		if (osk_dialog_get_text(_("Search bytes (hex)"), search_str, sizeof(search_str)) &&
+			(find = x_to_u8_buffer(search_str)) != NULL)
+		{
+			LOG("Searching hex: '%s'", search_str);
+			for (size_t i = hex_data.pos, find_len = strlen(search_str)/2; (i + find_len) <= hex_data.size; i++)
+			{
+				if (memcmp(hex_data.data + i, find, find_len) == 0)
+				{
+					hex_data.pos = i;
+					found = 1;
+					break;
+				}
+			}
+			free(find);
+
+			if (!found)
+				show_message("%s%s", _("Value not found: 0x"), search_str);
+		}
+	}
 
 	if ((hex_data.pos < hex_data.start) || (hex_data.pos >= hex_data.start + 0x120))
 		hex_data.start = (hex_data.pos) & ~15;
@@ -812,7 +838,7 @@ static void doPatchMenu(void)
 		if (selected_centry->activated)
 		{
 			// Only activate Required codes if a cheat is selected
-			if (selected_centry->type == PATCH_GAMEGENIE || selected_centry->type == PATCH_BSD)
+			if (selected_centry->type == PATCH_GAMEGENIE || selected_centry->type == PATCH_BSD || selected_centry->type == PATCH_PYTHON)
 			{
 				code_entry_t* code;
 				list_node_t* node;
@@ -864,7 +890,7 @@ static void doPatchMenu(void)
 			return;
 		}
 
-		if (selected_centry->type == PATCH_GAMEGENIE || selected_centry->type == PATCH_BSD)
+		if (selected_centry->type == PATCH_GAMEGENIE || selected_centry->type == PATCH_BSD || selected_centry->type == PATCH_PYTHON)
 		{
 			SetMenu(MENU_PATCH_VIEW);
 			return;

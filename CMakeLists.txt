@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.5)
 
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   if(NOT DEFINED ENV{PSPDEV})
@@ -112,7 +112,7 @@ create_pbp_file(
   BACKGROUND_PATH NULL
   PREVIEW_PATH NULL
   TITLE "Apollo Save Tool"
-  VERSION 02.04
+  VERSION 02.30
 )
 
 add_custom_target(createzip
