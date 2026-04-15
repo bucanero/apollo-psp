@@ -426,6 +426,7 @@ int kirk_CMD0(u8* outbuff, u8* inbuff, int size, int generate_trash)
   memcpy(header->CMAC_data_hash, cmac_data_hash, 16);
   
   //ENCRYPT KEYS
+  mbedtls_aes_setkey_enc(&aes_kirk1, kirk1_key, 128);
   AES_cbc_encrypt(&aes_kirk1, inbuff, outbuff, 16*2);
   return KIRK_OPERATION_SUCCESS;
 }
@@ -440,6 +441,7 @@ int kirk_CMD1(u8* outbuff, u8* inbuff, int size)
   if(is_kirk_initialized == 0) return KIRK_NOT_INITIALIZED;
   if(header->mode != KIRK_MODE_CMD1) return KIRK_INVALID_MODE;
   
+  mbedtls_aes_setkey_dec(&aes_kirk1, kirk1_key, 128);
   AES_cbc_decrypt(&aes_kirk1, inbuff, (u8*)&keys, 16*2); //decrypt AES & CMAC key to temp buffer
   
   if(header->ecdsa_hash == 1)
@@ -539,6 +541,7 @@ int kirk_CMD10(u8* inbuff, int insize)
   
   if(header->mode == KIRK_MODE_CMD1)
   {
+    mbedtls_aes_setkey_dec(&aes_kirk1, kirk1_key, 128);
     AES_cbc_decrypt(&aes_kirk1, inbuff, (u8*)&keys, 32); //decrypt AES & CMAC key to temp buffer
     mbedtls_aes_setkey_enc(&cmac_key, keys.CMAC, 128);
     AES_CMAC(&cmac_key, inbuff+0x60, 0x30, cmac_header_hash);
@@ -649,9 +652,8 @@ static int kirk_init2(u8 * rnd_seed, u32 seed_size, u32 fuseid_90, u32 fuseid_94
   g_fuse94=fuseid_94;
   init_mesh();
   
-  //Set KIRK1 main key
-  mbedtls_aes_setkey_enc(&aes_kirk1, kirk1_key, 128);
-  mbedtls_aes_setkey_dec(&aes_kirk1, kirk1_key, 128);
+  //Init KIRK1 main key context
+  mbedtls_aes_init(&aes_kirk1);
 
   is_kirk_initialized = 1;
   return 0;
@@ -661,9 +663,6 @@ int kirk_init(void)
 {
   if (is_kirk_initialized)
     return 0;
-
-  // Initialize the AES context for KIRK1 key encryption/decryption
-  mbedtls_aes_init(&aes_kirk1);
 
   // Get device Fuse ID
   u64 fuseId = pspXploitKernelRead64(0xBC100090);
