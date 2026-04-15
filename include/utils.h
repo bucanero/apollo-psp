@@ -12,6 +12,8 @@ int get_file_size(const char *file_path, u64 *size);
 int read_file(const char *file_path, u8 *data, u64 size);
 int write_file(const char *file_path, u8 *data, u64 size);
 
+int calculate_hmac_hash(const u8 *data, u64 size, const u8 *key, u32 key_length, u8 output[20]);
+
 u64 align_to_pow2(u64 offset, u64 alignment);
 uint64_t pspXploitKernelRead64(uint32_t addr);
 
