@@ -8,6 +8,7 @@
 #include <dirent.h>
 #include <zlib.h>
 #include <pspiofilemgr.h>
+#include <psputility.h>
 
 #include "types.h"
 #include "common.h"
@@ -29,6 +30,28 @@ int is_char_letter(char c)
 	if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
 		return SUCCESS;
 	return FAILED;
+}
+
+char * safe_strncpy(char *dst, const char* src, size_t size)
+{
+    strncpy(dst, src, size);
+    dst[size - 1] = '\0';
+    return dst;
+}
+
+char * rstrip(char *s)
+{
+    char *p = s + strlen(s);
+    while (p > s && isspace(*--p))
+        *p = '\0';
+    return s;
+}
+
+char * lskip(const char *s)
+{
+    while (*s != '\0' && isspace(*s))
+        ++s;
+    return (char *)s;
 }
 
 //----------------------------------------
@@ -224,4 +247,55 @@ int clean_directory(const char* inputdir, const char* filter)
 	closedir(d);
 
 	return SUCCESS;
+}
+
+const char * get_user_language(void)
+{
+    int language;
+
+    // Prompt language
+    if(sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &language) < 0)
+        return "en";
+
+    switch (language)
+    {
+    case PSP_SYSTEMPARAM_LANGUAGE_JAPANESE:             //  0   Japanese
+        return "ja";
+
+    case PSP_SYSTEMPARAM_LANGUAGE_ENGLISH:              //  1   English (United States)
+        return "en";
+
+    case PSP_SYSTEMPARAM_LANGUAGE_FRENCH:               //  2   French
+        return "fr";
+
+    case PSP_SYSTEMPARAM_LANGUAGE_SPANISH:              //  3   Spanish
+        return "es";
+
+    case PSP_SYSTEMPARAM_LANGUAGE_GERMAN:               //  4   German
+        return "de";
+
+    case PSP_SYSTEMPARAM_LANGUAGE_ITALIAN:              //  5   Italian
+        return "it";
+
+    case PSP_SYSTEMPARAM_LANGUAGE_DUTCH:                //  6   Dutch
+        return "nl";
+
+    case PSP_SYSTEMPARAM_LANGUAGE_RUSSIAN:              //  8   Russian
+        return "ru";
+
+    case PSP_SYSTEMPARAM_LANGUAGE_KOREAN:               //  9   Korean
+        return "ko";
+
+    case PSP_SYSTEMPARAM_LANGUAGE_CHINESE_TRADITIONAL:  // 10   Chinese (traditional)
+    case PSP_SYSTEMPARAM_LANGUAGE_CHINESE_SIMPLIFIED:   // 11   Chinese (simplified)
+        return "zh";
+
+    case PSP_SYSTEMPARAM_LANGUAGE_PORTUGUESE:           //  7   Portuguese (Portugal)
+        return "pt";
+
+    default:
+        break;
+    }
+
+    return "en";
 }

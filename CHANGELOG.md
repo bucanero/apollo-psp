@@ -4,6 +4,39 @@ All notable changes to the `apollo-psp` project will be documented in this file.
 
 ## [Unreleased]()
 
+---
+
+## [v2.3.0](https://github.com/bucanero/apollo-psp/releases/tag/v2.3.0) - 2026-02-22
+
+### Added
+
+* Apollo Patch Engine v2.0.2
+* Add Python scripting support
+  - Run custom Python scripts on the console (for save-game editing)
+  - Add `apollo` module for Python scripts to interact with Apollo's features
+* Add Hex Search option to Hex Editor
+
+---
+
+## [v2.0.4](https://github.com/bucanero/apollo-psp/releases/tag/v2.0.4) - 2025-11-09
+
+### Added
+
+* Localization support
+  - Auto-detect system language setting
+  - Languages: English, Italian, Japanese, Portuguese, Spanish
+* Show save details window for items in Online DB (`Triangle` button)
+
+### Misc
+
+* Updated Apollo Patch Engine to v1.4.0
+  - Update custom mod tags
+  - Support multiple mod options per line
+  - Add AES CTR, Blowfish CBC encryption
+  - Add DBZ Xenoverse 2 custom checksum
+
+---
+
 ## [v2.0.0](https://github.com/bucanero/apollo-psp/releases/tag/v2.0.0) - 2025-07-12
 
 ### Added
@@ -32,6 +65,8 @@ All notable changes to the `apollo-psp` project will be documented in this file.
     - E.g., `{ZZ}val=name;03E7=999 gold;...;270F=9999 gold{/ZZ}`
     - Support for SaveWizard and BSD codes with multiple options
 
+---
+
 ## [v1.3.2](https://github.com/bucanero/apollo-psp/releases/tag/v1.3.2) - 2024-07-20
 
 ### Added
@@ -52,6 +87,8 @@ All notable changes to the `apollo-psp` project will be documented in this file.
   - Change `compress` and `decompress` command syntax
     + `decompress(offset, wbits)`
     + `compress(offset)`
+
+---
 
 ## [v1.3.0](https://github.com/bucanero/apollo-psp/releases/tag/v1.3.0) - 2024-02-17
 
@@ -86,6 +123,8 @@ All notable changes to the `apollo-psp` project will be documented in this file.
   - Add Monster Hunter 2G/3rd PSP decryption
   - Add RGG Studio decryption (PS4)
   - Add Dead Rising checksum
+
+---
 
 ## [v1.2.0](https://github.com/bucanero/apollo-psp/releases/tag/v1.2.0) - 2023-10-30
 
@@ -126,6 +165,8 @@ All notable changes to the `apollo-psp` project will be documented in this file.
   - Fix SaveWizard Code Type C
   - Fix `right()` on little-endian platforms
 
+---
+
 ## [v1.0.0](https://github.com/bucanero/apollo-psp/releases/tag/v1.0.0) - 2023-04-30
 
 ### Added
@@ -139,6 +180,8 @@ All notable changes to the `apollo-psp` project will be documented in this file.
   - BlazBlue: Continuum Shift II
 * Custom checksum support
   - BlazBlue: Continuum Shift II
+
+---
 
 ## [v0.7.0](https://github.com/bucanero/apollo-psp/releases/tag/v0.7.0) - 2023-04-02
 

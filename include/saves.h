@@ -163,10 +163,9 @@ enum code_type_enum
     PATCH_NULL,
     PATCH_GAMEGENIE = APOLLO_CODE_GAMEGENIE,
     PATCH_BSD = APOLLO_CODE_BSD,
+    PATCH_PYTHON = APOLLO_CODE_PYTHON,
     PATCH_COMMAND,
     PATCH_SFO,
-    PATCH_TROP_UNLOCK,
-    PATCH_TROP_LOCK,
 };
 
 typedef struct save_entry
@@ -185,7 +184,7 @@ typedef struct
 {
     list_t * list;
     char path[128];
-    char* title;
+    const char* title;
     uint8_t id;
     void (*UpdatePath)(char *);
     int (*ReadCodes)(save_entry_t *);
@@ -198,7 +197,7 @@ list_t * ReadOnlineList(const char* urlPath);
 list_t * ReadBackupList(const char* userPath);
 list_t * ReadVmcList(const char* userPath);
 void UnloadGameList(list_t * list);
-char * readTextFile(const char * path, long* size);
+char * readTextFile(const char * path);
 int sortSaveList_Compare(const void* A, const void* B);
 int sortSaveList_Compare_Type(const void* A, const void* B);
 int sortSaveList_Compare_TitleID(const void* A, const void* B);
