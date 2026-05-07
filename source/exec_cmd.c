@@ -1025,7 +1025,7 @@ static void get_psv_filename(char* psvName, const char* path, const char* dirNam
 	strcat(psvName, ".PSV");
 }
 
-static void uploadSaveFTP(const save_entry_t* save)
+static int _upload_save_ftp(const save_entry_t* save)
 {
 	FILE* fp;
 	char *tmp;
@@ -1035,23 +1035,12 @@ static void uploadSaveFTP(const save_entry_t* save)
 	ScePspDateTime t;
 	char type[3] = {'-', '1', 'P'};
 
-	if (!network_up())
-	{
-		show_message("%s\n\n%s", _("Network is not available!"), _("Please connect to a network first."));
-		return;
-	}
-
-	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload %s?"), save->dir_name))
-		return;
-
-	init_loading_screen("Sync with FTP Server...");
+	init_loading_screen("Preparing upload...");
 
 	snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%c/", apollo_config.ftp_url, apollo_config.account_id, type[save->type]);
-	http_download(remote, "games.txt", APOLLO_LOCAL_CACHE "games.ftp", 0);
+	ftp_download(remote, "games.txt", APOLLO_LOCAL_CACHE "games.ftp", 0);
 
 	snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%c/%s/", apollo_config.ftp_url, apollo_config.account_id, type[save->type], save->title_id);
-	http_download(remote, "saves.txt", APOLLO_LOCAL_CACHE "saves.ftp", 0);
-	http_download(remote, "checksum.sfv", APOLLO_LOCAL_CACHE "sfv.ftp", 0);
 
 	sceRtcGetCurrentClockLocalTime(&t);
 	snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%s_%d-%02d-%02d-%02d%02d%02d.zip",
@@ -1082,24 +1071,24 @@ static void uploadSaveFTP(const save_entry_t* save)
 	stop_loading_screen();
 	if (!ret)
 	{
-		show_message("%s\n%s", _("Error! Couldn't zip save:"), save->dir_name);
-		return;
+		LOG("Error! Couldn't zip save: %s", save->dir_name);
+		return 0;
 	}
 
 	tmp = strrchr(local, '/')+1;
 	uint32_t crc = file_crc32(local);
 
 	LOG("Updating %s save index...", save->title_id);
-	fp = fopen(APOLLO_LOCAL_CACHE "saves.ftp", "a");
+	fp = fopen(APOLLO_LOCAL_CACHE "saves.ftp", "w");
 	if (fp)
 	{
-		fprintf(fp, "%s=[%s] %d-%02d-%02d %02d:%02d:%02d %s (CRC: %08X)\r\n", tmp, save->dir_name,
-				t.year, t.month, t.day, t.hour, t.minute, t.second, save->name, crc);
+		fprintf(fp, "%s=[%s] %d-%02d-%02d %02d:%02d:%02d %s\r\n", tmp, save->dir_name,
+				t.year, t.month, t.day, t.hour, t.minute, t.second, save->name);
 		fclose(fp);
 	}
 
 	LOG("Updating .sfv CRC32: %08X", crc);
-	fp = fopen(APOLLO_LOCAL_CACHE "sfv.ftp", "a");
+	fp = fopen(APOLLO_LOCAL_CACHE "sfv.ftp", "w");
 	if (fp)
 	{
 		fprintf(fp, "%s %08X\n", tmp, crc);
@@ -1107,10 +1096,8 @@ static void uploadSaveFTP(const save_entry_t* save)
 	}
 
 	ret = ftp_upload(local, remote, tmp, 1);
-	ret &= ftp_upload(APOLLO_LOCAL_CACHE "saves.ftp", remote, "saves.txt", 1);
-	ret &= ftp_upload(APOLLO_LOCAL_CACHE "sfv.ftp", remote, "checksum.sfv", 1);
-
 	unlink_secure(local);
+
 	tmp = readTextFile(APOLLO_LOCAL_CACHE "games.ftp");
 	if (!tmp)
 		tmp = strdup("");
@@ -1124,23 +1111,82 @@ static void uploadSaveFTP(const save_entry_t* save)
 		snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%.9s.PNG", save->title_id);
 		ret &= ftp_upload(local, remote, (save->type == FILE_TYPE_PSP) ? "ICON0.PNG" : "icon0.png", 1);
 
-		fp = fopen(APOLLO_LOCAL_CACHE "games.ftp", "a");
+		fp = fopen(APOLLO_LOCAL_CACHE "games.ftp", "w");
 		if (fp)
 		{
 			fprintf(fp, "%s=%s\r\n", save->title_id, tmp);
 			fclose(fp);
 		}
 
-		snprintf(remote, sizeof(remote), "%s%016" PRIX64 "/PS%c/", apollo_config.ftp_url, apollo_config.account_id, type[save->type]);
-		ret &= ftp_upload(APOLLO_LOCAL_CACHE "games.ftp", remote, "games.txt", 1);
+		init_loading_screen("Sync with FTP Server...");
+		snprintf(local, sizeof(local), "%s%016" PRIX64 "/PS%c/", apollo_config.ftp_url, apollo_config.account_id, type[save->type]);
+		ret &= ftp_upload(APOLLO_LOCAL_CACHE "games.ftp", local, "games.txt", 0);
 	}
+	else init_loading_screen("Sync with FTP Server...");
+
 	free(tmp);
+
+	ret &= ftp_upload(APOLLO_LOCAL_CACHE "saves.ftp", remote, "saves.txt", 0);
+	ret &= ftp_upload(APOLLO_LOCAL_CACHE "sfv.ftp", remote, "checksum.sfv", 0);
+	stop_loading_screen();
+
+	return ret;
+}
+
+static void uploadSaveFTP(const save_entry_t* save)
+{
+	int ret = 0;
+
+	if (!network_up())
+	{
+		show_message("%s\n\n%s", _("Network is not available!"), _("Please connect to a network first."));
+		return;
+	}
+
+	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload %s?"), save->dir_name))
+		return;
+
+	ftp_init();
+	ret = _upload_save_ftp(save);
 	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");
+	ftp_end();
 
 	if (ret)
 		show_message("%s\n%s", _("Save successfully uploaded:"), save->dir_name);
 	else
 		show_message("%s\n%s", _("Error! Couldn't upload save:"), save->dir_name);
+}
+
+static void uploadAllSavesFTP(const save_entry_t* save, int all)
+{
+	int done = 0, err_count = 0;
+	list_node_t *node;
+	save_entry_t *item;
+	list_t *list = ((void**)save->dir_name)[0];
+
+	if (!network_up())
+	{
+		show_message("%s\n\n%s", _("Network is not available!"), _("Please connect to a network first."));
+		return;
+	}
+
+	if (!show_dialog(DIALOG_TYPE_YESNO, _("Do you want to upload the selected saves to FTP?")))
+		return;
+
+	ftp_init();
+	LOG("Uploading all saves to FTP server...");
+	for (node = list_head(list); (item = list_get(node)); node = list_next(node))
+	{
+		if (item->type != FILE_TYPE_PSP || !(item->flags & SAVE_FLAG_HDD) || !(all || (item->flags & SAVE_FLAG_SELECTED)))
+			continue;
+
+		(_upload_save_ftp(item)) ? done++ : err_count++;
+	}
+
+	clean_directory(APOLLO_LOCAL_CACHE, ".ftp");
+	ftp_end();
+
+	show_message("%d/%d %s", done, done+err_count, _("Saves uploaded to FTP"));
 }
 
 static void import_mcr2vmp(const save_entry_t* save, const char* src)
@@ -1344,6 +1390,12 @@ void execCodeCommand(code_entry_t* code, const char* codecmd)
 		case CMD_COPY_SAVES_USB:
 		case CMD_COPY_ALL_SAVES_USB:
 			copyAllSavesUSB(selected_entry, codecmd[1], codecmd[0] == CMD_COPY_ALL_SAVES_USB);
+			code->activated = 0;
+			break;
+
+		case CMD_UPLOAD_SAVES:
+		case CMD_UPLOAD_ALL_SAVES:
+			uploadAllSavesFTP(selected_entry, codecmd[0] == CMD_UPLOAD_ALL_SAVES);
 			code->activated = 0;
 			break;
 
