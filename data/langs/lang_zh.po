@@ -737,3 +737,15 @@ msgstr "错误！无法连接至 FTP 服务器"
 #: settings.c:298
 msgid "Check debug logs for more information"
 msgstr "请检查调试日志以获取更多信息"
+
+#: main.c:193
+msgid "Search"
+msgstr "搜索"
+
+#: menu_main.c:688
+msgid "Search bytes (hex)"
+msgstr "搜索字节 (十六进制)"
+
+#: menu_main.c:704
+msgid "Value not found: 0x"
+msgstr "未找到数值：0x"
