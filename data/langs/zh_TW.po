@@ -737,3 +737,15 @@ msgstr "錯誤！無法連線至 FTP 伺服器"
 #: settings.c:298
 msgid "Check debug logs for more information"
 msgstr "請檢查除錯紀錄以取得更多資訊"
+
+#: main.c:193
+msgid "Search"
+msgstr "搜尋"
+
+#: menu_main.c:688
+msgid "Search bytes (hex)"
+msgstr "搜尋位元組 (十六進位)"
+
+#: menu_main.c:704
+msgid "Value not found: 0x"
+msgstr "未找到數值：0x"

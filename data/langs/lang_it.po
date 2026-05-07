@@ -737,3 +737,15 @@ msgstr "Errore! Impossibile connettersi al server FTP"
 #: settings.c:298
 msgid "Check debug logs for more information"
 msgstr "Controlla i log di debug per maggiori informazioni"
+
+#: main.c:193
+msgid "Search"
+msgstr "Cerca"
+
+#: menu_main.c:688
+msgid "Search bytes (hex)"
+msgstr "Cerca byte (hex)"
+
+#: menu_main.c:704
+msgid "Value not found: 0x"
+msgstr "Valore non trovato: 0x"

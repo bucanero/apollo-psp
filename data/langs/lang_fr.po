@@ -1,11 +1,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Apollo Save Tool\n"
-"POT-Creation-Date: 2025-10-25 18:52-0300\n"
-"PO-Revision-Date: 2025-10-25 18:56-0300\n"
-"Last-Translator: yyoossk\n"
-"Language-Team: x.com/Cloud0835\n"
-"Language: ja\n"
+"POT-Creation-Date: 2026-05-07 18:12+0000\n"
+"PO-Revision-Date: 2026-05-07 18:12+0000\n"
+"Last-Translator: \n"
+"Language-Team: github.com/bucanero\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -14,738 +14,919 @@ msgstr ""
 "X-Poedit-KeywordsList: _;_i18n\n"
 "X-Poedit-SearchPath-0: .\n"
 
+
 #: exec_cmd.c:53 exec_cmd.c:97 exec_cmd.c:148
 msgid "Error! Export folder is not available:"
-msgstr "エラー!エクスポートフォルダが利用できません:"
+msgstr "Erreur ! Le dossier d'exportation n'est pas disponible :"
+
 
 #: exec_cmd.c:59 exec_cmd.c:174
 msgid "Error downloading save game from:"
-msgstr "セーブデータのダウンロード中にエラーが発生しました:"
+msgstr "Erreur lors du téléchargement de la sauvegarde depuis:"
+
 
 #: exec_cmd.c:64 exec_cmd.c:203
 msgid "Save game successfully downloaded to:"
-msgstr "セーブデータが正常にダウンロードされました:"
+msgstr "Téléchargement de la Sauvegarde avec succès sur:"
+
 
 #: exec_cmd.c:66 exec_cmd.c:185 exec_cmd.c:205
 msgid "Error extracting save game!"
-msgstr "セーブデータの抽出に失敗しました!"
+msgstr "Erreur lors de l'extraction de la sauvegarde!"
+
 
 #: exec_cmd.c:127
 msgid "Error! Can't export save game to:"
-msgstr "エラー！セーブデータをエクスポートできません:"
+msgstr "Erreur ! Impossible d'exporter la Sauvegarde vers :"
+
 
 #: exec_cmd.c:131
 msgid "Zip file successfully saved to:"
-msgstr "Zipファイルが正常に保存されました:"
+msgstr "Fichier ZIP enregistré avec succès sous :"
+
 
 #: exec_cmd.c:142 exec_cmd.c:274
 msgid "Copy operation cancelled!"
-msgstr "コピー操作がキャンセルされました!"
+msgstr "Opération de copie annulée !"
+
 
 #: exec_cmd.c:142 exec_cmd.c:274
 msgid "Same source and destination."
-msgstr "送信元と宛先が同じです。"
+msgstr "Même source et même destination."
+
 
 #: exec_cmd.c:162
 msgid "Files successfully copied to:"
-msgstr "ファイルが正常にコピーされました:"
+msgstr "Fichiers copiés avec succès vers :"
+
 
 #: exec_cmd.c:194
 msgid "Save game already exists:"
-msgstr "セーブデータが既に存在します:"
+msgstr "Une sauvegarde existe déjà :"
+
 
 #: exec_cmd.c:194
 msgid "Overwrite?"
-msgstr "上書きしますか?"
+msgstr "Écraser ?"
+
 
 #: exec_cmd.c:283
 msgid "Save-game successfully copied to:"
-msgstr "セーブデータが正常にコピーされました:"
+msgstr "Save-game successfully copied to:"
+
 
 #: exec_cmd.c:286
 msgid "Error! Can't copy Save-game folder:"
-msgstr "エラー!セーブデータフォルダをコピーできません："
+msgstr "Erreur! Impossible de copier le dossier de sauvegarde :"
+
 
 #: exec_cmd.c:314
 msgid "Saves copied to Memory Stick"
-msgstr "メモリースティックにセーブデータをコピー"
+msgstr "Saves copied to Memory Stick"
+
 
 #: exec_cmd.c:350
 msgid "All files extracted to:"
-msgstr "すべてのファイルは以下に抽出されました:"
+msgstr "Tous les fichiers extraits vers :"
+
 
 #: exec_cmd.c:352
 #, c-format
 msgid "Error: %s couldn't be extracted"
-msgstr "エラー:%sを抽出できませんでした"
+msgstr "Erreur : %s n'a pas pu être extrait"
+
 
 #: exec_cmd.c:362 exec_cmd.c:392
 msgid "Error! Game Key file is not available:"
-msgstr "エラー!ゲームキーファイルが利用できません："
+msgstr "Erreur ! Le fichier de clé de jeu n'est pas disponible :"
+
 
 #: exec_cmd.c:370
 msgid "Error! Can't open file:"
-msgstr "エラー!ファイルを開けません："
+msgstr "Erreur ! Impossible d'ouvrir le fichier :"
+
 
 #: exec_cmd.c:381 exec_cmd.c:400
 msgid "game key successfully saved to:"
-msgstr "ゲームキーの保存に成功しました:"
+msgstr "clé de jeu enregistrée avec succès vers :"
+
 
 #: exec_cmd.c:402
 msgid "Error! Can't save file:"
-msgstr "エラー!ファイルを保存できません："
+msgstr "Erreur ! Impossible d'enregistrer le fichier :"
+
 
 #: exec_cmd.c:426
 msgid "game keys dumped to:"
-msgstr "ゲームキーは以下にダンプされました："
+msgstr "game keys dumped to:"
+
 
 #: exec_cmd.c:587
 msgid "Web Server on:"
-msgstr "Webサーバーが稼働中:"
+msgstr "Serveur Web sur :"
+
 
 #: exec_cmd.c:587
 msgid "Press OK to stop the Server."
-msgstr "サーバーを停止するには、OKを押してください。"
+msgstr "Appuyez sur OK pour arrêter le serveur."
+
 
 #: exec_cmd.c:590
 msgid "Error starting Web Server!"
-msgstr "Webサーバーの起動中にエラーが発生しました!"
+msgstr "Erreur lors du démarrage du serveur Web !"
+
 
 #: exec_cmd.c:607
 msgid "Error! Folder is not available:"
-msgstr "エラー!フォルダが利用できません:"
+msgstr "Erreur ! Le dossier n'est pas disponible :"
+
 
 #: exec_cmd.c:628
 msgid "Saves copied to:"
-msgstr "保存先:"
+msgstr "Sauvegardes copiées vers:"
+
 
 #: exec_cmd.c:657
 msgid "Saves exported to:"
-msgstr "エクスポートされた保存先:"
+msgstr "Sauvegardes exportées vers :"
+
 
 #: exec_cmd.c:678
 msgid "Save successfully exported to:"
-msgstr "正常にエクスポートされました:"
+msgstr "Sauvegardes réussies exporté vers :"
+
 
 #: exec_cmd.c:680
 msgid "Error exporting save:"
-msgstr "セーブデータのエクスポート中にエラーが発生しました:"
+msgstr "Erreur lors de l'exportation de la sauvegarde :"
+
 
 #: exec_cmd.c:687
 #, c-format
 msgid "Do you want to delete %s?"
-msgstr "%sを削除しますか?"
+msgstr "Voulez-vous supprimer %s ?"
+
 
 #: exec_cmd.c:703
 msgid "Save successfully deleted:"
-msgstr "削除が正常に完了しました:"
+msgstr "Sauvegarde Supprimé avec succès :"
+
 
 #: exec_cmd.c:705
 msgid "Error! Couldn't delete save:"
-msgstr "エラー!セーブデータを削除できませんでした:"
+msgstr "Erreur ! Impossible de supprimer la Sauvegarde :"
+
 
 #: exec_cmd.c:910
 msgid "Error! Cheat codes couldn't be applied"
-msgstr "エラー!チートコードを適用できませんでした"
+msgstr "Erreur! Les codes de Triche n'ont pas pu être appliqués"
+
 
 #: exec_cmd.c:914
 msgid "Error! Save couldn't be resigned"
-msgstr "エラー!再署名できませんでした"
+msgstr "Error! Save couldn't be resigned"
+
 
 #: exec_cmd.c:916
 #, c-format
 msgid "Save %s successfully modified!"
-msgstr "%sの保存に成功しました!"
+msgstr "Sauvegarde %s modifiée avec succès!"
+
 
 #: exec_cmd.c:943
 msgid "Saves resigned"
-msgstr "セーブデータが再署名されました"
+msgstr "Saves resigned"
+
 
 #: exec_cmd.c:1027 menu_main.c:231 menu_main.c:251 settings.c:259
 msgid "Network is not available!"
-msgstr "ネットワークが利用できません!"
+msgstr "Network is not available!"
+
 
 #: exec_cmd.c:1027 menu_main.c:231 menu_main.c:251 settings.c:259
 msgid "Please connect to a network first."
-msgstr "ネットワークに接続してください。"
+msgstr "Please connect to a network first."
+
 
 #: exec_cmd.c:1031
 #, c-format
 msgid "Do you want to upload %s?"
-msgstr "%sをアップロードしますか?"
+msgstr "Voulez-vous UpLoader %s ?"
+
 
 #: exec_cmd.c:1072
 msgid "Error! Couldn't zip save:"
-msgstr "エラー!セーブデータを圧縮できませんでした:"
+msgstr "Erreur ! Impossible de compresser la sauvegarde :"
+
 
 #: exec_cmd.c:1128
 msgid "Save successfully uploaded:"
-msgstr "アップロードが正常に保存されました:"
+msgstr "Enregistrement de la SAVE avec succès :"
+
 
 #: exec_cmd.c:1130
 msgid "Error! Couldn't upload save:"
-msgstr "エラー!セーブデータのアップロードに失敗しました:"
+msgstr "Erreur! Impossible de UpLoader la Sauvegarde :"
+
 
 #: exec_cmd.c:1143
 msgid "Memory card successfully imported to:"
-msgstr "メモリカードが正常にインポートされました:"
+msgstr "Carte mémoire importée avec succès vers :"
+
 
 #: exec_cmd.c:1145
 msgid "Error importing memory card:"
-msgstr "メモリーカードの読み込み中にエラーが発生しました:"
+msgstr "Erreur lors de l'importation de la carte mémoire :"
+
 
 #: exec_cmd.c:1159
 msgid "Memory card successfully exported to:"
-msgstr "メモリカードが正常にエクスポートされました:"
+msgstr "Carte Mémoire exportée avec succès vers :"
+
 
 #: exec_cmd.c:1161
 msgid "Error exporting memory card:"
-msgstr "メモリーカードのエクスポート中にエラーが発生しました:"
+msgstr "Erreur lors de l'exportation de la carte mémoire :"
+
 
 #: exec_cmd.c:1181 exec_cmd.c:1209
 #, c-format
 msgid "Error! No game decryption key available for %s"
-msgstr "エラー!%s用のゲーム復号化キーがありません"
+msgstr "Erreur ! Aucune clé de déchiffrement de jeu disponible pour %s"
+
 
 #: exec_cmd.c:1194 exec_cmd.c:1199
 #, c-format
 msgid "Error! File %s couldn't be exported"
-msgstr "エラー!ファイル %s をエクスポートできませんでした"
+msgstr "Erreur! Impossible d'exporter le fichier %s"
+
 
 #: exec_cmd.c:1196
 msgid "File successfully exported to:"
-msgstr "ファイルは正常にエクスポートされました："
+msgstr "Fichier exporté avec succès vers:"
+
 
 #: exec_cmd.c:1216
 msgid "Error! Can't find decrypted save-game file:"
-msgstr "エラー!復号化されたセーブデータが見つかりません:"
+msgstr "Erreur! Impossible de trouver le fichier de sauvegarde décrypté :"
+
 
 #: exec_cmd.c:1226 exec_cmd.c:1231
 #, c-format
 msgid "Error! File %s couldn't be imported"
-msgstr "エラー!ファイル %s をインポートできませんでした"
+msgstr "Erreur! Impossible d'importer le fichier %s"
+
 
 #: exec_cmd.c:1228
 msgid "File successfully imported to:"
-msgstr "ファイルのインポートに成功しました:"
+msgstr "Fichier importé avec succès vers :"
+
 
 #: exec_cmd.c:1239
 msgid "Download URL"
-msgstr "ダウンロードURL"
+msgstr "Téléchargement de l'URL"
+
 
 #: exec_cmd.c:1246
 msgid "File successfully downloaded to:"
-msgstr "ファイルのダウンロードに成功しました:"
+msgstr "Fichier Téléchargé avec succès sur :"
+
 
 #: exec_cmd.c:1248
 msgid "Error! File couldn't be downloaded"
-msgstr "エラー!ファイルをダウンロードできませんでした"
+msgstr "Erreur! Le fichier n'a pas pu être Téléchargé"
+
 
 #: exec_cmd.c:1305
 msgid "Plugin successfully set up"
-msgstr "プラグインの設定が正常に完了しました"
+msgstr "Plugin successfully set up"
+
 
 #: exec_cmd.c:1307
 msgid "Error! Plugin couldn't be set up"
-msgstr "エラー!プラグインの設定に失敗しました"
+msgstr "Error! Plugin couldn't be set up"
+
 
 #: exec_cmd.c:1325
 msgid "Memory card successfully resigned:"
-msgstr "メモリカードの再登録に成功しました:"
+msgstr "Carte mémoire resignée avec succès :"
+
 
 #: exec_cmd.c:1327
 msgid "Error resigning memory card:"
-msgstr "メモリカードの再署名中にエラーが発生しました:"
+msgstr "Erreur lors de la resignature de la carte mémoire :"
+
 
 #: exec_cmd.c:1372
 msgid "Save successfully imported:"
-msgstr "インポートに成功しました:"
+msgstr "Sauvegarde Importé avec succès:"
+
 
 #: exec_cmd.c:1374
 msgid "Error! Couldn't import save:"
-msgstr "エラー!セーブデータのインポートに失敗しました:"
+msgstr "Erreur! Impossible d'importer la Sauvegarde :"
+
 
 #: exec_cmd.c:1415
 #, c-format
 msgid "ISO successfully saved to %s"
-msgstr "ISOが正常に%sに保存されました!"
+msgstr "ISO successfully saved to %s"
+
 
 #: exec_cmd.c:1417
 msgid "Error! ISO couldn't be created"
-msgstr "エラー!ISOを作成できませんでした"
+msgstr "Erreur ! L'ISO n'a pas pu être créé"
+
 
 #: exec_cmd.c:1423
 #, c-format
 msgid "CSO successfully saved to %s"
-msgstr "CSOが正常に%sに保存されました"
+msgstr "CSO successfully saved to %s"
+
 
 #: exec_cmd.c:1425
 msgid "Error! CSO couldn't be created"
-msgstr "エラー!CSOを作成できませんでした"
+msgstr "Erreur ! Le CSO n'a pas pu être créé"
+
 
 #: main.c:170 main.c:174 main.c:179 main.c:189
 msgid "Select"
-msgstr "選択する"
+msgstr "Sélectionner"
+
 
 #: main.c:170 main.c:174 main.c:179 main.c:185 main.c:189
 msgid "Back"
-msgstr "戻る"
+msgstr "Retour"
+
 
 #: main.c:170 menu_cheats.c:253
 msgid "Details"
-msgstr "詳細"
+msgstr "Détails"
+
 
 #: main.c:170 main.c:174
 msgid "Refresh"
-msgstr "リフレッシュ"
+msgstr "Rafraîchir"
+
 
 #: main.c:189
 msgid "View Code"
-msgstr "コードを表示する"
+msgstr "Voir le Code"
+
 
 #: main.c:193
 msgid "Value Up"
-msgstr "バリューアップ"
+msgstr "Valeur augmentée"
+
 
 #: main.c:193
 msgid "Value Down"
-msgstr "バリューダウン"
+msgstr "Valeur baissée"
+
 
 #: main.c:193
 msgid "Exit"
-msgstr "退出"
+msgstr "Quitter"
+
 
 #: main.c:422
 msgid "Internal Saves"
-msgstr "内部セーブ"
+msgstr "Sauvegardes internes"
+
 
 #: main.c:423
 msgid "External Saves"
-msgstr "外部セーブ"
+msgstr "Sauvegardes externes"
+
 
 #: main.c:424
 msgid "FTP Server"
-msgstr "FTPサーバー"
+msgstr "Serveur FTP"
+
 
 #: main.c:425
 msgid "User Tools"
-msgstr "ユーザーツール"
+msgstr "Outils utilisateur"
+
 
 #: main.c:426
 msgid "Online Database"
-msgstr "オンラインデータベース"
+msgstr "Base de Données en ligne"
+
 
 #: main.c:427 saves.c:302
 msgid "Virtual Memory Card"
-msgstr "仮想メモリカード"
+msgstr "Carte Mémoire Virtuelle"
+
 
 #: main.c:530
 msgid "Install the Save-game Key dumper plugin?"
-msgstr "セーブデータキーダンププラグインをインストールしますか?"
+msgstr "Install the Save-game Key dumper plugin?"
+
 
 #: main.c:550
 msgid "Successfully installed local application data"
-msgstr "ローカルアプリケーションデータのインストールに成功しました"
+msgstr "Données Application Locales installées avec succès"
+
 
 #: menu_about.c:97 menu_about.c:129
 msgid "About"
-msgstr "概要"
+msgstr "À propos"
+
 
 #: menu_cheats.c:112 menu_cheats.c:142 menu_cheats.c:162
 msgid "Options"
-msgstr "オプション"
+msgstr "Options"
+
 
 #: menu_cheats.c:207
 msgid "Target File:"
-msgstr "対象ファイル:"
+msgstr "Fichier cible :"
+
 
 #: menu_cheats.c:509
 msgid "Saves"
-msgstr "セーブデータ"
+msgstr "Sauvegardes"
+
 
 #: menu_cheats.c:514
 msgid "Games"
-msgstr "ゲーム"
+msgstr "Jeux"
+
 
 #: menu_cheats.c:518
 msgid "Tools"
-msgstr "ツール"
+msgstr "Outils"
+
 
 #: menu_cheats.c:522
 msgid "PS1 Saves"
-msgstr "PS1セーブデータ"
+msgstr "Sauvegardes PS1"
+
 
 #: menu_hex.c:52 menu_hex.c:72
 msgid "Hex Editor"
-msgstr "Hexエディタ"
+msgstr "Éditeur Hexadécimal"
+
 
 #: menu_main.c:86
 msgid "No save-games found"
-msgstr "セーブ、ゲームが見つかりませんでした"
+msgstr "Aucune Sauvegarde Trouvée"
+
 
 #: menu_main.c:245
 msgid "No FTP Server URL set"
-msgstr "FTPサーバーURLが設定されていません"
+msgstr "No FTP Server URL set"
 
-#: menu_main.c:330 menu_main.c:689
+
+#: menu_main.c:330
 msgid "Patch view"
-msgstr "パッチ表示"
+msgstr "Vue du patch"
+
 
 #: menu_main.c:434
 msgid "No data found in folder:"
-msgstr "フォルダ内にデータが見つかりません:"
+msgstr "Aucune donnée trouvée dans le dossier :"
+
 
 #: menu_main.c:486
 msgid "Exit to XMB?"
-msgstr "XMBに戻りますか?"
+msgstr "Quitter vers XMB ?"
+
 
 #: menu_main.c:630
 #, c-format
 msgid "Save changes to %s?"
-msgstr "変更を%sに保存しますか?"
+msgstr "Enregistrer les Modifications dans %s ?"
+
 
 #: menu_main.c:725
 msgid "Failed to load:"
-msgstr "読み込みに失敗しました:"
+msgstr "Échec du Chargement :"
+
 
 #: menu_options.c:56 menu_options.c:76
 msgid "Settings"
-msgstr "設定"
+msgstr "Paramètres"
+
 
 #: saves.c:217
 msgid "Apply Changes & Resign"
-msgstr "変更を適用して再署名"
+msgstr "Appliquer les Modifications et Ressigner"
+
 
 #: saves.c:220 saves.c:491
 msgid "View Save Details"
-msgstr "セーブデータの詳細を表示"
+msgstr "Afficher les détails de Sauvegarde"
+
 
 #: saves.c:224 saves.c:498
 msgid "Save Backup"
-msgstr "セーブデータをバックアップ"
+msgstr "Sauvegarde"
+
 
 #: saves.c:227
 msgid "Copy save game"
-msgstr "セーブデータをコピー"
+msgstr "Copier la sauvegarde"
+
 
 #: saves.c:228
 msgid "Copy Save to Backup Storage"
-msgstr "ストレージにセーブデータをコピー"
+msgstr "Copier la sauvegarde vers le stockage de sauvegarde"
+
 
 #: saves.c:232
 msgid "Copy Save to Memory Stick"
-msgstr "メモリースティックにセーブデータをコピー"
+msgstr "Copy Save to Memory Stick"
+
 
 #: saves.c:240 saves.c:503
 msgid "Upload save backup to FTP"
-msgstr "FTPにセーブデータのバックアップをアップロードする"
+msgstr "UpLoader la Sauvegarde par FTP"
+
 
 #: saves.c:244
 msgid "Export save game to Zip"
-msgstr "セーブデータをZip形式でエクスポートする"
+msgstr "Exporter la Sauvegarde en fichier ZIP"
+
 
 #: saves.c:245
 msgid "Export Zip to Backup Storage"
-msgstr "ストレージにZipファイルをエクスポートする"
+msgstr "Exporter le Zip vers le stockage de sauvegarde"
+
 
 #: saves.c:248
 msgid "Export decrypted save files"
-msgstr "復号化されたセーブデータをエクスポートする"
+msgstr "Exporter les Fichiers de Sauvegarde décryptés"
+
 
 #: saves.c:253
 msgid "Import decrypted save files"
-msgstr "復号済みのセーブデータをインポートする"
+msgstr "Importer les Fichiers de Sauvegarde décryptés"
+
 
 #: saves.c:258
 msgid "Hex Edit save game files"
-msgstr "セーブデータをHEXで編集"
+msgstr "Éditer en Hexadécimal le Fichier de Sauvegarde du Jeu"
+
 
 #: saves.c:307
 msgid "Resign Memory Card"
-msgstr "メモリーカードを再署名"
+msgstr "Resigner la carte mémoire"
+
 
 #: saves.c:311
 msgid "Export Memory Card to .MCR"
-msgstr "メモリカードを.MCR形式でエクスポート"
+msgstr "Exporter la carte mémoire vers .MCR"
+
 
 #: saves.c:314
 #, c-format
 msgid "Import .MCR files to %s"
-msgstr ".MCRファイルを%sにインポート"
+msgstr "Importer des fichiers .MCR vers %s"
+
 
 #: saves.c:328 saves.c:494
 msgid "Delete Save Game"
-msgstr "セーブデータを削除"
+msgstr "Supprimer la Sauvegarde"
+
 
 #: saves.c:332
 msgid "Game Key Backup"
-msgstr "ゲームキーをバックアップ"
+msgstr "Sauvegarde de la clé de jeu"
+
 
 #: saves.c:335
 msgid "Export binary Game Key"
-msgstr "バイナリー形式のゲームキーをエクスポート"
+msgstr "Export binary Game Key"
+
 
 #: saves.c:338
 msgid "Dump Game Key (text file)"
-msgstr "ゲームキーをダンプする（テキストファイル）"
+msgstr "Dump Game Key (text file)"
+
 
 #: saves.c:375
 msgid "Cheats"
-msgstr "チート"
+msgstr "Tricheries"
+
 
 #: saves.c:378
 msgid "View Raw Patch File"
-msgstr "Rawパッチファイルを表示"
+msgstr "Afficher le fichier de correctif brut"
+
 
 #: saves.c:507
 msgid "Export save game to MCS format"
-msgstr "セーブデータを.MCS形式でエクスポート"
+msgstr "Exporter la sauvegarde au format MCS"
+
 
 #: saves.c:508 saves.c:513 saves.c:518
 msgid "Copy Save to Mass Storage"
-msgstr "セーブデータをストレージにコピー"
+msgstr "Copy Save to Mass Storage"
+
 
 #: saves.c:512
 msgid "Export save game to PSV format"
-msgstr "セーブデータを.PSV形式でエクスポート"
+msgstr "Exporter la sauvegarde au format PSV"
+
 
 #: saves.c:517
 msgid "Export save game to PSX format"
-msgstr "セーブデータを.PSX形式でエクスポート"
+msgstr "Exporter la sauvegarde au format PSX"
+
 
 #: saves.c:581
 msgid "Download to Backup Storage"
-msgstr "ストレージにダウンロード"
+msgstr "Télécharger vers le stockage de sauvegarde"
+
 
 #: saves.c:583
 msgid "Download to Memory Stick"
-msgstr "メモリースティックにダウンロード"
+msgstr "Download to Memory Stick"
+
 
 #: saves.c:603
 msgid "Extract Archives (Zip, 7z)"
-msgstr "アーカイブを解凍する（Zip、7z）"
+msgstr "Extract Archives (Zip, 7z)"
+
 
 #: saves.c:609
 msgid "Manage Save-game Key Dumper plugin"
-msgstr "セーブデータキーダンププラグインを管理する"
+msgstr "Manage Save-game Key Dumper plugin"
+
 
 #: saves.c:614
 msgid "Network Tools"
-msgstr "ネットワークツール"
+msgstr "Network Tools"
+
 
 #: saves.c:619
 msgid "Decompress .CSO to .ISO"
-msgstr ".CSOを.ISOに展開する"
+msgstr "Décompresser .CSO vers .ISO"
+
 
 #: saves.c:625
 msgid "Compress .ISO to .CSO"
-msgstr ".ISOを.CSOに圧縮する"
+msgstr "Compresser .ISO vers .CSO"
+
 
 #: saves.c:652
 msgid "Convert"
-msgstr "変換"
+msgstr "Convert"
+
 
 #: saves.c:690
 msgid "URL link Downloader (http, https, ftp, ftps)"
-msgstr "URLリンクダウンローダー（http、https、ftp、ftps）"
+msgstr "Téléchargeur de lien URL (http, https, ftp, ftps)"
+
 
 #: saves.c:692
 msgid "Local Web Server (full system access)"
-msgstr "ローカルWebサーバー（フルシステムアクセス）"
+msgstr "Serveur Web local (accès complet au système)"
+
 
 #: saves.c:699
 msgid "Install Save-game Key Dumper plugin"
-msgstr "セーブデータキーダンププラグインをインストールする"
+msgstr "Installer le plugin Save-game Key Dumper"
+
 
 #: saves.c:702
 msgid "Disable Save-game Key Dumper plugin"
-msgstr "セーブデータキーダンププラグインを無効化"
+msgstr "Désactiver le plugin Save-game Key Dumper"
+
 
 #: saves.c:727
 msgid "Extract"
-msgstr "抽出"
+msgstr "Extraire"
+
 
 #: saves.c:1005 saves.c:1050
 msgid "Bulk Save Management"
-msgstr "一括保存管理"
+msgstr "Gestion des Sauvegardes en masse"
+
 
 #: saves.c:1013
 msgid "Copy selected Saves to Memory Stick"
-msgstr "選択したセーブデータをメモリースティックにコピー"
+msgstr "Copy selected Saves to Memory Stick"
+
 
 #: saves.c:1017
 msgid "Copy All Saves to Memory Stick"
-msgstr "すべてのセーブデータをメモリースティックにコピー"
+msgstr "Copy All Saves to Memory Stick"
+
 
 #: saves.c:1021 saves.c:1066
 msgid "Resign selected Saves"
-msgstr "選択したセーブデータを削除"
+msgstr "Ressigner les sauvegardes sélectionnées"
+
 
 #: saves.c:1023 saves.c:1068
 msgid "Resign All Saves"
-msgstr "全てのセーブデータのロックを解除"
+msgstr "Resign All Saves"
+
 
 #: saves.c:1026 saves.c:1071
 msgid "Start local Web Server"
-msgstr "ローカルWebサーバーを起動"
+msgstr "Démarrer le serveur Web local"
+
 
 #: saves.c:1029 saves.c:1074
 msgid "Export all Save-game Keys"
-msgstr "すべてのセーブデータキーをエクスポート"
+msgstr "Export all Save-game Keys"
+
 
 #: saves.c:1058
 msgid "Copy selected Saves to Backup Storage"
-msgstr "選択したセーブデータをトレージにコピー"
+msgstr "Copier les sauvegardes sélectionnées vers le stockage de sauvegarde"
+
 
 #: saves.c:1059 saves.c:1063 saves.c:1198 saves.c:1201
 msgid "Copy Saves to Backup Storage"
-msgstr "セーブデータをストレージにコピー"
+msgstr "Copier les sauvegardes vers le stockage de sauvegarde"
+
 
 #: saves.c:1062
 msgid "Copy all Saves to Backup Storage"
-msgstr "すべてのセーブデータをストレージにコピーする"
+msgstr "Copier toutes les sauvegardes vers le stockage de sauvegarde"
+
 
 #: saves.c:1185
 msgid "Memory Card Management"
-msgstr "メモリカード管理"
+msgstr "Gestion de Carte Mémoire"
+
 
 #: saves.c:1197
 msgid "Export selected Saves to Backup Storage"
-msgstr "選択したセーブデータをストレージにエクスポート"
+msgstr "Exporter les sauvegardes sélectionnées vers le stockage de sauvegarde"
+
 
 #: saves.c:1200
 msgid "Export all Saves to Backup Storage"
-msgstr "すべてのセーブデータをストレージにエクスポート"
+msgstr "Exporter toutes les sauvegardes vers le stockage de sauvegarde"
+
 
 #: saves.c:1206
 msgid "Import Saves to Virtual Card"
-msgstr "セーブデータを仮想カードにインポート"
+msgstr "Importer des sauvegardes vers la carte virtuelle"
+
 
 #: settings.c:24
 msgid "Disabled"
-msgstr "無効"
+msgstr "Désactivé"
+
 
 #: settings.c:24
 msgid "by Name"
-msgstr "名前"
+msgstr "par nom"
+
 
 #: settings.c:24
 msgid "by Title ID"
-msgstr "タイトルID"
+msgstr "par Titre ID"
+
 
 #: settings.c:24
 msgid "by Type"
-msgstr "タイプ"
+msgstr "par Type"
+
 
 #: settings.c:37
 msgid "Background Music"
-msgstr "BGM"
+msgstr "Musique de fond"
+
 
 #: settings.c:43
 msgid "Menu Animations"
-msgstr "メニューアニメーション"
+msgstr "Animations du menu"
+
 
 #: settings.c:49
 msgid "Sort Saves"
-msgstr "セーブデータを並び替える"
+msgstr "Trier les Sauvegardes"
+
 
 #: settings.c:55
 msgid "External Saves Source"
-msgstr "外部セーブデータソース"
+msgstr "Source des sauvegardes externes"
+
 
 #: settings.c:61
 msgid "Version Update Check"
-msgstr "アップデートのチェック"
+msgstr "Vérification de la mise à jour de la version"
+
 
 #: settings.c:67
 msgid "Set User FTP Server URL"
-msgstr "FTPサーバーのURLを設定する"
+msgstr "Définir l'URL du serveur FTP utilisateur"
+
 
 #: settings.c:73
 msgid "Update Application Data"
-msgstr "アプリケーションデータの更新"
+msgstr "Mettre à jour les Données de l'application"
+
 
 #: settings.c:79
 msgid "Clear Local Cache"
-msgstr "ローカルキャッシュを消去"
+msgstr "Vider le Cache Local"
+
 
 #: settings.c:85
 msgid "Change Online Database URL"
-msgstr "オンラインデータベースのURLを変更する"
+msgstr "Modifier la Base de Données en ligne URL"
+
 
 #: settings.c:91
 msgid "Enable Debug Log"
-msgstr "デバッグログを有効化"
+msgstr "Activer le Journal de Débogage"
+
 
 #: settings.c:121
 msgid "Local cache folder cleaned:"
-msgstr "ローカルキャッシュフォルダをクリーンアップしました:"
+msgstr "Dossier de Cache Local nettoyé :"
+
 
 #: settings.c:130
 msgid "Error! Can't download data update pack!"
-msgstr "エラー!アップデータをダウンロードできません!"
+msgstr "Erreur ! Impossible de télécharger le pack de mise à jour des données !"
+
 
 #: settings.c:135
 #, c-format
 msgid "Successfully updated %d data files!"
-msgstr "%d個のアップデートに成功しました!"
+msgstr "%d fichiers de données mis à jour avec succès !"
+
 
 #: settings.c:137
 msgid "Error! Can't extract data update pack!"
-msgstr "エラー!アップデータを抽出できません!"
+msgstr "Erreur ! Impossible d'extraire le pack de mise à jour des données !"
+
 
 #: settings.c:204
 msgid "New version available! Download update?"
-msgstr "新しいバージョンが利用可能です!アップデートをダウンロードしますか?"
+msgstr "Nouvelle version disponible! Télécharger la mise à jour ?"
+
 
 #: settings.c:207
 msgid "Update downloaded to:"
-msgstr "アップデートがダウンロードされました:"
+msgstr "Update downloaded to:"
+
 
 #: settings.c:209
 msgid "Download error!"
-msgstr "ダウンロードエラー!"
+msgstr "Erreur de téléchargement!"
+
 
 #: settings.c:231
 msgid "Debug Logging Disabled"
-msgstr "デバッグログ無効"
+msgstr "Journalisation de débogage Désactivée"
+
 
 #: settings.c:237
 msgid "Debug Logging Enabled!"
-msgstr "デバッグログ有効!"
+msgstr "Journalisation de débogage Activée!"
+
 
 #: settings.c:242
 msgid "Enter the Online Database URL"
-msgstr "オンラインデータベースのURLを入力してください"
+msgstr "Entrez l'URL de la Base de Données en Ligne"
+
 
 #: settings.c:248
 msgid "Online database URL changed to:"
-msgstr "オンラインデータベースのURLが変更されました:"
+msgstr "L'URL de la Base de Données en ligne a été modifiée en :"
+
 
 #: settings.c:264
 msgid "Enter the FTP server URL"
-msgstr "FTPサーバーのURLを入力してください"
+msgstr "Entrez l'URL du serveur FTP"
+
 
 #: settings.c:296
 msgid "FTP server URL changed to:"
-msgstr "FTPサーバーのURLが変更されました:"
+msgstr "L'URL du serveur FTP a été modifiée en :"
+
 
 #: settings.c:298
 msgid "Error! Couldn't connect to FTP server"
-msgstr "エラー!FTPサーバーに接続できませんでした"
+msgstr "Erreur! Impossible de se Connecter au Serveur FTP"
+
 
 #: settings.c:298
 msgid "Check debug logs for more information"
-msgstr "詳細についてはデバッグログを確認してください"
+msgstr "Consultez les journaux de débogage pour plus d'informations"
+
 
 #: main.c:193
 msgid "Search"
-msgstr "検索"
+msgstr "Rechercher"
+
 
 #: menu_main.c:688
 msgid "Search bytes (hex)"
-msgstr "バイトを検索 (16進)"
+msgstr "Rechercher des octets (hex)"
+
 
 #: menu_main.c:704
 msgid "Value not found: 0x"
-msgstr "値が見つかりません: 0x"
+msgstr "Valeur introuvable : 0x"
