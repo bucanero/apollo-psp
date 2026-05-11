@@ -287,8 +287,10 @@ const char * get_user_language(void)
         return "ko";
 
     case PSP_SYSTEMPARAM_LANGUAGE_CHINESE_TRADITIONAL:  // 10   Chinese (traditional)
+        return "zh_tw";
+
     case PSP_SYSTEMPARAM_LANGUAGE_CHINESE_SIMPLIFIED:   // 11   Chinese (simplified)
-        return "zh";
+        return "zh_cn";
 
     case PSP_SYSTEMPARAM_LANGUAGE_PORTUGUESE:           //  7   Portuguese (Portugal)
         return "pt";

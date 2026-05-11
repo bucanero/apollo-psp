@@ -112,7 +112,7 @@ create_pbp_file(
   BACKGROUND_PATH NULL
   PREVIEW_PATH NULL
   TITLE "Apollo Save Tool"
-  VERSION 02.30
+  VERSION 02.32
 )
 
 add_custom_target(createzip

@@ -20,7 +20,7 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Standalone:** no computer required, everything happens on the PSP.
 * **Automatic settings:** auto-detection of User settings.
 * **Multi-format:** supports PSP and PS1 saves.
-* **Localization support:** Chinese, English, Italian, Japanese, Portuguese, Spanish.
+* **Localization support:** Chinese, English, French, German, Italian, Japanese, Korean, Portuguese, Russian, Spanish.
 
 ## Save Management
 
