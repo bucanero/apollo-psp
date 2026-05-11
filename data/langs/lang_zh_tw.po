@@ -749,3 +749,15 @@ msgstr "搜尋位元組 (十六進位)"
 #: menu_main.c:704
 msgid "Value not found: 0x"
 msgstr "未找到數值：0x"
+
+#: saves.c:1073
+msgid "Upload selected Saves to FTP"
+msgstr "上傳所選存檔到FTP"
+
+#: exec_cmd.c:1173
+msgid "Do you want to upload the selected saves to FTP?"
+msgstr "是否將所選存檔上傳到FTP？"
+
+#: exec_cmd.c:1189
+msgid "Saves uploaded to FTP"
+msgstr "存檔已上傳到FTP"
