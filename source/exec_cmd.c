@@ -1047,6 +1047,11 @@ static int _upload_save_ftp(const save_entry_t* save)
 			(save->type == FILE_TYPE_PS1) ? save->title_id : save->dir_name,
 			t.year, t.month, t.day, t.hour, t.minute, t.second);
 
+	// Replace spaces with underscores for better compatibility with FTP servers
+	for (tmp = local + strlen(APOLLO_LOCAL_CACHE); *tmp; tmp++)
+		if (*tmp == ' ')
+			*tmp = '_';
+
 	if (save->type != FILE_TYPE_PS1)
 	{
 		tmp = strdup(save->path);
