@@ -20,7 +20,7 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 * **Standalone:** no computer required, everything happens on the PSP.
 * **Automatic settings:** auto-detection of User settings.
 * **Multi-format:** supports PSP and PS1 saves.
-* **Localization support:** Chinese, English, Italian, Japanese, Portuguese, Spanish.
+* **Localization support:** Chinese, English, French, German, Italian, Japanese, Korean, Portuguese, Russian, Spanish.
 
 ## Save Management
 
@@ -166,7 +166,7 @@ You can also set the `PSPIP` environment variable to your PSP's IP address, and 
 
 # License
 
-[Apollo Save Tool](https://github.com/bucanero/apollo-psp/) (PSP) - Copyright (C) 2020-2025 [Damian Parrino](https://twitter.com/dparrino)
+[Apollo Save Tool](https://github.com/bucanero/apollo-psp/) (PSP) - Copyright (C) 2020-2026 [Damian Parrino](https://twitter.com/dparrino)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the [GNU General Public License][app_license] as published by

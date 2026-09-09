@@ -6,6 +6,20 @@ All notable changes to the `apollo-psp` project will be documented in this file.
 
 ---
 
+## [v2.3.2](https://github.com/bucanero/apollo-psp/releases/tag/v2.3.2) - 2026-05-12
+
+### Added
+
+* Bulk FTP upload support for PSP saves
+  - Upload multiple saves to FTP server in a single operation
+* Localization support
+  - New languages: Chinese (Simplified), Chinese (Traditional), French, German, Korean, Russian.
+* Apollo Patch Engine v2.0.4
+  - Add `des3_ecb`, `hmac_sha256` support
+  - Fix `offzip` decompression bug
+
+---
+
 ## [v2.3.0](https://github.com/bucanero/apollo-psp/releases/tag/v2.3.0) - 2026-02-22
 
 ### Added

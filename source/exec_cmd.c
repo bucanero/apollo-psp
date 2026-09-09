@@ -882,7 +882,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 			}
 		}
 
-		if (!apply_cheat_patch_code(tmpfile, code, &psp_host_callback))
+		if (!apollo_apply_code(tmpfile, code, &psp_host_callback))
 		{
 			LOG("Error: failed to apply (%s)", code->name);
 			ret = 0;
@@ -904,7 +904,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 	}
 
 	list_free(decrypted_files);
-	free_patch_var_list();
+	apollo_free_var_list();
 	stop_loading_screen();
 
 	return ret;
@@ -1046,6 +1046,11 @@ static int _upload_save_ftp(const save_entry_t* save)
 	snprintf(local, sizeof(local), APOLLO_LOCAL_CACHE "%s_%d-%02d-%02d-%02d%02d%02d.zip",
 			(save->type == FILE_TYPE_PS1) ? save->title_id : save->dir_name,
 			t.year, t.month, t.day, t.hour, t.minute, t.second);
+
+	// Replace spaces with underscores for better compatibility with FTP servers
+	for (tmp = local + strlen(APOLLO_LOCAL_CACHE); *tmp; tmp++)
+		if (*tmp == ' ')
+			*tmp = '_';
 
 	if (save->type != FILE_TYPE_PS1)
 	{

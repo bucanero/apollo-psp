@@ -380,7 +380,7 @@ int ReadCodes(save_entry_t * save)
 
 	node = list_tail(save->codes);
 	LOG("Loading BSD codes '%s'...", filePath);
-	load_patch_code_list(buffer, save->codes, &get_file_entries, save->path);
+	apollo_load_code_list(buffer, save->codes, &get_file_entries, save->path);
 	free (buffer);
 
 	for (node = list_next(node); (code = list_get(node)); node = list_next(node))
@@ -971,6 +971,10 @@ static void read_psp_savegames(const char* userPath, list_t *list, int flags)
 			item->dir_name = strdup((char*) sfo_get_param_value(sfo, "SAVEDATA_DIRECTORY"));
 			asprintf(&item->title_id, "%.9s", item->dir_name);
 			asprintf(&item->path, "%s%s/", userPath, dir->d_name);
+
+			char *tmp = strchr(item->name, '\n');
+			if (tmp)
+				*tmp = ' ';
 		}
 
 		sfo_free(sfo);
