@@ -779,6 +779,7 @@ static void doCodeOptionsMenu(void)
 				hex_data.data = getSaveBytes(selected_entry->blocks, &len);
 				hex_data.size = len - PS1CARD_HEADER_SIZE;
 				memmove(hex_data.data, hex_data.data + PS1CARD_HEADER_SIZE, hex_data.size);
+				code->activated = 0;
 
 				SetMenu(MENU_HEX_EDITOR);
 				return;
