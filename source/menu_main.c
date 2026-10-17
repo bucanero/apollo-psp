@@ -651,7 +651,13 @@ static void doHexEditor(void)
 
 	else if (pspPadGetButtonPressed(PSP_CTRL_CIRCLE))
 	{
-		if (show_dialog(DIALOG_TYPE_YESNO, _("Save changes to %s?"), strrchr(hex_data.filepath, '/') + 1) &&
+		if (selected_entry->flags & SAVE_FLAG_VMC)
+		{
+			if (show_dialog(DIALOG_TYPE_YESNO, _("Save changes to %s?"), strrchr(hex_data.filepath, '/') + 1) &&
+				setRawSaveBytes(selected_entry->blocks, hex_data.data, hex_data.size))
+				selected_entry->flags |= SAVE_FLAG_UPDATED;
+		}
+		else if (show_dialog(DIALOG_TYPE_YESNO, _("Save changes to %s?"), strrchr(hex_data.filepath, '/') + 1) &&
 			(write_buffer(hex_data.filepath, hex_data.data, hex_data.size) == SUCCESS))
 		{
 			option_value_t* optval = list_get_item(selected_centry->options[option_index].opts, menu_sel);
@@ -762,6 +768,21 @@ static void doCodeOptionsMenu(void)
 		if (code->type == PATCH_COMMAND)
 		{
 			option_value_t* optval = list_get_item(code->options[option_index].opts, menu_sel);
+
+			if (optval->value[0] == CMD_HEX_EDIT_FILE && selected_entry->flags & SAVE_FLAG_VMC)
+			{
+				uint32_t len;
+
+				// Edit the PS1 save data (no header) directly from the memory card
+				memset(&hex_data, 0, sizeof(hex_data));
+				snprintf(hex_data.filepath, sizeof(hex_data.filepath), "VMC/%s", optval->name);
+				hex_data.data = getSaveBytes(selected_entry->blocks, &len);
+				hex_data.size = len - PS1CARD_HEADER_SIZE;
+				memmove(hex_data.data, hex_data.data + PS1CARD_HEADER_SIZE, hex_data.size);
+
+				SetMenu(MENU_HEX_EDITOR);
+				return;
+			}
 
 			if (optval->value[0] == CMD_HEX_EDIT_FILE)
 			{

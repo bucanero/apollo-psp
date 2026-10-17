@@ -346,6 +346,30 @@ static option_entry_t* get_file_entries(const char* path, const char* mask)
 	return _getFileOptions(path, mask, CMD_CODE_NULL);
 }
 
+// VMC saves have a single data file: the PS1 save name stored on the memory card
+static option_entry_t* _getVmcFileOptions(const char* save_name, const char* mask, uint8_t is_cmd)
+{
+	option_value_t* optval;
+	option_entry_t* opt = _initOptions(1);
+
+	optval = malloc(sizeof(option_value_t));
+	optval->name = strdup(save_name);
+
+	if (is_cmd)
+		asprintf(&optval->value, "%c", is_cmd);
+	else
+		asprintf(&optval->value, "%s", mask);
+
+	list_append(opt[0].opts, optval);
+
+	return opt;
+}
+
+static option_entry_t* get_vmc_file_entries(const char* save_name, const char* mask)
+{
+	return _getVmcFileOptions(save_name, mask, CMD_CODE_NULL);
+}
+
 /*
  * Function:		ReadLocalCodes()
  * File:			saves.c
@@ -469,6 +493,7 @@ int ReadVmcCodes(save_entry_t * save)
 {
 	code_entry_t * cmd;
 	char filePath[256];
+	char * buffer;
 
 	save->codes = list_alloc();
 
@@ -487,6 +512,9 @@ int ReadVmcCodes(save_entry_t * save)
 
 		return list_count(save->codes);
 	}
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " ", _("Apply Changes"), CMD_RESIGN_SAVE);
+	list_append(save->codes, cmd);
 
 	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " ", _("View Save Details"), CMD_VIEW_DETAILS);
 	list_append(save->codes, cmd);
@@ -518,6 +546,26 @@ int ReadVmcCodes(save_entry_t * save)
 	_createOptions(cmd, _("Copy Save to Mass Storage"), CMD_EXP_VMCSAVE);
 	cmd->options[0].id = PS1SAVE_AR;
 	list_append(save->codes, cmd);
+
+	cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_SIGN " ", _("Hex Edit save game files"), CMD_CODE_NULL);
+	cmd->options_count = 1;
+	cmd->options = _getVmcFileOptions(save->dir_name, "*", CMD_HEX_EDIT_FILE);
+	list_append(save->codes, cmd);
+
+	snprintf(filePath, sizeof(filePath), APOLLO_DATA_PATH "%s.savepatch", save->title_id);
+	if ((buffer = readTextFile(filePath)) != NULL)
+	{
+		cmd = _createCmdCode(PATCH_NULL, NULL, NULL, CMD_CODE_NULL);
+		asprintf(&cmd->name, "----- " UTF8_CHAR_STAR " %s " UTF8_CHAR_STAR " -----", _("Cheats"));
+		list_append(save->codes, cmd);
+
+		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " ", _("View Raw Patch File"), CMD_VIEW_RAW_PATCH);
+		list_append(save->codes, cmd);
+
+		LOG("Loading BSD codes '%s'...", filePath);
+		apollo_load_code_list(buffer, save->codes, &get_vmc_file_entries, save->dir_name);
+		free(buffer);
+	}
 
 	LOG("Loaded %ld codes", list_count(save->codes));
 
