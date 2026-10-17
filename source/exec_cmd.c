@@ -864,7 +864,7 @@ static int apply_cheat_patches(const save_entry_t* entry)
 		else if (entry->flags & SAVE_FLAG_VMC)
 		{
 			// PS1 save names might have invalid characters, use a hash for the temp file
-			snprintf(tmpfile, sizeof(tmpfile), APOLLO_LOCAL_CACHE "%08X.ps1",
+			snprintf(tmpfile, sizeof(tmpfile), APOLLO_LOCAL_CACHE "%08X.PS1",
 				apollo_hash_fnv1((uint8_t*) entry->dir_name, strlen(entry->dir_name), 0x811C9DC5));
 
 			if (!psp_is_decrypted(decrypted_files, tmpfile))
