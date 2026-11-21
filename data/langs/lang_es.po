@@ -283,7 +283,7 @@ msgstr "CSO guardado exitosamente en %s"
 msgid "Error! CSO couldn't be created"
 msgstr "Error: CSO no pudo ser creado"
 
-#: main.c:170 main.c:174 main.c:179 main.c:189
+#: main.c:168 main.c:177 main.c:182 main.c:192
 msgid "Select"
 msgstr "Seleccionar"
 
@@ -761,3 +761,7 @@ msgstr "¿Desea subir las partidas seleccionadas al FTP?"
 #: exec_cmd.c:1189
 msgid "Saves uploaded to FTP"
 msgstr "Partidas subidas al FTP"
+
+#: main.c:168 main.c:173
+msgid "Open"
+msgstr "Abrir"
