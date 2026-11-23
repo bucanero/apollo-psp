@@ -165,21 +165,21 @@ static const char* get_button_prompts(char* prompt)
 		case MENU_USB_SAVES:
 		case MENU_HDD_SAVES:
 		case MENU_VMC_SAVES:
-			snprintf(prompt, 0xFF, "%c %s    %c %s    %c %s    %c %s    %c %s", CHAR_BTN_X, _("Open"), CHAR_BTN_O, _("Back"), CHAR_BTN_T, _("Details"), CHAR_BTN_S, _("Refresh"), CHAR_BTN_SELECT, _("Select"));
+			snprintf(prompt, 0xFF, "%c %s  %c %s  %c %s  %c %s  %c %s", CHAR_BTN_X, _("Open"), CHAR_BTN_O, _("Back"), CHAR_BTN_T, _("Details"), CHAR_BTN_S, _("Refresh"), CHAR_BTN_SELECT, _("Select"));
 			break;
 
 		case MENU_FTP_SAVES:
 		case MENU_ONLINE_DB:
-			snprintf(prompt, 0xFF, "%c %s    %c %s    %c %s    %c %s    %c %s", CHAR_BTN_X, _("Open"), CHAR_BTN_O, _("Back"), CHAR_BTN_T, _("Details"), CHAR_BTN_S, _("Refresh"), CHAR_BTN_SELECT, _("Filter"));
+			snprintf(prompt, 0xFF, "%c %s  %c %s  %c %s  %c %s  %c %s", CHAR_BTN_X, _("Open"), CHAR_BTN_O, _("Back"), CHAR_BTN_T, _("Details"), CHAR_BTN_S, _("Refresh"), CHAR_BTN_SELECT, _("Filter"));
 			break;
 
 		case MENU_USER_BACKUP:
-			snprintf(prompt, 0xFF, "%c %s    %c %s    %c %s", CHAR_BTN_X, _("Select"), CHAR_BTN_O, _("Back"), CHAR_BTN_S, _("Refresh"));
+			snprintf(prompt, 0xFF, "%c %s  %c %s  %c %s", CHAR_BTN_X, _("Select"), CHAR_BTN_O, _("Back"), CHAR_BTN_S, _("Refresh"));
 			break;
 
 		case MENU_SETTINGS:
 		case MENU_CODE_OPTIONS:
-			snprintf(prompt, 0xFF, "%c %s    %c %s", CHAR_BTN_X, _("Select"), CHAR_BTN_O, _("Back"));
+			snprintf(prompt, 0xFF, "%c %s  %c %s", CHAR_BTN_X, _("Select"), CHAR_BTN_O, _("Back"));
 			break;
 
 		case MENU_CREDITS:
@@ -189,7 +189,7 @@ static const char* get_button_prompts(char* prompt)
 			break;
 
 		case MENU_PATCHES:
-			snprintf(prompt, 0xFF, "%c %s    %c %s    %c %s", CHAR_BTN_X, _("Select"), CHAR_BTN_T, _("View Code"), CHAR_BTN_O, _("Back"));
+			snprintf(prompt, 0xFF, "%c %s  %c %s  %c %s", CHAR_BTN_X, _("Select"), CHAR_BTN_T, _("View Code"), CHAR_BTN_O, _("Back"));
 			break;
 
 		case MENU_HEX_EDITOR:
