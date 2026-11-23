@@ -6,13 +6,29 @@ All notable changes to the `apollo-psp` project will be documented in this file.
 
 ### Added
 
+* PS1 Virtual Memory Cards: apply cheat codes to saves stored on VMC images
+  - Save patches (`.savepatch`) are loaded for PS1 saves inside the memory card
+  - Hex Editor support for PS1 saves inside the memory card
 * Footer help shows the `SELECT` button on save lists
   - `SELECT` selects saves on the USB, HDD and Virtual Memory Card lists
+* Apollo Patch Engine v3.0.0
+  - MGS Peace Walker decryption support for PSP saves.
+  - Fletcher-16 and Fletcher-32 checksums.
+  - New `[SW:]`, `[BSD:]`, `[LE:]` and `[BE:]` title prefixes, which can be combined.
+  - Save Wizard lines inside BSD scripts.
+  - Fix Several BSD byte-order bugs.
+  - Fix MicroPython `struct.pack_into` bug on 32-bit targets.
+  - Parser fixes for tabs and for unreadable `set pointer` arguments.
 
 ### Fixed
 
 * PS1 Virtual Memory Cards: saves couldn't be selected, so "Export selected Saves" exported nothing
 * Centered text with button icons, such as the footer help, was shifted to the right
+* Fixed a bug when reloading a virtual memcard after an update
+* Fixed minor PS1 memcard issues
+  - Truncated or malformed save files are rejected on import, instead of reading past the end of the file
+  - `.PSV` imports check the save signature (a bad or missing signature is logged, and the save is still imported)
+  - Exported `.PSV` files could carry garbage in the save filename field
 
 ### Misc
 
