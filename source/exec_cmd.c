@@ -861,6 +861,24 @@ static int apply_cheat_patches(const save_entry_t* entry)
 
 		if (strncmp(code->file, "~extracted\\", 11) == 0)
 			snprintf(tmpfile, sizeof(tmpfile), "%s", code->file);
+		else if (entry->flags & SAVE_FLAG_VMC)
+		{
+			// PS1 save names might have invalid characters, use a hash for the temp file
+			snprintf(tmpfile, sizeof(tmpfile), APOLLO_LOCAL_CACHE "%08X.PS1",
+				apollo_hash_fnv1((uint8_t*) entry->dir_name, strlen(entry->dir_name), 0x811C9DC5));
+
+			if (!psp_is_decrypted(decrypted_files, tmpfile))
+			{
+				LOG("Dumping PS1 save '%s' to '%s'", entry->dir_name, tmpfile);
+				if (!saveSingleSave(tmpfile, entry->blocks, PS1SAVE_RAW))
+				{
+					LOG("Error: failed to dump (%s)", entry->dir_name);
+					ret = 0;
+					continue;
+				}
+				list_append(decrypted_files, strdup(tmpfile));
+			}
+		}
 		else
 		{
 			snprintf(tmpfile, sizeof(tmpfile), "%s%s", entry->path, filename);
@@ -893,6 +911,29 @@ static int apply_cheat_patches(const save_entry_t* entry)
 
 	for (node = list_head(decrypted_files); (filename = list_get(node)); node = list_next(node))
 	{
+		if (entry->flags & SAVE_FLAG_VMC)
+		{
+			uint8_t* data;
+			size_t size;
+
+			LOG("Injecting '%s' to VMC...", filename);
+			if (read_buffer(filename, &data, &size) == SUCCESS)
+			{
+				if (!setRawSaveBytes(entry->blocks, data, size))
+				{
+					LOG("Error: failed to inject (%s)", filename);
+					ret = 0;
+				}
+				free(data);
+			}
+			else
+				ret = 0;
+
+			unlink_secure(filename);
+			free(filename);
+			continue;
+		}
+
 		LOG("Encrypting '%s'...", filename);
 		if (!get_psp_save_key(entry, key) || !psp_EncryptSavedata(entry->path, filename, key))
 		{
@@ -921,6 +962,14 @@ static void resignSave(save_entry_t* entry)
     LOG("Applying cheats to '%s'...", entry->name);
     if (!apply_cheat_patches(entry))
         show_message(_("Error! Cheat codes couldn't be applied"));
+
+    if (entry->flags & SAVE_FLAG_VMC)
+    {
+        // VMC file is written back when leaving the menu
+        entry->flags |= SAVE_FLAG_UPDATED;
+        show_message(_("Save %s successfully modified!"), entry->title_id);
+        return;
+    }
 
     LOG("Resigning save '%s'...", entry->name);
     if (!psp_ResignSavedata(entry->path))

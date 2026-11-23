@@ -283,7 +283,7 @@ msgstr "CSO 成功保存至 %s"
 msgid "Error! CSO couldn't be created"
 msgstr "错误！无法创建 CSO"
 
-#: main.c:170 main.c:174 main.c:179 main.c:189
+#: main.c:168 main.c:177 main.c:182 main.c:192
 msgid "Select"
 msgstr "选择"
 
@@ -761,3 +761,7 @@ msgstr "是否将所选存档上传到FTP？"
 #: exec_cmd.c:1189
 msgid "Saves uploaded to FTP"
 msgstr "存档已上传到FTP"
+
+#: main.c:168 main.c:173
+msgid "Open"
+msgstr "打开"

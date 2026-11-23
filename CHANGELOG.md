@@ -4,6 +4,20 @@ All notable changes to the `apollo-psp` project will be documented in this file.
 
 ## [Unreleased]()
 
+### Added
+
+* Footer help shows the `SELECT` button on save lists
+  - `SELECT` selects saves on the USB, HDD and Virtual Memory Card lists
+
+### Fixed
+
+* PS1 Virtual Memory Cards: saves couldn't be selected, so "Export selected Saves" exported nothing
+* Centered text with button icons, such as the footer help, was shifted to the right
+
+### Misc
+
+* Add missing translation string (`Open`)
+
 ---
 
 ## [v2.3.2](https://github.com/bucanero/apollo-psp/releases/tag/v2.3.2) - 2026-05-12

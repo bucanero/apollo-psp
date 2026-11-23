@@ -158,6 +158,7 @@ enum char_flag_enum
     CHAR_TRP_GOLD,
     CHAR_TRP_PLATINUM,
     CHAR_TRP_SYNC,
+    CHAR_BTN_SELECT,
 };
 
 enum code_type_enum
