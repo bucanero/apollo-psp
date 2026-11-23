@@ -3,8 +3,8 @@
 [![Downloads][img_downloads]][app_downloads] [![Release][img_latest]][app_latest] [![License][img_license]][app_license]
 [![Build app package](https://github.com/bucanero/apollo-psp/actions/workflows/build.yml/badge.svg)](https://github.com/bucanero/apollo-psp/actions/workflows/build.yml)
 ![PSP](https://img.shields.io/badge/-PSP-003791?style=flat&logo=PlayStation)
-[![Twitter](https://img.shields.io/twitter/follow/dparrino?label=Follow)](https://twitter.com/dparrino)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/bucanero/apollo-psp)
+[![Twitter](https://img.shields.io/twitter/follow/dparrino?label=Follow)](https://x.com/dparrino)
+[![Ask DeepWiki](https://img.shields.io/badge/Ask-DeepWiki-blue)](https://deepwiki.com/bucanero/apollo-psp)
 
 **Apollo Save Tool** is an application to manage save-game files on the PlayStation Portable.
 
@@ -12,7 +12,7 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
 
 ![image](./docs/screenshots/screenshot-main.png)
 
-**Comments, ideas, suggestions?** You can [contact me](https://github.com/bucanero/) on [Twitter](https://twitter.com/dparrino) and on [my website](http://www.bucanero.com.ar/).
+**Comments, ideas, suggestions?** You can [contact me](https://github.com/bucanero/) on [Twitter](https://x.com/dparrino) and on [my website](http://www.bucanero.com.ar/).
 
 # Features
 
