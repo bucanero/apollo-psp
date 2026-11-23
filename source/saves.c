@@ -365,6 +365,15 @@ static option_entry_t* _getVmcFileOptions(const char* save_name, const char* mas
 	return opt;
 }
 
+// Whether a code's ":file" target applies to this save. PS1 targets name the save itself.
+static int _vmc_code_matches(const save_entry_t* save, const char* target)
+{
+	if (!target || !target[0] || target[0] == '~')
+		return 1;
+
+	return wildcard_match_icase(save->dir_name, strrchr(target, '\\') ? strrchr(target, '\\')+1 : target);
+}
+
 static option_entry_t* get_vmc_file_entries(const char* save_name, const char* mask)
 {
 	return _getVmcFileOptions(save_name, mask, CMD_CODE_NULL);
@@ -492,6 +501,7 @@ static void read_vmc_files(const char* path, list_t* list)
 int ReadVmcCodes(save_entry_t * save)
 {
 	code_entry_t * cmd;
+	list_node_t * node;
 	char filePath[256];
 	char * buffer;
 
@@ -562,9 +572,20 @@ int ReadVmcCodes(save_entry_t * save)
 		cmd = _createCmdCode(PATCH_COMMAND, CHAR_ICON_USER " ", _("View Raw Patch File"), CMD_VIEW_RAW_PATCH);
 		list_append(save->codes, cmd);
 
+		node = list_tail(save->codes);
 		LOG("Loading BSD codes '%s'...", filePath);
 		apollo_load_code_list(buffer, save->codes, &get_vmc_file_entries, save->dir_name);
 		free(buffer);
+
+		// A patch can cover several saves of a game (e.g. a system file and the
+		// slot files): disable the codes that target a different save
+		for (node = list_next(node); (cmd = list_get(node)); node = list_next(node))
+			if (!_vmc_code_matches(save, cmd->file))
+			{
+				LOG("(%s) Disabled code '%s'", cmd->file, cmd->name);
+				cmd->flags |= (APOLLO_CODE_FLAG_ALERT | APOLLO_CODE_FLAG_DISABLED);
+				cmd->activated = 0;
+			}
 	}
 
 	LOG("Loaded %ld codes", list_count(save->codes));
@@ -1139,24 +1160,59 @@ static void _ReadOnlineListEx(const char* urlPath, uint16_t flag, list_t *list)
 	free(data);
 }
 
-list_t * ReadOnlineList(const char* urlPath)
+/*
+ * Platforms of the Online DB and FTP backup lists, in the order SELECT cycles
+ * through them. Filter 0 shows them all, filter N only online_platforms[N-1].
+ */
+static const struct {
+	uint16_t flag;
+	const char* folder;
+} online_platforms[ONLINE_FILTER_COUNT - 1] = {
+	{ SAVE_FLAG_PSP, "PSP/" },  // Zip folder
+	{ SAVE_FLAG_PS1, "PS1/" },  // Zip PSV
+};
+
+// Online DB platform filter (0 = all), not saved in settings
+int online_filter = 0;
+
+// Only the filtered platforms are downloaded
+list_t * ReadOnlineListFiltered(const char* urlPath, int filter)
 {
 	char url[256];
 	list_t *list = list_alloc();
 	uint16_t ftp = (apollo_config.ftp_url[0] && strncmp(urlPath, apollo_config.ftp_url, strlen(apollo_config.ftp_url)) == 0) ? SAVE_FLAG_FTP : 0;
 
-	// PS1 save-games (Zip PSV)
-	snprintf(url, sizeof(url), "%s" "PS1/", urlPath);
-	_ReadOnlineListEx(url, SAVE_FLAG_PS1 | ftp, list);
+	for (int i = 0; i < ONLINE_FILTER_COUNT - 1; i++)
+	{
+		if (filter > 0 && filter != i + 1)
+			continue;
 
-	// PSP save-games (Zip folder)
-	snprintf(url, sizeof(url), "%sPSP/", urlPath);
-	_ReadOnlineListEx(url, SAVE_FLAG_PSP | ftp, list);
+		snprintf(url, sizeof(url), "%s%s", urlPath, online_platforms[i].folder);
+		_ReadOnlineListEx(url, online_platforms[i].flag | ftp, list);
+	}
 
 	if (!list_count(list))
 	{
 		list_free(list);
 		return NULL;
+	}
+
+	return list;
+}
+
+list_t * ReadOnlineList(const char* urlPath)
+{
+	list_t *list;
+
+	list = ReadOnlineListFiltered(urlPath, online_filter);
+
+	// A platform with nothing to show (e.g. PS1 on an FTP backup) would lock the
+	// user out of the list, and out of SELECT to change it: show them all
+	if (!list && online_filter)
+	{
+		LOG("No saves for filter %d, showing all platforms", online_filter);
+		online_filter = 0;
+		list = ReadOnlineListFiltered(urlPath, 0);
 	}
 
 	return list;

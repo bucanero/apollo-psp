@@ -36,6 +36,8 @@ This homebrew app allows you to download, unlock, patch, and resign save-game fi
   - Supported VMC formats: `.VMP`, `.MCR`, `.VM1`, `.BIN`, `.VMC`, `.GME`, `.VGS`, `.SRM`, `.MCD`
 * **Import saves to VMC:** enables importing saves (`.MCS`, `.PSV`, `.PSX`, `.PS1`, `.MCB`, `.PDA` formats) to VMCs from other tools and consoles.
 * **Export VMC saves:** allows the user to export saves on VMC images to `.MCS`/`.PSV`/`.PSX` formats.
+* **VMC saves patching:** apply Save Wizard and Bruteforce Save Data cheat patches to PS1 saves stored on VMC images.
+* **VMC saves hex editing:** edit the data of PS1 saves stored on VMC images with the built-in Hex Editor.
 * **Delete VMC saves:** remove any PS1 save file stored on VMC images.
 
 # Download

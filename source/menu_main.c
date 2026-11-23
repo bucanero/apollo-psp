@@ -58,6 +58,16 @@ void initMenuOptions(void)
 	}
 }
 
+static void sortUserSaves(save_list_t* save_list)
+{
+	if (apollo_config.doSort == SORT_BY_NAME)
+		list_bubbleSort(save_list->list, &sortSaveList_Compare);
+	else if (apollo_config.doSort == SORT_BY_TITLE_ID)
+		list_bubbleSort(save_list->list, &sortSaveList_Compare_TitleID);
+	else if (apollo_config.doSort == SORT_BY_TYPE)
+		list_bubbleSort(save_list->list, &sortSaveList_Compare_Type);
+}
+
 static int ReloadUserSaves(save_list_t* save_list)
 {
     init_loading_screen("Loading saves...");
@@ -72,12 +82,7 @@ static int ReloadUserSaves(save_list_t* save_list)
 		save_list->UpdatePath(save_list->path);
 
 	save_list->list = save_list->ReadList(save_list->path);
-	if (apollo_config.doSort == SORT_BY_NAME)
-		list_bubbleSort(save_list->list, &sortSaveList_Compare);
-	else if (apollo_config.doSort == SORT_BY_TITLE_ID)
-		list_bubbleSort(save_list->list, &sortSaveList_Compare_TitleID);
-	else if (apollo_config.doSort == SORT_BY_TYPE)
-		list_bubbleSort(save_list->list, &sortSaveList_Compare_Type);
+	sortUserSaves(save_list);
 
     stop_loading_screen();
 
@@ -167,26 +172,40 @@ static void SetMenu(int id)
 			break;
 
 		case MENU_PATCHES: //Cheat Selection Menu
-			if (selected_entry->flags & SAVE_FLAG_UPDATED)
+			// The patch menu's own screens (code options, hex editor, details)
+			// come back to it: keep the flag until we leave to the save list
+			if (selected_entry->flags & SAVE_FLAG_UPDATED &&
+				id != MENU_PATCH_VIEW && id != MENU_CODE_OPTIONS && id != MENU_SAVE_DETAILS && id != MENU_HEX_EDITOR)
 			{
-				// Clear the flag first: reloading the list below frees every
-				// entry, selected_entry included, and writing to it afterwards
-				// corrupts whatever the new list allocated in its place.
-				selected_entry->flags ^= SAVE_FLAG_UPDATED;
-
+				// Clear the flag before reloading: reloading the list frees
+				// every entry, selected_entry included, and writing to it
+				// afterwards corrupts whatever the new list allocated in its place.
+				// A card that fails to save keeps the flag, and its changes in
+				// memory, so leaving the save again retries.
 				switch (id)
 				{
 				case MENU_VMC_SAVES:
-					saveMemoryCard(vmc_saves.path, 0, 0);
+					if (!saveMemoryCard(vmc_saves.path, 0, 0))
+					{
+						show_message("%s\n%s", _("Error! Couldn't save changes to:"), vmc_saves.path);
+						break;
+					}
+					selected_entry->flags ^= SAVE_FLAG_UPDATED;
 					ReloadUserSaves(&vmc_saves);
 					break;
 				
 				case MENU_USB_SAVES:
+					selected_entry->flags ^= SAVE_FLAG_UPDATED;
 					ReloadUserSaves(&usb_saves);
 					break;
 
 				case MENU_HDD_SAVES:
+					selected_entry->flags ^= SAVE_FLAG_UPDATED;
 					ReloadUserSaves(&hdd_saves);
+					break;
+
+				default:
+					selected_entry->flags ^= SAVE_FLAG_UPDATED;
 					break;
 				}
 			}
@@ -432,6 +451,34 @@ static int updatePadSelection(int total)
 	return 1;
 }
 
+/*
+ * SELECT on the Online DB (or FTP backup) list: show the next platform, in
+ * the order all -> PSP -> PS1 -> all. Platforms with nothing to show are
+ * skipped, and if nothing loads at all the current list stays.
+ */
+static void cycleOnlineFilter(save_list_t* save_list)
+{
+	list_t* list = NULL;
+	int filter = online_filter;
+
+	init_loading_screen("Loading saves...");
+	for (int i = 0; i < ONLINE_FILTER_COUNT && !list; i++)
+	{
+		filter = (filter + 1) % ONLINE_FILTER_COUNT;
+		list = ReadOnlineListFiltered(save_list->path, filter);
+	}
+	stop_loading_screen();
+
+	if (!list)
+		return;
+
+	UnloadGameList(save_list->list);
+	save_list->list = list;
+	sortUserSaves(save_list);
+	menu_sel = 0;
+	online_filter = filter;
+}
+
 static void doSaveMenu(save_list_t * save_list)
 {
 	if (updatePadSelection(list_count(save_list->list)))
@@ -475,6 +522,12 @@ static void doSaveMenu(save_list_t * save_list)
 			SetMenu(MENU_SAVE_DETAILS);
 			return;
 		}
+	}
+	// Check the list first: reading a press clears it, so the SELECT branch
+	// below would never see it
+	else if ((save_list->id == MENU_ONLINE_DB || save_list->id == MENU_FTP_SAVES) && pspPadGetButtonPressed(PSP_CTRL_SELECT))
+	{
+		cycleOnlineFilter(save_list);
 	}
 	else if (pspPadGetButtonPressed(PSP_CTRL_SELECT) &&
 		(save_list->id == MENU_HDD_SAVES || save_list->id == MENU_USB_SAVES || save_list->id == MENU_VMC_SAVES))
@@ -792,8 +845,12 @@ static void doCodeOptionsMenu(void)
 
 				memset(&hex_data, 0, sizeof(hex_data));
 				snprintf(hex_data.filepath, sizeof(hex_data.filepath), APOLLO_USER_PATH "%s/%s", USER_STORAGE_DEV, selected_entry->dir_name, optval->name);
-				if (read_buffer(hex_data.filepath, &hex_data.data, &hex_data.size) < 0)
+				// The editor needs at least one byte to put its cursor on
+				if (read_buffer(hex_data.filepath, &hex_data.data, &hex_data.size) < 0 || !hex_data.size)
 				{
+					if (hex_data.data && !hex_data.size)
+						free(hex_data.data);
+
 					show_message("%s\n%s", _("Failed to load:"), hex_data.filepath);
 					SetMenu(last_menu_id[MENU_CODE_OPTIONS]);
 					return;
@@ -850,7 +907,7 @@ static void doPatchMenu(void)
 	{
 		selected_centry = list_get_item(selected_entry->codes, menu_sel);
 
-		if (selected_centry->type != PATCH_NULL)
+		if (selected_centry->type != PATCH_NULL && !(selected_centry->flags & APOLLO_CODE_FLAG_DISABLED))
 			selected_centry->activated = !selected_centry->activated;
 
 		if (selected_centry->type == PATCH_COMMAND)

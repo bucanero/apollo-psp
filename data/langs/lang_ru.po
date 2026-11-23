@@ -946,3 +946,15 @@ msgstr "Сохранения загружены на FTP"
 #: main.c:168 main.c:173
 msgid "Open"
 msgstr "Открыть"
+
+#: saves.c:526
+msgid "Apply Changes"
+msgstr "Применить изменения"
+
+#: main.c:173
+msgid "Filter"
+msgstr "Фильтр"
+
+#: menu_main.c:190
+msgid "Error! Couldn't save changes to:"
+msgstr "Ошибка! Не удалось сохранить изменения в:"

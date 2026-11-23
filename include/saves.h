@@ -28,6 +28,7 @@
 #define ONLINE_URL              "https://bucanero.github.io/apollo-saves/"
 #define ONLINE_PATCH_URL        "https://bucanero.github.io/apollo-patches/PSP/"
 #define ONLINE_CACHE_TIMEOUT    24*3600     // 1-day local cache
+#define ONLINE_FILTER_COUNT     3           // Online DB filters: all, PSP, PS1
 
 enum storage_enum
 {
@@ -197,6 +198,8 @@ typedef struct
 list_t * ReadUsbList(const char* userPath);
 list_t * ReadUserList(const char* userPath);
 list_t * ReadOnlineList(const char* urlPath);
+list_t * ReadOnlineListFiltered(const char* urlPath, int filter);
+extern int online_filter;
 list_t * ReadBackupList(const char* userPath);
 list_t * ReadVmcList(const char* userPath);
 void UnloadGameList(list_t * list);
