@@ -9,8 +9,10 @@ All notable changes to the `apollo-psp` project will be documented in this file.
 * PS1 Virtual Memory Cards: apply cheat codes to saves stored on VMC images
   - Save patches (`.savepatch`) are loaded for PS1 saves inside the memory card
   - Hex Editor support for PS1 saves inside the memory card
+  - Codes that target a different save of the same game are disabled
+* Online Database and FTP backups: press `SELECT` to filter the list by platform (All, PSP, PS1).
 * Footer help shows the `SELECT` button on save lists
-  - `SELECT` selects saves on the USB, HDD and Virtual Memory Card lists
+  - `SELECT` selects saves on the USB, HDD and Virtual Memory Card lists, and filters the Online Database
 * Apollo Patch Engine v3.0.0
   - MGS Peace Walker decryption support for PSP saves.
   - Fletcher-16 and Fletcher-32 checksums.
@@ -25,6 +27,9 @@ All notable changes to the `apollo-psp` project will be documented in this file.
 * PS1 Virtual Memory Cards: saves couldn't be selected, so "Export selected Saves" exported nothing
 * Centered text with button icons, such as the footer help, was shifted to the right
 * Fixed a bug when reloading a virtual memcard after an update
+* Virtual Memory Cards: an error is shown if the memory card can't be saved, and the changes are kept so leaving the save again retries
+* Disabled cheat codes could still be toggled on
+* Hex Editor: opening an empty file is refused, instead of showing an editor with nothing to edit
 * Fixed minor PS1 memcard issues
   - Truncated or malformed save files are rejected on import, instead of reading past the end of the file
   - `.PSV` imports check the save signature (a bad or missing signature is logged, and the save is still imported)
@@ -32,7 +37,7 @@ All notable changes to the `apollo-psp` project will be documented in this file.
 
 ### Misc
 
-* Add missing translation string (`Open`)
+* Add missing translation strings (`Open`, `Filter`, `Apply Changes`)
 
 ---
 

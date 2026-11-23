@@ -765,3 +765,15 @@ msgstr "Salvataggi caricati su FTP"
 #: main.c:168 main.c:173
 msgid "Open"
 msgstr "Apri"
+
+#: saves.c:526
+msgid "Apply Changes"
+msgstr "Applica Modifiche"
+
+#: main.c:173
+msgid "Filter"
+msgstr "Filtra"
+
+#: menu_main.c:190
+msgid "Error! Couldn't save changes to:"
+msgstr "Errore! Impossibile salvare le modifiche in:"

@@ -765,3 +765,15 @@ msgstr "存檔已上傳到FTP"
 #: main.c:168 main.c:173
 msgid "Open"
 msgstr "開啟"
+
+#: saves.c:526
+msgid "Apply Changes"
+msgstr "套用修改"
+
+#: main.c:173
+msgid "Filter"
+msgstr "篩選"
+
+#: menu_main.c:190
+msgid "Error! Couldn't save changes to:"
+msgstr "錯誤！無法儲存修改至："

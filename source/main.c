@@ -170,7 +170,7 @@ static const char* get_button_prompts(char* prompt)
 
 		case MENU_FTP_SAVES:
 		case MENU_ONLINE_DB:
-			snprintf(prompt, 0xFF, "\x10 %s    \x13 %s    \x12 %s    \x11 %s", _("Open"), _("Back"), _("Details"), _("Refresh"));
+			snprintf(prompt, 0xFF, "\x10 %s    \x13 %s    \x12 %s    \x11 %s    %c %s", _("Open"), _("Back"), _("Details"), _("Refresh"), CHAR_BTN_SELECT, _("Filter"));
 			break;
 
 		case MENU_USER_BACKUP:

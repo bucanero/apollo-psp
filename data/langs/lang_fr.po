@@ -946,3 +946,15 @@ msgstr "Sauvegardes envoyées vers FTP"
 #: main.c:168 main.c:173
 msgid "Open"
 msgstr "Ouvrir"
+
+#: saves.c:526
+msgid "Apply Changes"
+msgstr "Appliquer les Modifications"
+
+#: main.c:173
+msgid "Filter"
+msgstr "Filtrer"
+
+#: menu_main.c:190
+msgid "Error! Couldn't save changes to:"
+msgstr "Erreur ! Impossible d'enregistrer les modifications dans :"

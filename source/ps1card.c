@@ -982,8 +982,8 @@ int saveMemoryCard(const char* fileName, int memoryCardType, int fixData)
 {
     FILE* binWriter = NULL;
 
-    if (!changedFlag && !memoryCardType)
-        return false;
+    if (!changedFlag && !memoryCardType && !fixData)
+        return true;
 
     binWriter = fopen(fileName, "wb");
     //Check if the file is allowed to be opened for writing

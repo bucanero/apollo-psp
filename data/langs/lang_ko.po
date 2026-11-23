@@ -946,3 +946,15 @@ msgstr "저장 파일이 FTP에 업로드됨"
 #: main.c:168 main.c:173
 msgid "Open"
 msgstr "열기"
+
+#: saves.c:526
+msgid "Apply Changes"
+msgstr "변경 사항 적용"
+
+#: main.c:173
+msgid "Filter"
+msgstr "필터"
+
+#: menu_main.c:190
+msgid "Error! Couldn't save changes to:"
+msgstr "오류! 변경 사항을 저장할 수 없습니다:"

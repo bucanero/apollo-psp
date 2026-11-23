@@ -765,3 +765,15 @@ msgstr "セーブをFTPにアップロードしました"
 #: main.c:168 main.c:173
 msgid "Open"
 msgstr "開く"
+
+#: saves.c:526
+msgid "Apply Changes"
+msgstr "変更を適用"
+
+#: main.c:173
+msgid "Filter"
+msgstr "フィルター"
+
+#: menu_main.c:190
+msgid "Error! Couldn't save changes to:"
+msgstr "エラー!変更を保存できませんでした:"

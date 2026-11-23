@@ -765,3 +765,15 @@ msgstr "Partidas subidas al FTP"
 #: main.c:168 main.c:173
 msgid "Open"
 msgstr "Abrir"
+
+#: saves.c:526
+msgid "Apply Changes"
+msgstr "Aplicar Cambios"
+
+#: main.c:173
+msgid "Filter"
+msgstr "Filtrar"
+
+#: menu_main.c:190
+msgid "Error! Couldn't save changes to:"
+msgstr "¡Error! No se pudieron guardar los cambios en:"

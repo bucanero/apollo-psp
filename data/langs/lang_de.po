@@ -946,3 +946,15 @@ msgstr "Spielstände auf FTP hochgeladen"
 #: main.c:168 main.c:173
 msgid "Open"
 msgstr "Öffnen"
+
+#: saves.c:526
+msgid "Apply Changes"
+msgstr "Änderungen übernehmen"
+
+#: main.c:173
+msgid "Filter"
+msgstr "Filtern"
+
+#: menu_main.c:190
+msgid "Error! Couldn't save changes to:"
+msgstr "Fehler! Änderungen konnten nicht gespeichert werden in:"

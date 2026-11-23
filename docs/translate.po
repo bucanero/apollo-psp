@@ -765,3 +765,15 @@ msgstr ""
 #: main.c:168 main.c:173
 msgid "Open"
 msgstr ""
+
+#: saves.c:526
+msgid "Apply Changes"
+msgstr ""
+
+#: main.c:173
+msgid "Filter"
+msgstr ""
+
+#: menu_main.c:190
+msgid "Error! Couldn't save changes to:"
+msgstr ""
