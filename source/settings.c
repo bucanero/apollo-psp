@@ -216,7 +216,16 @@ end_update:
 
 static void storage_callback(int sel)
 {
+	extern save_list_t usb_saves;
+
 	apollo_config.storage = sel;
+
+	// External Saves keeps its list: drop it, so the new source is read next time
+	if (usb_saves.list)
+	{
+		UnloadGameList(usb_saves.list);
+		usb_saves.list = NULL;
+	}
 }
 
 static void log_callback(int sel)
